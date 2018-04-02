@@ -3,19 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package inova.of.things;
+package br.com.inova.of.things.interfaces;
+
+import br.com.inova.of.things.model.Observer;
 
 /**
  *
  * @author luciano
  */
-public class InovaOfThings {
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        // TODO code application logic here
-    }
-    
+public interface ISubject {
+    public void attach(Observer observer);
+    public void detach(Observer observer);
 }
