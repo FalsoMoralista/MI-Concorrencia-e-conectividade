@@ -15,7 +15,9 @@ public class WaterFlowMeasurer extends Observer{
     
     private String id;
     private String associated;
-
+    
+    private static int READING_TIME = 10; 
+    
     private double waterFlow;
     private boolean updated;
 
@@ -27,8 +29,9 @@ public class WaterFlowMeasurer extends Observer{
         this.id = id;
     }
     
-    public WaterFlowMeasurer(String id){
+    public WaterFlowMeasurer(String id, String associated){
         this.id = id;
+        this.associated = associated;
     }
     
     private String readFlow(){
@@ -43,5 +46,11 @@ public class WaterFlowMeasurer extends Observer{
     public void setAssociated(String associated) {
         this.associated = associated;
     }
+
+    @Override
+    public String toString() {
+        return "WaterFlowMeasurer{" + "id=" + id + ", associated=" + associated + '}';
+    }
+    
     
 }
