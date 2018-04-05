@@ -5,70 +5,49 @@
  */
 package br.com.inova.of.things.model;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  *
  * @author luciano
  */
-public class Client implements Runnable {
+public class Client extends ClientServer{
 
-    private Socket socket;
+    String address;
+    String zip;
+    String region;
 
-    public Client() {
+    public Client(String address, String zip, String region) {
+        this.address = address;
+        this.zip = zip;
+        this.region = region;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getZip() {
+        return zip;
+    }
+
+    public void setZip(String zip) {
+        this.zip = zip;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
     }
 
     @Override
-    public void run() {
-        try {
-            String host = "localhost";
-            int port = 25000;
-
-            InetAddress address = InetAddress.getByName("");
-            socket = new Socket("192.168.1.16", port);
-
-            // sent a message to the server
-            OutputStream os = socket.getOutputStream();
-            OutputStreamWriter osw = new OutputStreamWriter(os);
-            BufferedWriter bw = new BufferedWriter(osw);
-
-            String message = "Hello World!\n";
-            bw.write(message);
-            bw.flush();
-            
-            System.out.println("Message sent to server -> "+ message);
-            // get the return message
-            InputStream is = socket.getInputStream();
-            InputStreamReader isr = new InputStreamReader(is);
-            BufferedReader br = new BufferedReader(isr);
-            message = br.readLine();
-            System.out.println("Message received from the server : " + message);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }finally{
-            try {
-                socket.close();
-            } catch (IOException ex) {
-                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+    public String toString() {
+        return "Client{" + "address=" + address + ", zip=" + zip + ", region=" + region + '}';
     }
     
-    public static void main(String[] args){
-        Client c = new Client();
-        c.run();         
-    }
 }

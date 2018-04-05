@@ -5,10 +5,17 @@
  */
 package br.com.inova.of.things.model;
 
+import br.com.inova.of.things.interfaces.IObserver;
+
 /**
  *
  * @author luciano
  */
-public class Observer {
+public class Observer implements IObserver{
+
+    @Override
+    public void Update() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
     
 }

@@ -22,17 +22,16 @@ import java.util.logging.Logger;
  *
  * @author luciano
  */
-public class Server implements Runnable{
-    
+public class Server extends Subject implements Runnable {
+
     private Socket socket;
     private ServerSocket serverSocket;
     private static final int PORT = 25000;
     private Thread thread;
-    
-    public Server(){
-        try {        
-            
-            InetAddress address = InetAddress.getByName("myserver");
+
+    public Server() {
+        try {
+            InetAddress address = InetAddress.getByName("localhost");
             serverSocket = new ServerSocket(PORT);
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
@@ -40,41 +39,57 @@ public class Server implements Runnable{
         thread = new Thread(this);
         thread.start();
     }
-    
-    public Socket getSocket(){
+
+    public Socket getSocket() {
         return this.socket;
     }
 
     @Override
     public void run() {
         try {
-            System.out.println("Server started listening to the port "+PORT);
-            while(true){
+            System.out.println("Server started listening to the port " + PORT);
+            while (true) {
                 socket = serverSocket.accept();
                 InputStream is = socket.getInputStream();
                 InputStreamReader isr = new InputStreamReader(is);
                 BufferedReader br = new BufferedReader(isr);
                 String message = br.readLine();
-                System.out.println("Client's message: "+message);
+                System.out.println("Client's message: " + message);
                 // send message to client
                 OutputStream os = socket.getOutputStream();
                 OutputStreamWriter osw = new OutputStreamWriter(os);
                 BufferedWriter bw = new BufferedWriter(osw);
-                bw.write("message received -> "+message);
+                bw.write("message received -> " + message);
                 bw.flush();
+                is.close();
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }finally{
-            try {                   
+        } finally {
+            try {
                 socket.close();
             } catch (IOException ex) {
                 Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-    }           
+    }
     
-    public static void main(String[] args){
+    @Override
+    public void attach(Observer observer) {
+        super.attach(observer); //To change body of generated methods, choose Tools | Templates.
+    }
+   
+    @Override
+    public void detach(Observer observer) {
+        super.detach(observer); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override
+    public Observer getObserver(String key){
+        return super.getObserver(key);
+    }
+        
+    public static void main(String[] args) {
         Server myServer = new Server();
     }
 }

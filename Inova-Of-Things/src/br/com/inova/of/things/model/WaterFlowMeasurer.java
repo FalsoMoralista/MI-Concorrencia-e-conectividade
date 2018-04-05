@@ -11,13 +11,37 @@ import br.com.inova.of.things.interfaces.IObserver;
  *
  * @author luciano
  */
-public class WaterFlowMeasurer implements IObserver{
+public class WaterFlowMeasurer extends Observer{
     
+    private String id;
+    private String associated;
+
     private double waterFlow;
     private boolean updated;
 
-    @Override
-    public void Update() {        
+    public String getId() {
+        return id;
     }
-        
+
+    public void setId(String id) {
+        this.id = id;
+    }
+    
+    public WaterFlowMeasurer(String id){
+        this.id = id;
+    }
+    
+    private String readFlow(){
+        return "";
+    }
+
+
+    public String getAssociated() {
+        return associated;
+    }
+
+    public void setAssociated(String associated) {
+        this.associated = associated;
+    }
+    
 }
