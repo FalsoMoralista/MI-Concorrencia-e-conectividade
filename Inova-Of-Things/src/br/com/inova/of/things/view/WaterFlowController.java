@@ -5,6 +5,12 @@
  */
 package br.com.inova.of.things.view;
 
+import br.com.inova.of.things.model.Gap;
+import br.com.inova.of.things.model.WaterFlowMeasurer;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -30,16 +36,25 @@ public class WaterFlowController extends Application {
 
     private Text flow = new Text("Water flow: ");
     private Text status = new Text();
-    private double waterFlow = 0;
+
+    private volatile static double waterFlow = 0;
+
     private Boolean flowing = false;
+    private Thread task;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+
         GridPane grid = new GridPane();
         this.setUp(primaryStage, grid);
+
+        List<Gap<Integer, Double>> measures = new LinkedList();
+
         status.setText(" Currently stopped");
         status.setFill(Color.FIREBRICK);
+        long[] read = {0};
         start.setOnAction(e -> {
+            read[0] = System.currentTimeMillis();
             waterFlow = 0;
             flowing = true;
             status.setText(" Flowing");
@@ -47,24 +62,45 @@ public class WaterFlowController extends Application {
             flow.setText("Water flow: " + waterFlow);
             start.setVisible(false);
             stop.setVisible(true);
+//            task = new Thread(this.startConsume());
+//            task.start();
         });
+
         stop.setOnAction(e -> {
-            waterFlow = 0;
+
             flowing = false;
+            waterFlow = 0;
+
             status.setText(" Currently stopped");
             status.setFill(Color.FIREBRICK);
+
             flow.setText("Water flow:");
+
             start.setVisible(true);
             stop.setVisible(false);
+
+            double[] sum = {0};
+            for(Gap<Integer,Double> g : measures){
+                sum[0] += g.getMeasure()*g.getTime();
+            }
+            System.out.println(sum[0]);
         });
+
         more.setOnAction(e -> {
             if (flowing) {
+                long actual = System.currentTimeMillis();
+                measures.add(new Gap(String.format("%.2f",(read[0]-actual)/1000),waterFlow));
+                read[0] = actual;
                 waterFlow += 0.5;
                 flow.setText("Water flow: " + waterFlow);
             }
         });
+
         less.setOnAction(e -> {
             if (flowing) {
+                long actual = System.currentTimeMillis();
+                measures.add(new Gap(String.format("%.2f",(read[0]-actual)/1000),waterFlow));
+                read[0] = actual;
                 waterFlow -= 0.5;
                 flow.setText("Water flow: " + waterFlow);
             }
@@ -83,6 +119,7 @@ public class WaterFlowController extends Application {
 
     private void setUp(Stage primaryStage, GridPane grid) {
         primaryStage.setTitle("Water flow controller");
+        primaryStage.setResizable(false);
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(0);
         grid.setVgap(15);
@@ -90,6 +127,27 @@ public class WaterFlowController extends Application {
         Scene scene = new Scene(grid, 350, 225);
         grid.setPadding(new Insets(20, 20, 20, 20));
         primaryStage.setScene(scene);
+    }
+
+//    private Runnable startConsume() {
+//        int[] iarr = {0};
+//        double[] val = {0};
+//        List<Gap<Long, Double>> measures = new LinkedList();
+//        Runnable task = () -> {
+//            while (flowing) {
+//                if (iarr[0] % 1000000000 == 1) {
+//                    val[0] += waterFlow;
+//                    System.out.println(val[0]);
+//                }
+//                iarr[0]++;
+//            }
+//            System.out.println("Consumed = " + val[0]);
+//        };
+//        return task;
+//    }
+//
+    public void bind(WaterFlowMeasurer measurer) {
+
     }
 
     public static void main(String[] args) {

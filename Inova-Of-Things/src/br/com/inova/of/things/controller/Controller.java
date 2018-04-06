@@ -55,7 +55,7 @@ public class Controller {
     
     public static void main(String[] args) throws ClientAlreadyRegisteredException{
         Controller c = new Controller();
-        Client client = new Client("rua augusta 47","sul");
+        Client client = new Client("rua augusta 38","sul");
         c.registerNewClient(client);
         System.out.println(c.getClient(client.toString()));
         System.out.println(c.server.getObserver(client.toString()));

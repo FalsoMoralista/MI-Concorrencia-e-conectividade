@@ -45,7 +45,7 @@ public class WaterFlowMeasurer extends Observer{
         
     @Override
     public String toString() {
-        return "WaterFlowMeasurer{" + "id=" + id + '}';
+        return id;
     }
     
     

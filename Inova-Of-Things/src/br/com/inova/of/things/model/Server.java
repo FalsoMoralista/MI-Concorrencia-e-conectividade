@@ -31,6 +31,7 @@ public class Server extends Subject implements Runnable {
     private Thread thread;
 
     public Server() {
+        super();
         try {
             InetAddress address = InetAddress.getByName("localhost");
             serverSocket = new ServerSocket(PORT);
@@ -77,12 +78,13 @@ public class Server extends Subject implements Runnable {
 
     @Override
     public void attach(Observer observer) {
+        System.out.println("attaching -> "+observer.toString());
         super.attach(observer); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void detach(Observer observer) {
-        System.out.println("detaching -> observer");
+        System.out.println("detaching -> "+observer.toString());
         super.detach(observer); //To change body of generated methods, choose Tools | Templates.
     }
 

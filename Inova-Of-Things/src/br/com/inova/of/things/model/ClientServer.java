@@ -28,17 +28,17 @@ public class ClientServer implements Runnable {
 
     private Socket socket;
 
-    public ClientServer(){
+    public ClientServer() {
     }
-    
+
     @Override
     public void run() {
         try {
             String host = "localhost";
-            int port = 25000;
+            int port = 8000;
 
-            InetAddress address = InetAddress.getByName("");
-            socket = new Socket("192.168.1.16", port);
+            InetAddress address = InetAddress.getByName(host);
+            socket = new Socket(address, port);
 
             // sent a message to the server
             OutputStream os = socket.getOutputStream();
@@ -68,5 +68,7 @@ public class ClientServer implements Runnable {
     }
 
     public static void main(String[] args) {
+        ClientServer c = new ClientServer();
+        c.run();
     }
 }

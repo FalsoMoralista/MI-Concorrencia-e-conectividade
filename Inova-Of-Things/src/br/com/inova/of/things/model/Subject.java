@@ -14,7 +14,7 @@ import java.util.HashMap;
  */
 public class Subject implements ISubject {
 
-    private HashMap<Object, Observer> observers;
+    private HashMap<String, Observer> observers;
 
     public Subject() {
         observers = new HashMap<>();
