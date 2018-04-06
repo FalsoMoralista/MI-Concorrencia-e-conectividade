@@ -11,14 +11,12 @@ package br.com.inova.of.things.model;
  */
 public class Client extends ClientServer{
 
-    String address;
-    String zip;
-    String region;
+    private String address;
+    private String zone;
 
-    public Client(String address, String zip, String region) {
+    public Client(String address, String zone) {
         this.address = address;
-        this.zip = zip;
-        this.region = region;
+        this.zone = zone;
     }
 
     public String getAddress() {
@@ -29,25 +27,17 @@ public class Client extends ClientServer{
         this.address = address;
     }
 
-    public String getZip() {
-        return zip;
+    public String getZone() {
+        return zone;
     }
 
-    public void setZip(String zip) {
-        this.zip = zip;
-    }
-
-    public String getRegion() {
-        return region;
-    }
-
-    public void setRegion(String region) {
-        this.region = region;
+    public void setZone(String zone) {
+        this.zone = zone;
     }
 
     @Override
     public String toString() {
-        return "Client{" + "address=" + address + ", zip=" + zip + ", region=" + region + '}';
+        return "Client{" + "address=" + address + ", zone=" + zone + '}';
     }
     
 }

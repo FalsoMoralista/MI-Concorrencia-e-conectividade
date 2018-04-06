@@ -21,32 +21,43 @@ public class Controller {
 
     private Server server;
     private HashMap<String, Client> clients;
-    private static int IDS;
 
+    public Controller() {
+       this.server = new Server();
+       this.clients = new HashMap<>();
+    }
+        
     public void registerNewClient(Client c) throws ClientAlreadyRegisteredException {
         try {
-            Client retrieved = clients.get(c);
+            Client retrieved = clients.get(c.toString());
             retrieved.toString();
             throw new ClientAlreadyRegisteredException();
         }catch(NullPointerException ex){
             clients.put(c.toString(), c);
-            server.attach(new WaterFlowMeasurer(Integer.toString(IDS++),c.toString()));
+            server.attach(new WaterFlowMeasurer(c.toString()));
         }
     }
     
     public void removeClient(Client c) throws ClientAlreadyRemovedException{
         try {
-            Client retrieved = clients.get(c);
+            Client retrieved = clients.get(c.toString());
             retrieved.toString();
             throw new ClientAlreadyRemovedException();
         }catch(NullPointerException ex){
+            server.detach(server.getObserver(c.toString()));
             clients.remove(c.toString(), c);
-            // todo verificar se o codigo abaixo para remover um observador funciona..
-            Observer obs;
-            for(int i = 0; i < IDS; i++){
-                obs = server.getObserver("WaterFlowMeasurer{" + "id=" + i + ", associated=" + c.toString() + '}');
-                server.detach(obs); 
-            }
         }
+    }
+    
+    public Client getClient(String key){
+        return clients.get(key);
+    }
+    
+    public static void main(String[] args) throws ClientAlreadyRegisteredException{
+        Controller c = new Controller();
+        Client client = new Client("rua augusta 47","sul");
+        c.registerNewClient(client);
+        System.out.println(c.getClient(client.toString()));
+        System.out.println(c.server.getObserver(client.toString()));
     }
 }

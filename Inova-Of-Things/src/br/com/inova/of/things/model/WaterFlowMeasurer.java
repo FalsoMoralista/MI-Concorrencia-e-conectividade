@@ -14,12 +14,8 @@ import br.com.inova.of.things.interfaces.IObserver;
 public class WaterFlowMeasurer extends Observer{
     
     private String id;
-    private String associated;
-    
-    private static int READING_TIME = 10; 
-    
-    private double waterFlow;
-    private boolean updated;
+        
+    private double waterConsume;
 
     public String getId() {
         return id;
@@ -29,27 +25,27 @@ public class WaterFlowMeasurer extends Observer{
         this.id = id;
     }
     
-    public WaterFlowMeasurer(String id, String associated){
+    public WaterFlowMeasurer(String id){
         this.id = id;
-        this.associated = associated;
     }
     
-    private String readFlow(){
-        return "";
+    public double getWaterConsume() {
+        return waterConsume;
     }
 
-
-    public String getAssociated() {
-        return associated;
+    public void setWaterConsume(double waterConsume) {
+        this.waterConsume = waterConsume;
     }
-
-    public void setAssociated(String associated) {
-        this.associated = associated;
-    }
+    
 
     @Override
+    public void Update() {
+        System.out.println("updating ...");
+    }
+        
+    @Override
     public String toString() {
-        return "WaterFlowMeasurer{" + "id=" + id + ", associated=" + associated + '}';
+        return "WaterFlowMeasurer{" + "id=" + id + '}';
     }
     
     

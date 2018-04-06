@@ -15,6 +15,7 @@ import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,7 +27,7 @@ public class Server extends Subject implements Runnable {
 
     private Socket socket;
     private ServerSocket serverSocket;
-    private static final int PORT = 25000;
+    private static final int PORT = 8000;
     private Thread thread;
 
     public Server() {
@@ -73,23 +74,20 @@ public class Server extends Subject implements Runnable {
             }
         }
     }
-    
+
     @Override
     public void attach(Observer observer) {
         super.attach(observer); //To change body of generated methods, choose Tools | Templates.
     }
-   
+
     @Override
     public void detach(Observer observer) {
+        System.out.println("detaching -> observer");
         super.detach(observer); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     @Override
-    public Observer getObserver(String key){
+    public Observer getObserver(String key) {
         return super.getObserver(key);
-    }
-        
-    public static void main(String[] args) {
-        Server myServer = new Server();
     }
 }
