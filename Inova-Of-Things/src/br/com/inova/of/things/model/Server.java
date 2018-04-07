@@ -42,14 +42,10 @@ public class Server extends Subject implements Runnable {
         thread.start();
     }
 
-    public Socket getSocket() {
-        return this.socket;
-    }
-
     @Override
     public void run() {
         try {
-            System.out.println("Server started listening to the port " + PORT);
+            System.out.println("Server.started listening to the port -> " + PORT+"...");
             while (true) {
                 socket = serverSocket.accept();
                 InputStream is = socket.getInputStream();
@@ -78,13 +74,13 @@ public class Server extends Subject implements Runnable {
 
     @Override
     public void attach(Observer observer) {
-        System.out.println("attaching -> "+observer.toString());
+        System.out.println("Server.attaching -> "+observer.toString());
         super.attach(observer); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void detach(Observer observer) {
-        System.out.println("detaching -> "+observer.toString());
+        System.out.println("Server.detaching -> "+observer.toString());
         super.detach(observer); //To change body of generated methods, choose Tools | Templates.
     }
 

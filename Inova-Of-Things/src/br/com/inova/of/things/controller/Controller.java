@@ -7,6 +7,7 @@ package br.com.inova.of.things.controller;
 
 import br.com.inova.of.things.exceptions.ClientAlreadyRegisteredException;
 import br.com.inova.of.things.exceptions.ClientAlreadyRemovedException;
+import br.com.inova.of.things.exceptions.ClientNotFoundException;
 import br.com.inova.of.things.model.Client;
 import br.com.inova.of.things.model.Observer;
 import br.com.inova.of.things.model.Server;
@@ -42,22 +43,27 @@ public class Controller {
         try {
             Client retrieved = clients.get(c.toString());
             retrieved.toString();
-            throw new ClientAlreadyRemovedException();
-        }catch(NullPointerException ex){
             server.detach(server.getObserver(c.toString()));
             clients.remove(c.toString(), c);
+        }catch(NullPointerException ex){
+            throw new ClientAlreadyRemovedException();
         }
     }
     
-    public Client getClient(String key){
-        return clients.get(key);
+    public Client getClient(String key) throws ClientNotFoundException{
+        try{
+            Client retrieved = this.clients.get(key);
+            retrieved.toString();
+            return retrieved;
+        }catch(NullPointerException ex){
+            throw new ClientNotFoundException();
+        }
     }
     
-    public static void main(String[] args) throws ClientAlreadyRegisteredException{
+    public static void main(String[] args) throws ClientAlreadyRegisteredException, ClientAlreadyRemovedException{
         Controller c = new Controller();
         Client client = new Client("rua augusta 38","sul");
         c.registerNewClient(client);
-        System.out.println(c.getClient(client.toString()));
-        System.out.println(c.server.getObserver(client.toString()));
+        c.removeClient(client);
     }
 }

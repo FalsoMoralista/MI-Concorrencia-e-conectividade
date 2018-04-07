@@ -15,7 +15,7 @@ public class WaterFlowMeasurer extends Observer{
     
     private String id;
         
-    private double waterConsume;
+    private double waterConsumed;
 
     public String getId() {
         return id;
@@ -29,17 +29,21 @@ public class WaterFlowMeasurer extends Observer{
         this.id = id;
     }
     
-    public double getWaterConsume() {
-        return waterConsume;
+    public double getWaterConsumed() {
+        return waterConsumed;
     }
 
-    public void setWaterConsume(double waterConsume) {
-        this.waterConsume = waterConsume;
+    public void setWaterConsumed(double waterConsume) {
+        this.waterConsumed = waterConsume;
     }
     
-
+    public void addConsume(double val){
+        this.waterConsumed += val;
+    }
+    
     @Override
     public void Update() {
+        //TODO call for super, sending a message to the server with the time,date and actual total of water consumed
         System.out.println("updating ...");
     }
         

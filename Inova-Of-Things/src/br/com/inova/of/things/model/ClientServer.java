@@ -27,7 +27,8 @@ import java.util.logging.Logger;
 public class ClientServer implements Runnable {
 
     private Socket socket;
-
+    private Thread t;
+            
     public ClientServer() {
     }
 
@@ -67,6 +68,10 @@ public class ClientServer implements Runnable {
         }
     }
 
+    public void sendMessage(String msg){
+        
+    }
+    
     public static void main(String[] args) {
         ClientServer c = new ClientServer();
         c.run();

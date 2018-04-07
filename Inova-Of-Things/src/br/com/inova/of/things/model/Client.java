@@ -15,6 +15,7 @@ public class Client extends ClientServer{
     private String zone;
 
     public Client(String address, String zone) {
+        super();
         this.address = address;
         this.zone = zone;
     }

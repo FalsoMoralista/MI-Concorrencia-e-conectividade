@@ -5,6 +5,9 @@
  */
 package br.com.inova.of.things.controller;
 
+import br.com.inova.of.things.exceptions.ClientAlreadyRegisteredException;
+import br.com.inova.of.things.exceptions.ClientAlreadyRemovedException;
+import br.com.inova.of.things.exceptions.ClientNotFoundException;
 import br.com.inova.of.things.model.Client;
 import junit.framework.Assert;
 import org.junit.After;
@@ -20,7 +23,13 @@ import static org.junit.Assert.*;
  */
 public class ControllerTest {
 
+    private static final Controller instance = new Controller();
+    private static final Client c = new Client("rua augusta 38", "leste");
+
+    
+    
     public ControllerTest() {
+
     }
 
     @BeforeClass
@@ -45,8 +54,6 @@ public class ControllerTest {
     @Test
     public void testRegisterNewClient() throws Exception {
         System.out.println("registerNewClient");
-        Client c = new Client("rua sao caetano 57", "leste");
-        Controller instance = new Controller();
         instance.registerNewClient(c);
         Assert.assertEquals(instance.getClient(c.toString()), c);
     }
@@ -54,14 +61,20 @@ public class ControllerTest {
     /**
      * Test of removeClient method, of class Controller.
      */
-    @Test
-    public void testRemoveClient() throws Exception {
+    @Test(expected = ClientNotFoundException.class)
+    public void testRemoveClient() throws ClientAlreadyRemovedException, ClientNotFoundException {
         System.out.println("removeClient");
-        Client c = new Client("rua sao caetano 57", "leste");
-        Controller instance = new Controller();
         instance.removeClient(c);
+        instance.getClient(c.toString());
         // TODO review the generated test code and remove the default call to fail.
-        Assert.assertEquals(instance.getClient(c.toString()),null);
+    }
+    
+    @Test
+    public void testGetClient() throws ClientAlreadyRegisteredException, ClientNotFoundException{
+        System.out.println("getClient");
+        instance.registerNewClient(c);
+        Client test = instance.getClient(c.toString());
+        Assert.assertEquals(test,c);
     }
 
 }
