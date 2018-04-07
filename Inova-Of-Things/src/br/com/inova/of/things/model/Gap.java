@@ -6,10 +6,11 @@
 package br.com.inova.of.things.model;
 
 /**
- *
+ * This class is used to encapsulate a gap of time and a valued measured in the
+ * given gap.
  * @author luciano
- * @param <Time>
- * @param <Measure>
+ * @param <T>
+ * @param <M>
  */
 public class Gap <T,M>{
     private T time;

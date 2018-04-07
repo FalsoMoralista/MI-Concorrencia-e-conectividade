@@ -23,14 +23,20 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 /**
+ * This class will be used to simulate a water flow sensor reading flowing
+ * measures. 
+ * After binding it to a sensor(WaterFlowMeasurer) with an ID, the user will be able to 
+ * simulate the water flow from the sensor, and when satisfied, the total consume 
+ * will be increased on the chosen sensor's total consume.
+ *
+ * @see Gap
+ * @see WaterFlowMeasurer
  *
  * @author luciano
  */
 public class WaterFlowController extends Application {
-
     private Button start = new Button("Start");
     private Button stop = new Button("Stop");
-
     private Button more = new Button("+");
     private Button less = new Button("-");
 
@@ -48,7 +54,7 @@ public class WaterFlowController extends Application {
         GridPane grid = new GridPane();
         this.setUp(primaryStage, grid);
 
-        List<Gap<Integer, Double>> measures = new LinkedList();
+        List<Gap<Double, Double>> measures = new LinkedList();
 
         status.setText(" Currently stopped");
         status.setFill(Color.FIREBRICK);
@@ -62,34 +68,35 @@ public class WaterFlowController extends Application {
             flow.setText("Water flow: " + waterFlow);
             start.setVisible(false);
             stop.setVisible(true);
-//            task = new Thread(this.startConsume());
-//            task.start();
         });
 
         stop.setOnAction(e -> {
+            if (flowing) {
+                long actual = System.currentTimeMillis();
+                measures.add(new Gap(Double.parseDouble(String.format("%.2f", (actual - read[0]) / 1000.0)), waterFlow)); // save the last value of water flow and its gap of time
+                flowing = false;
+                waterFlow = 0;
+                status.setText(" Currently stopped");
+                status.setFill(Color.FIREBRICK);
 
-            flowing = false;
-            waterFlow = 0;
+                flow.setText("Water flow:");
 
-            status.setText(" Currently stopped");
-            status.setFill(Color.FIREBRICK);
-
-            flow.setText("Water flow:");
-
-            start.setVisible(true);
-            stop.setVisible(false);
+                start.setVisible(true);
+                stop.setVisible(false);
+            }
 
             double[] sum = {0};
-            for(Gap<Integer,Double> g : measures){
-                sum[0] += g.getMeasure()*g.getTime();
+            for (Gap<Double, Double> g : measures) {
+                sum[0] += g.getMeasure() * g.getTime();
             }
-            System.out.println(sum[0]);
+            System.out.println("Total consumed -> " + sum[0]);
         });
 
         more.setOnAction(e -> {
             if (flowing) {
                 long actual = System.currentTimeMillis();
-                measures.add(new Gap(String.format("%.2f",(read[0]-actual)/1000),waterFlow));
+                System.out.println("Time lap in -> "+String.format("%.2f", (actual - read[0]) / 1000.0));
+                measures.add(new Gap(Double.parseDouble(String.format("%.2f", (actual - read[0]) / 1000.0)), waterFlow)); // save the last value of water flow and its gap of time
                 read[0] = actual;
                 waterFlow += 0.5;
                 flow.setText("Water flow: " + waterFlow);
@@ -99,7 +106,8 @@ public class WaterFlowController extends Application {
         less.setOnAction(e -> {
             if (flowing) {
                 long actual = System.currentTimeMillis();
-                measures.add(new Gap(String.format("%.2f",(read[0]-actual)/1000),waterFlow));
+                System.out.println("Time lap in -> "+String.format("%.2f", (read[0] - actual) / 1000.0 / 3600.0));
+                measures.add(new Gap(Double.parseDouble(String.format("%.2f", (actual - read[0]) / 1000.0)), waterFlow)); // save the last value of water flow and its gap of time
                 read[0] = actual;
                 waterFlow -= 0.5;
                 flow.setText("Water flow: " + waterFlow);
@@ -129,23 +137,6 @@ public class WaterFlowController extends Application {
         primaryStage.setScene(scene);
     }
 
-//    private Runnable startConsume() {
-//        int[] iarr = {0};
-//        double[] val = {0};
-//        List<Gap<Long, Double>> measures = new LinkedList();
-//        Runnable task = () -> {
-//            while (flowing) {
-//                if (iarr[0] % 1000000000 == 1) {
-//                    val[0] += waterFlow;
-//                    System.out.println(val[0]);
-//                }
-//                iarr[0]++;
-//            }
-//            System.out.println("Consumed = " + val[0]);
-//        };
-//        return task;
-//    }
-//
     public void bind(WaterFlowMeasurer measurer) {
 
     }
