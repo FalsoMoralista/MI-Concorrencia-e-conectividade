@@ -14,8 +14,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,16 +31,16 @@ public class ClientServer implements Runnable {
 
     private Socket socket;
     private Thread t;
-            
-    public ClientServer() {
+    private static String host;
+    private static int port;
+    public ClientServer(String host, int port) {
+        this.host = host;
+        this.port = port;
     }
 
     @Override
     public void run() {
-        try {
-            String host = "localhost";
-            int port = 8000;
-
+        try {            
             InetAddress address = InetAddress.getByName(host);
             socket = new Socket(address, port);
 
@@ -68,12 +71,19 @@ public class ClientServer implements Runnable {
         }
     }
 
-    public void sendMessage(String msg){
-        
+    public void sendMessage(String msg) throws SocketException, IOException{
+        DatagramSocket s = new DatagramSocket();
+        DatagramPacket p = new DatagramPacket(msg.getBytes(), msg.getBytes().length, InetAddress.getByName(host), 8888);        
+        s.send(p);
+        System.out.println("client.message sent -> "+msg);
+        p = new DatagramPacket(new byte[1024], new byte[1024].length);
+        s.receive(p);
+        String received = new String(p.getData());
+        System.out.println("client.received message -> "+received);
     }
     
-    public static void main(String[] args) {
-        ClientServer c = new ClientServer();
-        c.run();
+    public static void main(String[] args) throws IOException {
+        ClientServer c = new ClientServer("localhost",8888);
+        c.sendMessage("hello");
     }
 }

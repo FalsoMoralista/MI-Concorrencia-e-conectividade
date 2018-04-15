@@ -9,13 +9,12 @@ package br.com.inova.of.things.model;
  *
  * @author luciano
  */
-public class Client extends ClientServer{
+public class Client{
 
     private String address;
     private String zone;
 
     public Client(String address, String zone) {
-        super();
         this.address = address;
         this.zone = zone;
     }

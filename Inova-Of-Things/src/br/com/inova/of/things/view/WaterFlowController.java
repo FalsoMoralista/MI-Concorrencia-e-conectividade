@@ -6,6 +6,10 @@
 package br.com.inova.of.things.view;
 
 import br.com.inova.of.things.controller.Controller;
+import br.com.inova.of.things.exceptions.ClientAlreadyRegisteredException;
+import br.com.inova.of.things.exceptions.ClientMeasurerNotFoundException;
+import br.com.inova.of.things.exceptions.ClientNotFoundException;
+import br.com.inova.of.things.model.Client;
 import br.com.inova.of.things.model.Gap;
 import br.com.inova.of.things.model.WaterFlowMeasurer;
 import java.util.LinkedList;
@@ -16,6 +20,7 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -47,15 +52,16 @@ public class WaterFlowController extends Application {
     private Text flow = new Text("Water flow: ");
     private Text status = new Text();
 
-    private volatile static double waterFlow = 0;
+    private static double waterFlow = 0;
 
     private Boolean flowing = false;
     private Boolean binded = false;
 
-    private Controller controller;
+    private Controller controller = new Controller();
 
     private long[] read = {0};
     private List<Gap<Double, Double>> measures;
+    private WaterFlowMeasurer bound;
 
     public WaterFlowController(Controller controller) {
         this.controller = controller;
@@ -67,17 +73,12 @@ public class WaterFlowController extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        GridPane grid = new GridPane();
-
-        if (binded) {
-            this.setUp(primaryStage, grid);
-            measures = new LinkedList();
-            this.addButtons(grid);
-            this.setButtonsProperties();
-            primaryStage.show();
-        } else {
-            this.before(primaryStage);
+        try {
+            controller.registerNewClient(new Client("rua sao caetano 57", "sul"));
+        } catch (ClientAlreadyRegisteredException ex) {
+            Logger.getLogger(WaterFlowController.class.getName()).log(Level.SEVERE, null, ex);
         }
+        this.before(primaryStage);
     }
 
     private void setUp(Stage primaryStage, GridPane grid) {
@@ -92,7 +93,7 @@ public class WaterFlowController extends Application {
         primaryStage.setScene(scene);
     }
 
-    private void addButtons(GridPane grid) {
+    private void addPrimaryButtons(GridPane grid) {
         grid.add(start, 0, 1);
         grid.add(stop, 0, 1);
         stop.setVisible(false);
@@ -129,11 +130,15 @@ public class WaterFlowController extends Application {
                 start.setVisible(true);
                 stop.setVisible(false);
             }
+            waterFlow = 0;
             double[] sum = {0};
             for (Gap<Double, Double> g : measures) {
                 sum[0] += g.getMeasure() * g.getTime();
             }
-            System.out.println("Total consumed -> " + sum[0]);
+            measures.clear();
+            System.out.println("Total consumed (after start) -> " + sum[0]);
+            bound.addConsume(sum[0]);
+            System.out.println("Total consumed (client) -> " + bound.getWaterConsumed());
         });
         more.setOnAction(e -> {
             if (flowing) {
@@ -151,14 +156,11 @@ public class WaterFlowController extends Application {
                 System.out.println("Time lap in -> " + String.format("%.2f", (read[0] - actual) / 1000.0 / 3600.0));
                 measures.add(new Gap(Double.parseDouble(String.format("%.2f", (actual - read[0]) / 1000.0)), waterFlow)); // save the last value of water flow and its gap of time
                 read[0] = actual;
-                waterFlow -= 0.5;
+                if(waterFlow > 0)
+                    waterFlow -= 0.5;
                 flow.setText("Water flow: " + waterFlow);
             }
         });
-    }
-
-    private boolean bind(WaterFlowMeasurer measurer) {
-        return false;
     }
 
     private void before(Stage st) {
@@ -186,22 +188,42 @@ public class WaterFlowController extends Application {
         grid.add(img, 1, 0);
 
         ok.setOnAction(a -> {
-            if (!idGetter.getText().isEmpty()) {
-               // TODO call controller and try to get the client to bind it
-            }else{
-                System.out.println("show errror msg");
+            String text = idGetter.getText();
+            if (!text.isEmpty()) {
+                try {
+                    String part1 = text.substring(0, text.indexOf(","));
+                    String part2 = text.substring(text.indexOf(",") + 1, text.length());
+                    bound = controller.getClientMeasurer(new Client(part1, part2).toString());
+                    this.showPrimaryScreen(st);
+                } catch (ClientMeasurerNotFoundException ex) {
+                    binded = false;
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setHeaderText("client not found");
+                    alert.show();
+                }
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setHeaderText("missing information");
+                alert.show();
             }
         });
-
         Scene scene = new Scene(grid, 340, 205);
         grid.setPadding(new Insets(20, 20, 20, 20));
         st.setScene(scene);
         st.show();
-        WaterFlowMeasurer measurer = null;
-        this.bind(measurer);
+
     }
 
-    public static void main(String[] args) {
+    private void showPrimaryScreen(Stage primaryStage) {
+        GridPane grid = new GridPane();
+        this.setUp(primaryStage, grid);
+        measures = new LinkedList();
+        this.addPrimaryButtons(grid);
+        this.setButtonsProperties();
+        primaryStage.show();
+    }
+
+    public static void main(String[] args) throws Exception {
         launch(args);
     }
 }

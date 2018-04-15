@@ -7,6 +7,7 @@ package br.com.inova.of.things.controller;
 
 import br.com.inova.of.things.exceptions.ClientAlreadyRegisteredException;
 import br.com.inova.of.things.exceptions.ClientAlreadyRemovedException;
+import br.com.inova.of.things.exceptions.ClientMeasurerNotFoundException;
 import br.com.inova.of.things.exceptions.ClientNotFoundException;
 import br.com.inova.of.things.model.Client;
 import br.com.inova.of.things.model.Observer;
@@ -58,6 +59,17 @@ public class Controller {
         }catch(NullPointerException ex){
             throw new ClientNotFoundException();
         }
+    }
+    
+    public WaterFlowMeasurer getClientMeasurer(String key) throws ClientMeasurerNotFoundException{
+        try{
+            WaterFlowMeasurer retrieved = (WaterFlowMeasurer) server.getObserver(key);
+            retrieved.toString();
+            return retrieved;
+        }catch(NullPointerException ex){
+            throw new ClientMeasurerNotFoundException();
+        }
+        
     }
     
     public static void main(String[] args) throws ClientAlreadyRegisteredException, ClientAlreadyRemovedException{
