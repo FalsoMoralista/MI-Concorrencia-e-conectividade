@@ -7,6 +7,7 @@ package br.com.inova.of.things.model;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -29,8 +30,6 @@ import java.util.logging.Logger;
  */
 public class Server extends Subject implements Runnable {
 
-    private Socket socket;
-    private ServerSocket serverSocket;
     private static final int PORT = 8888;
     private Thread thread;
 
@@ -38,7 +37,7 @@ public class Server extends Subject implements Runnable {
         super();
         try {
             serverSocket = new ServerSocket(PORT);
-            
+            new File("src/br/com/inova/of/things/server").mkdir();
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -50,35 +49,7 @@ public class Server extends Subject implements Runnable {
     public void run() {
         try {
             new UDPServer(PORT);
-            try {
-                System.out.println("Server.started listening to the port -> " + PORT + "...");
-                while (true) {
-                    socket = serverSocket.accept();
-                    System.out.println(socket.getInetAddress().toString());
-                    InputStream is = socket.getInputStream();
-                    InputStreamReader isr = new InputStreamReader(is);
-                    BufferedReader br = new BufferedReader(isr);
-                    String message = br.readLine();
-                    System.out.println("Client's message: " + message);
-                    // send message to client
-                    OutputStream os = socket.getOutputStream();
-                    OutputStreamWriter osw = new OutputStreamWriter(os);
-                    BufferedWriter bw = new BufferedWriter(osw);
-                    bw.write("message received -> " + message);
-                    bw.flush();
-                    is.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }catch(NullPointerException ex){
-                
-            } finally {
-                try {
-                    socket.close();
-                } catch (IOException ex) {
-                    Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
+            new TCPServer(PORT);
         } catch (SocketException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -100,8 +71,8 @@ public class Server extends Subject implements Runnable {
     public Observer getObserver(String key) {
         return super.getObserver(key);
     }
-    
-    public static void main(String[] args){
+
+    public static void main(String[] args) {
         Server server = new Server();
     }
 }

@@ -27,20 +27,14 @@ import java.util.logging.Logger;
  *
  * @author luciano
  */
-public class ClientServer implements Runnable {
+public class ClientServer {
 
-    private Socket socket;
-    private Thread t;
-    private static String host;
-    private static int port;
-    public ClientServer(String host, int port) {
-        this.host = host;
-        this.port = port;
+    public ClientServer() {
     }
-
-    @Override
-    public void run() {
-        try {            
+        
+    public static void sendTCP(String host, int port,String msg) {
+        Socket socket = null;        
+        try {
             InetAddress address = InetAddress.getByName(host);
             socket = new Socket(address, port);
 
@@ -49,17 +43,16 @@ public class ClientServer implements Runnable {
             OutputStreamWriter osw = new OutputStreamWriter(os);
             BufferedWriter bw = new BufferedWriter(osw);
 
-            String message = "Hello World!\n";
-            bw.write(message);
+            bw.write(msg);
             bw.flush();
 
-            System.out.println("Message sent to server -> " + message);
+            System.out.println("Message sent to server -> " + msg);
             // get the return message
             InputStream is = socket.getInputStream();
             InputStreamReader isr = new InputStreamReader(is);
             BufferedReader br = new BufferedReader(isr);
-            message = br.readLine();
-            System.out.println("Message received from the server : " + message);
+            msg = br.readLine();
+            System.out.println("Message received from the server : " + msg);
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
@@ -71,19 +64,23 @@ public class ClientServer implements Runnable {
         }
     }
 
-    public void sendMessage(String msg) throws SocketException, IOException{
+    /**
+     * Send a message through UDP connection to a server.
+     *
+     * @param msg
+     * @throws java.net.SocketException
+     */
+    public static void sendUDP(String host, int port, String msg) throws SocketException, IOException {
         DatagramSocket s = new DatagramSocket();
-        DatagramPacket p = new DatagramPacket(msg.getBytes(), msg.getBytes().length, InetAddress.getByName(host), 8888);        
+        DatagramPacket p = new DatagramPacket(msg.getBytes(), msg.getBytes().length, InetAddress.getByName(host), port);
         s.send(p);
-        System.out.println("client.message sent -> "+msg);
+        System.out.println("client.message sent -> " + msg);
         p = new DatagramPacket(new byte[1024], new byte[1024].length);
         s.receive(p);
         String received = new String(p.getData());
-        System.out.println("client.received message -> "+received);
+        System.out.println("client.received message -> " + received);
     }
-    
+
     public static void main(String[] args) throws IOException {
-        ClientServer c = new ClientServer("localhost",8888);
-        c.sendMessage("hello");
     }
 }

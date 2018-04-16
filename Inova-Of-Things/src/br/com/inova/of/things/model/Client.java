@@ -11,14 +11,24 @@ package br.com.inova.of.things.model;
  */
 public class Client{
 
+    private String email;
     private String address;
     private String zone;
 
-    public Client(String address, String zone) {
+    public Client(String email, String address, String zone) {
+        this.email = email;
         this.address = address;
         this.zone = zone;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }    
+    
     public String getAddress() {
         return address;
     }

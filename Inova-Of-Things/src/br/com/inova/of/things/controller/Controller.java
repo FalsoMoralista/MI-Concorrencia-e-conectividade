@@ -10,6 +10,7 @@ import br.com.inova.of.things.exceptions.ClientAlreadyRemovedException;
 import br.com.inova.of.things.exceptions.ClientMeasurerNotFoundException;
 import br.com.inova.of.things.exceptions.ClientNotFoundException;
 import br.com.inova.of.things.model.Client;
+import br.com.inova.of.things.model.ClientServer;
 import br.com.inova.of.things.model.Observer;
 import br.com.inova.of.things.model.Server;
 import br.com.inova.of.things.model.WaterFlowMeasurer;
@@ -21,61 +22,33 @@ import java.util.HashMap;
  */
 public class Controller {
 
-    private Server server;
+    private String host;
+    private int port;
+    
     private HashMap<String, Client> clients;
 
     public Controller() {
-       this.server = new Server();
-       this.clients = new HashMap<>();
+    }
+    
+    public Controller(String serverHost, int port) {
+        this.host = serverHost;
+        this.port = port;
     }
         
     public void registerNewClient(Client c) throws ClientAlreadyRegisteredException {
-        try {
-            Client retrieved = clients.get(c.toString());
-            retrieved.toString();
-            throw new ClientAlreadyRegisteredException();
-        }catch(NullPointerException ex){
-            clients.put(c.toString(), c);
-            server.attach(new WaterFlowMeasurer(c.toString()));
-        }
-    }
-    
-    public void removeClient(Client c) throws ClientAlreadyRemovedException{
-        try {
-            Client retrieved = clients.get(c.toString());
-            retrieved.toString();
-            server.detach(server.getObserver(c.toString()));
-            clients.remove(c.toString(), c);
-        }catch(NullPointerException ex){
-            throw new ClientAlreadyRemovedException();
-        }
-    }
-    
-    public Client getClient(String key) throws ClientNotFoundException{
-        try{
-            Client retrieved = this.clients.get(key);
-            retrieved.toString();
-            return retrieved;
-        }catch(NullPointerException ex){
-            throw new ClientNotFoundException();
-        }
-    }
-    
-    public WaterFlowMeasurer getClientMeasurer(String key) throws ClientMeasurerNotFoundException{
-        try{
-            WaterFlowMeasurer retrieved = (WaterFlowMeasurer) server.getObserver(key);
-            retrieved.toString();
-            return retrieved;
-        }catch(NullPointerException ex){
-            throw new ClientMeasurerNotFoundException();
-        }
         
     }
     
+    public void removeClient(Client c) throws ClientAlreadyRemovedException{
+    }
+    
+    public Client getClient(String key) throws ClientNotFoundException{
+    }
+    
+    public WaterFlowMeasurer getClientMeasurer(String key) throws ClientMeasurerNotFoundException{
+        return null;
+    }
+    
     public static void main(String[] args) throws ClientAlreadyRegisteredException, ClientAlreadyRemovedException{
-        Controller c = new Controller();
-        Client client = new Client("rua augusta 38","sul");
-        c.registerNewClient(client);
-        c.removeClient(client);
     }
 }

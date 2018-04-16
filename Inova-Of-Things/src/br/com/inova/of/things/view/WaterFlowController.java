@@ -10,8 +10,11 @@ import br.com.inova.of.things.exceptions.ClientAlreadyRegisteredException;
 import br.com.inova.of.things.exceptions.ClientMeasurerNotFoundException;
 import br.com.inova.of.things.exceptions.ClientNotFoundException;
 import br.com.inova.of.things.model.Client;
+import br.com.inova.of.things.model.ClientServer;
 import br.com.inova.of.things.model.Gap;
 import br.com.inova.of.things.model.WaterFlowMeasurer;
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -73,12 +76,15 @@ public class WaterFlowController extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        try {
-            controller.registerNewClient(new Client("rua sao caetano 57", "sul"));
-        } catch (ClientAlreadyRegisteredException ex) {
-            Logger.getLogger(WaterFlowController.class.getName()).log(Level.SEVERE, null, ex);
-        }
         this.before(primaryStage);
+        String s = LocalDateTime.now().toString();
+        primaryStage.setOnCloseRequest( e ->{
+//            try {                
+//                ClientServer.sendUDP("["+LocalDateTime.now().toString()+" "+bound.toString()+" "+bound.getWaterConsumed()+"]");
+//            } catch (IOException ex) {
+//                Logger.getLogger(WaterFlowController.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+        });
     }
 
     private void setUp(Stage primaryStage, GridPane grid) {
@@ -211,7 +217,6 @@ public class WaterFlowController extends Application {
         grid.setPadding(new Insets(20, 20, 20, 20));
         st.setScene(scene);
         st.show();
-
     }
 
     private void showPrimaryScreen(Stage primaryStage) {

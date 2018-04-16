@@ -42,7 +42,7 @@ public class UDPServer implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("UDP server.started listening to the port -> " + PORT);
+        System.out.println("Server.started listening to the port -> " + PORT+" via UDP...");
         while (listening) {
             try {
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
