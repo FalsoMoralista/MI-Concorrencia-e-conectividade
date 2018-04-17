@@ -19,7 +19,6 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,7 +31,7 @@ public class ClientServer {
     public ClientServer() {
     }
         
-    public static void sendTCP(String host, int port,String msg) {
+    public static final void sendTCP(String host, int port, String msg) {
         Socket socket = null;        
         try {
             InetAddress address = InetAddress.getByName(host);
@@ -42,17 +41,15 @@ public class ClientServer {
             OutputStream os = socket.getOutputStream();
             OutputStreamWriter osw = new OutputStreamWriter(os);
             BufferedWriter bw = new BufferedWriter(osw);
-
             bw.write(msg);
             bw.flush();
-
             System.out.println("Message sent to server -> " + msg);
-            // get the return message
-            InputStream is = socket.getInputStream();
-            InputStreamReader isr = new InputStreamReader(is);
-            BufferedReader br = new BufferedReader(isr);
-            msg = br.readLine();
-            System.out.println("Message received from the server : " + msg);
+//            // get the return message
+//            InputStream is = socket.getInputStream();
+//            InputStreamReader isr = new InputStreamReader(is);
+//            BufferedReader br = new BufferedReader(isr);
+//            msg = br.readLine();
+//            System.out.println("Message received from the server : " + msg);
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
@@ -67,10 +64,12 @@ public class ClientServer {
     /**
      * Send a message through UDP connection to a server.
      *
+     * @param host
+     * @param port
      * @param msg
      * @throws java.net.SocketException
      */
-    public static void sendUDP(String host, int port, String msg) throws SocketException, IOException {
+    public static final void sendUDP(String host, int port, String msg) throws SocketException, IOException {
         DatagramSocket s = new DatagramSocket();
         DatagramPacket p = new DatagramPacket(msg.getBytes(), msg.getBytes().length, InetAddress.getByName(host), port);
         s.send(p);

@@ -25,8 +25,8 @@ import javafx.stage.Stage;
  *
  * @author luciano
  */
-public class RegistrateForm extends Application{
-        
+public class RegistrateForm extends Application {
+
     private Text email = new Text("     e-mail");
     private Text address = new Text("       address");
     private Text zone = new Text("      zone");
@@ -34,33 +34,36 @@ public class RegistrateForm extends Application{
 
     private Button submit = new Button("submit");
     private Button cancel = new Button("cancel");
-    
+
     private TextField getEmail = new TextField();
     private TextField getAddress = new TextField();
     private TextField getZone = new TextField();
 
-    private Controller controller;
-    
+    private Controller controller = new Controller();
+
     public RegistrateForm() {
     }
 
     public RegistrateForm(Controller c) {
+        this.controller = c;
     }
-        
+
     @Override
-    public void start(Stage primaryStage) throws Exception {        
+    public void start(Stage primaryStage) throws Exception {
         this.setUp(primaryStage);
+        this.setButtonsProperties();
         primaryStage.show();
+        cancel.setOnAction(e -> primaryStage.close());
     }
-    
-    private void setUp(Stage primaryStage){
+
+    private void setUp(Stage primaryStage) {
         primaryStage.setTitle("Registration");
 
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(10);
         grid.setVgap(15);
-        
+
         grid.add(email, 1, 0);
         grid.add(getEmail, 1, 1);
 
@@ -71,33 +74,34 @@ public class RegistrateForm extends Application{
         grid.add(getZone, 3, 1);
 
         grid.add(cancel, 1, 2);
+        grid.add(alert, 1, 3);
         grid.add(submit, 3, 2);
-                        
+
+        alert.setVisible(false);
+        alert.setText("missing information");
+        alert.setFill(Color.FIREBRICK);
+
         Scene scene = new Scene(grid, 500, 350);
         grid.setPadding(new Insets(25, 25, 25, 25));
-        primaryStage.setScene(scene);        
+        primaryStage.setScene(scene);
     }
-    
-    private void setButtonsProperties(){
-        this.submit.setOnAction(e ->{
-            if(!email.getText().isEmpty() && !address.getText().isEmpty() && !zone.getText().isEmpty()){
+
+    private void setButtonsProperties() {
+        this.submit.setOnAction(e -> {
+            if (!getEmail.getText().isEmpty() && !getAddress.getText().isEmpty() && !getZone.getText().isEmpty()) {
+                alert.setVisible(false);
                 try {
-                    controller.registerNewClient(new Client(email.getText(),address.getText(),zone.getText()));
-                } catch (ClientAlreadyRegisteredException ex) { // show error msg
+                    controller.registerNewClient(new Client(getEmail.getText(), getAddress.getText(),getZone.getText()));
+                } catch (ClientAlreadyRegisteredException ex) {
                     Logger.getLogger(RegistrateForm.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            }else{
-                alert.setText("missing information");
-                alert.setFill(Color.FIREBRICK);
+            } else {
+                alert.setVisible(true);
             }
         });
-
-        cancel.setOnAction(e -> {
-            
-        });
     }
-    
-    public static void main(String[] args){
+
+    public static void main(String[] args) {
         launch(args);
     }
 }

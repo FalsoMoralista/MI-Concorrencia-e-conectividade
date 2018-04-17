@@ -28,19 +28,14 @@ import java.util.logging.Logger;
  *
  * @author luciano
  */
-public class Server extends Subject implements Runnable {
+public class Server implements Runnable {
 
     private static final int PORT = 8888;
     private Thread thread;
 
     public Server() {
         super();
-        try {
-            serverSocket = new ServerSocket(PORT);
-            new File("src/br/com/inova/of/things/server").mkdir();
-        } catch (IOException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        new File("src/br/com/inova/of/things/server").mkdir();
         thread = new Thread(this);
         thread.start();
     }
@@ -48,29 +43,15 @@ public class Server extends Subject implements Runnable {
     @Override
     public void run() {
         try {
-            new UDPServer(PORT);
+            new UDPServer(1111);
             new TCPServer(PORT);
         } catch (SocketException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    @Override
-    public void attach(Observer observer) {
-        System.out.println("Server.attaching -> " + observer.toString());
-        super.attach(observer); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void detach(Observer observer) {
-        System.out.println("Server.detaching -> " + observer.toString());
-        super.detach(observer); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Observer getObserver(String key) {
-        return super.getObserver(key);
-    }
 
     public static void main(String[] args) {
         Server server = new Server();

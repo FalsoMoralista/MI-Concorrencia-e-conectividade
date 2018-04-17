@@ -6,6 +6,7 @@
 package br.com.inova.of.things.model;
 
 import br.com.inova.of.things.interfaces.ISubject;
+import java.io.File;
 import java.util.HashMap;
 
 /**
@@ -14,7 +15,7 @@ import java.util.HashMap;
  */
 public class Subject implements ISubject {
 
-    private HashMap<String, Observer> observers;
+    protected HashMap<String, Observer> observers;
 
     public Subject() {
         observers = new HashMap<>();
@@ -29,8 +30,8 @@ public class Subject implements ISubject {
     public void detach(Observer observer) {
         observers.remove(observer.toString(), observer);
     }
-    
-    public Observer getObserver(String key){
+
+    public Observer getObserver(String key) {
         return observers.get(key);
     }
 

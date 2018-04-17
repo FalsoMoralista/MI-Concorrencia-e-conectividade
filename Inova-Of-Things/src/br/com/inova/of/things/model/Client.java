@@ -5,16 +5,18 @@
  */
 package br.com.inova.of.things.model;
 
+import java.io.Serializable;
+
 /**
  *
  * @author luciano
  */
-public class Client{
+public class Client implements Serializable{
 
     private String email;
     private String address;
     private String zone;
-
+    
     public Client(String email, String address, String zone) {
         this.email = email;
         this.address = address;

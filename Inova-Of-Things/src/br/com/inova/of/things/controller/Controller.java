@@ -11,9 +11,8 @@ import br.com.inova.of.things.exceptions.ClientMeasurerNotFoundException;
 import br.com.inova.of.things.exceptions.ClientNotFoundException;
 import br.com.inova.of.things.model.Client;
 import br.com.inova.of.things.model.ClientServer;
-import br.com.inova.of.things.model.Observer;
-import br.com.inova.of.things.model.Server;
 import br.com.inova.of.things.model.WaterFlowMeasurer;
+import java.io.IOException;
 import java.util.HashMap;
 
 /**
@@ -22,11 +21,14 @@ import java.util.HashMap;
  */
 public class Controller {
 
-    private String host;
-    private int port;
-    
-    private HashMap<String, Client> clients;
+    private static String host;
+    private static int port;
+    private static ClientServer cs = new ClientServer();
 
+    private final String ADD = "1";        
+    private final String DEL = "0";        
+    private final String GET = "2";        
+    
     public Controller() {
     }
     
@@ -36,19 +38,24 @@ public class Controller {
     }
         
     public void registerNewClient(Client c) throws ClientAlreadyRegisteredException {
-        
+        String formatedMsg = ADD+"|"+c.getEmail()+"-"+c.getAddress()+":"+c.getZone()+";";
+        ClientServer.sendTCP("localhost", 8888, formatedMsg);
     }
     
     public void removeClient(Client c) throws ClientAlreadyRemovedException{
     }
     
     public Client getClient(String key) throws ClientNotFoundException{
+        return null;
     }
     
     public WaterFlowMeasurer getClientMeasurer(String key) throws ClientMeasurerNotFoundException{
         return null;
     }
     
-    public static void main(String[] args) throws ClientAlreadyRegisteredException, ClientAlreadyRemovedException{
+    public static void main(String[] args) throws ClientAlreadyRegisteredException, ClientAlreadyRemovedException, IOException{
+        ClientServer cs = new ClientServer();
+        cs.sendTCP("localhost",8888,"hello" );
+        cs.sendUDP("localhost", 1111, "udp");
     }
 }
