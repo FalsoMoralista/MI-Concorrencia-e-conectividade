@@ -24,8 +24,10 @@ public class UDPServer implements Runnable {
     private DatagramSocket socket;
     private static final int BUFF_SIZE = 1024;
     private byte[] buffer = new byte[BUFF_SIZE];
-
-    public UDPServer(int port) throws SocketException {
+    private Server server;
+    
+    public UDPServer(int port, Server server) throws SocketException {
+        this.server = server;
         this.PORT = port;
         socket = new DatagramSocket(PORT);
         this.startListen();

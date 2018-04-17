@@ -5,6 +5,7 @@
  */
 package br.com.inova.of.things.model;
 
+import br.com.inova.of.things.exceptions.ClientAlreadyRegisteredException;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -34,6 +35,7 @@ public class TCPServer extends Subject implements Runnable {
 
     private int port;
 
+    private Server server;
     private Socket socket;
     private ServerSocket serverSocket;
 
@@ -41,18 +43,8 @@ public class TCPServer extends Subject implements Runnable {
 
     private boolean listening;
 
-    public TCPServer(int port) throws IOException {
-        super();
-        try {
-            this.load();
-            System.out.println(clients.get("lucianoadfilho@gmail.com"));
-        } catch (FileNotFoundException ex) {
-            File f = new File("src/br/com/inova/of/things/server/bin");
-            f.mkdir();
-            Logger.getLogger(TCPServer.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(TCPServer.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    public TCPServer(int port, Server server) throws IOException {
+        this.server = server;
         this.port = port;
         this.serverSocket = new ServerSocket(port);
         this.startListen();
@@ -102,28 +94,9 @@ public class TCPServer extends Subject implements Runnable {
         String address = clInfo.substring(clInfo.indexOf("-") + 1, clInfo.indexOf(":"));
         String zone = clInfo.substring(clInfo.indexOf(":") + 1, clInfo.indexOf(";"));
         try {
-            this.clients.get(email).getEmail().toString();
-            // throw back exception here. (already registered)
-        } catch (NullPointerException ex) {
-            clients.put(email, new Client(email, address, zone));
-            
-            try {
-                this.save();
-            } catch (IOException ex1) {
-                Logger.getLogger(TCPServer.class.getName()).log(Level.SEVERE, null, ex1);
-            }
+            this.server.registrate(new Client(email,address,zone));
+        } catch (ClientAlreadyRegisteredException ex) {
+            ex.getMessage();
         }
-    }
-
-    private void load() throws FileNotFoundException, IOException, ClassNotFoundException {
-        FileInputStream instream = new FileInputStream(new File("src/br/com/inova/of/things/server/bin/tcp.bin"));
-        ObjectInputStream ois = new ObjectInputStream(instream);
-        this.clients = (HashMap<String, Client>) ois.readObject();
-    }
-
-    private void save() throws FileNotFoundException, IOException {
-        FileOutputStream stream = new FileOutputStream(new File("src/br/com/inova/of/things/server/bin/tcp.bin"));
-        ObjectOutputStream oos = new ObjectOutputStream(stream);
-        oos.writeObject(this.clients);
     }
 }

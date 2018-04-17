@@ -200,6 +200,7 @@ public class WaterFlowController extends Application {
                     String part1 = text.substring(0, text.indexOf(","));
                     String part2 = text.substring(text.indexOf(",") + 1, text.length());
                     bound = controller.getClientMeasurer(new Client(part1, part2).toString());
+                    bound = new WaterFlowMeasurer("lucianoadfilho@gmail.com");
                     this.showPrimaryScreen(st);
                 } catch (ClientMeasurerNotFoundException ex) {
                     binded = false;

@@ -11,11 +11,8 @@ import br.com.inova.of.things.interfaces.IObserver;
  *
  * @author luciano
  */
-public class Observer implements IObserver{
+public abstract class Observer implements IObserver{
 
     @Override
-    public void Update() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
+    public abstract void Update();        
 }

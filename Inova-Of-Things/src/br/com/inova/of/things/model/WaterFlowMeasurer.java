@@ -26,6 +26,7 @@ public class WaterFlowMeasurer extends Observer{
     }
     
     public WaterFlowMeasurer(String id){
+        super();
         this.id = id;
     }
     
@@ -43,7 +44,6 @@ public class WaterFlowMeasurer extends Observer{
     
     @Override
     public void Update() {
-        //TODO call for super, sending a message to the server with the time,date and actual total of water consumed
         System.out.println("updating ...");
     }
         

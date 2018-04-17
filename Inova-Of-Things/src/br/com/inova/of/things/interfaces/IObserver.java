@@ -9,6 +9,6 @@ package br.com.inova.of.things.interfaces;
  *
  * @author luciano
  */
-public interface IObserver {
-    public void Update();
+public abstract interface IObserver {
+    public abstract void Update();
 }

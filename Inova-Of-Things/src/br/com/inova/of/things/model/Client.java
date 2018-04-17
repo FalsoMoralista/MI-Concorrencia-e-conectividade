@@ -5,6 +5,7 @@
  */
 package br.com.inova.of.things.model;
 
+import br.com.inova.of.things.interfaces.IObserver;
 import java.io.Serializable;
 
 /**
@@ -19,6 +20,11 @@ public class Client implements Serializable{
     
     public Client(String email, String address, String zone) {
         this.email = email;
+        this.address = address;
+        this.zone = zone;
+    }
+    
+    public Client(String address, String zone){
         this.address = address;
         this.zone = zone;
     }
@@ -50,6 +56,5 @@ public class Client implements Serializable{
     @Override
     public String toString() {
         return "Client{" + "address=" + address + ", zone=" + zone + '}';
-    }
-    
+    }    
 }
