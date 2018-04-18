@@ -5,6 +5,7 @@
  */
 package br.com.inova.of.things.model;
 
+import br.com.inova.of.things.interfaces.IMyServer;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -17,7 +18,7 @@ import java.util.logging.Logger;
  *
  * @author luciano
  */
-public class UDPServer implements Runnable {
+public class UDPServer implements Runnable,IMyServer{
 
     private int PORT = 0;
     private boolean listening;
@@ -34,10 +35,12 @@ public class UDPServer implements Runnable {
         new Thread(this).start();
     }
 
+    @Override
     public void startListen() {
         this.listening = true;
     }
 
+    @Override
     public void stopListening() {
         this.listening = false;
     }

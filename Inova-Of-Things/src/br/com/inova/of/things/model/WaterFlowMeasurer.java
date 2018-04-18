@@ -5,13 +5,13 @@
  */
 package br.com.inova.of.things.model;
 
-import br.com.inova.of.things.interfaces.IObserver;
+import java.io.Serializable;
 
 /**
  *
  * @author luciano
  */
-public class WaterFlowMeasurer extends Observer{
+public class WaterFlowMeasurer extends Observer implements Serializable {
     
     private String id;
         

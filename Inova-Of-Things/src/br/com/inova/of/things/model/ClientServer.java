@@ -5,13 +5,10 @@
  */
 package br.com.inova.of.things.model;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.DatagramPacket;
@@ -19,6 +16,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -78,6 +76,26 @@ public class ClientServer {
         s.receive(p);
         String received = new String(p.getData());
         System.out.println("client.received message -> " + received);
+    }
+        
+    
+    /**
+     *  Send an object as request to a server.
+     * 
+     * @param host
+     * @param port
+     * @param request
+     * @return 
+     * @throws java.net.UnknownHostException
+     */
+    public static final Object request(String host,int port,Object request) throws UnknownHostException, IOException, ClassNotFoundException{
+        Socket clientSocket = new Socket(InetAddress.getByName(host),port);
+        ObjectOutputStream outToServer = new ObjectOutputStream(clientSocket.getOutputStream());
+        ObjectInputStream inFromServer = new ObjectInputStream(clientSocket.getInputStream());
+        outToServer.writeObject(request); // send the request
+        Object retrieved = inFromServer.readObject();
+        clientSocket.close();
+        return retrieved;
     }
 
     public static void main(String[] args) throws IOException {

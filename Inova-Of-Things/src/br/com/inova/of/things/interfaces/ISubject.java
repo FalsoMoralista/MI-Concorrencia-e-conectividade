@@ -5,6 +5,7 @@
  */
 package br.com.inova.of.things.interfaces;
 
+import br.com.inova.of.things.exceptions.ClientMeasurerNotFoundException;
 import br.com.inova.of.things.model.Observer;
 
 /**
@@ -14,4 +15,5 @@ import br.com.inova.of.things.model.Observer;
 public interface ISubject {
     public void attach(Observer observer);
     public void detach(Observer observer);
+    public Observer getObserver(String key) throws ClientMeasurerNotFoundException;
 }

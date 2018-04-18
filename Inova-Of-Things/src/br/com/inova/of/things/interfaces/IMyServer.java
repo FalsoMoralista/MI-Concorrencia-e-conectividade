@@ -5,12 +5,12 @@
  */
 package br.com.inova.of.things.interfaces;
 
-import br.com.inova.of.things.exceptions.ClientMeasurerNotFoundException;
-
 /**
  *
  * @author luciano
  */
-public abstract interface IObserver {
-    public abstract void Update();
+public interface IMyServer {
+
+    public void startListen();
+    public void stopListening();        
 }

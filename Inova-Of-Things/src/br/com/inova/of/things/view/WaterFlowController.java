@@ -6,11 +6,8 @@
 package br.com.inova.of.things.view;
 
 import br.com.inova.of.things.controller.Controller;
-import br.com.inova.of.things.exceptions.ClientAlreadyRegisteredException;
 import br.com.inova.of.things.exceptions.ClientMeasurerNotFoundException;
-import br.com.inova.of.things.exceptions.ClientNotFoundException;
 import br.com.inova.of.things.model.Client;
-import br.com.inova.of.things.model.ClientServer;
 import br.com.inova.of.things.model.Gap;
 import br.com.inova.of.things.model.WaterFlowMeasurer;
 import java.io.IOException;
@@ -28,7 +25,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -60,7 +56,7 @@ public class WaterFlowController extends Application {
     private Boolean flowing = false;
     private Boolean binded = false;
 
-    private Controller controller = new Controller();
+    private Controller controller = new Controller("localhost",8888);
 
     private long[] read = {0};
     private List<Gap<Double, Double>> measures;
@@ -94,7 +90,7 @@ public class WaterFlowController extends Application {
         grid.setHgap(0);
         grid.setVgap(15);
         grid.autosize();
-        Scene scene = new Scene(grid, 350, 225);
+        Scene scene = new Scene(grid, 375, 225);
         grid.setPadding(new Insets(20, 20, 20, 20));
         primaryStage.setScene(scene);
     }
@@ -179,7 +175,7 @@ public class WaterFlowController extends Application {
         grid.setVgap(15);
         grid.autosize();
 
-        Label label = new Label("Client ID ");
+        Label label = new Label("Client E-mail ");
         TextField idGetter = new TextField();
         Button ok = new Button("Ok");
 
@@ -197,16 +193,17 @@ public class WaterFlowController extends Application {
             String text = idGetter.getText();
             if (!text.isEmpty()) {
                 try {
-                    String part1 = text.substring(0, text.indexOf(","));
-                    String part2 = text.substring(text.indexOf(",") + 1, text.length());
-                    bound = controller.getClientMeasurer(new Client(part1, part2).toString());
-                    bound = new WaterFlowMeasurer("lucianoadfilho@gmail.com");
+                    bound = controller.getClientMeasurer(text);
                     this.showPrimaryScreen(st);
                 } catch (ClientMeasurerNotFoundException ex) {
                     binded = false;
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setHeaderText("client not found");
                     alert.show();
+                } catch (IOException ex) {
+                    Logger.getLogger(WaterFlowController.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ClassNotFoundException ex) {
+                    Logger.getLogger(WaterFlowController.class.getName()).log(Level.SEVERE, null, ex);
                 }
             } else {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -214,7 +211,7 @@ public class WaterFlowController extends Application {
                 alert.show();
             }
         });
-        Scene scene = new Scene(grid, 340, 205);
+        Scene scene = new Scene(grid, 400, 225);
         grid.setPadding(new Insets(20, 20, 20, 20));
         st.setScene(scene);
         st.show();

@@ -8,6 +8,7 @@ package br.com.inova.of.things.view;
 import br.com.inova.of.things.controller.Controller;
 import br.com.inova.of.things.exceptions.ClientAlreadyRegisteredException;
 import br.com.inova.of.things.model.Client;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
@@ -92,7 +93,9 @@ public class RegistrateForm extends Application {
                 alert.setVisible(false);
                 try {
                     controller.registerNewClient(new Client(getEmail.getText(), getAddress.getText(),getZone.getText()));
-                } catch (ClientAlreadyRegisteredException ex) {
+                } catch (IOException ex) {
+                    Logger.getLogger(RegistrateForm.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ClassNotFoundException ex) {
                     Logger.getLogger(RegistrateForm.class.getName()).log(Level.SEVERE, null, ex);
                 }
             } else {
