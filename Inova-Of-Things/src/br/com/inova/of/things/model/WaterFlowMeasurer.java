@@ -118,7 +118,7 @@ public class WaterFlowMeasurer extends Observer implements Serializable, Runnabl
     }
 
     /**
-     * Send the server an message with the client actual consume.
+     * Send the server a message with the client actual consume.
      *
      * @see ClientMeasure
      */
