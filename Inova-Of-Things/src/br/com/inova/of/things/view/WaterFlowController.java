@@ -56,7 +56,7 @@ public class WaterFlowController extends Application {
     private Boolean flowing = false;
     private Boolean binded = false;
 
-    private Controller controller = new Controller("localhost",8888);
+    private Controller controller = new Controller("localhost", 8888);
 
     private long[] read = {0};
     private List<Gap<Double, Double>> measures;
@@ -74,7 +74,7 @@ public class WaterFlowController extends Application {
     public void start(Stage primaryStage) throws Exception {
         this.before(primaryStage);
         String s = LocalDateTime.now().toString();
-        primaryStage.setOnCloseRequest( e ->{
+        primaryStage.setOnCloseRequest(e -> {
 //            try {                
 //                ClientServer.sendUDP("["+LocalDateTime.now().toString()+" "+bound.toString()+" "+bound.getWaterConsumed()+"]");
 //            } catch (IOException ex) {
@@ -112,7 +112,6 @@ public class WaterFlowController extends Application {
             read[0] = System.currentTimeMillis();
             waterFlow = 0;
             flowing = true;
-            status.setText(" Flowing");
             status.setFill(Color.GREEN);
             flow.setText("Water flow: " + waterFlow);
             start.setVisible(false);
@@ -158,8 +157,9 @@ public class WaterFlowController extends Application {
                 System.out.println("Time lap in -> " + String.format("%.2f", (read[0] - actual) / 1000.0 / 3600.0));
                 measures.add(new Gap(Double.parseDouble(String.format("%.2f", (actual - read[0]) / 1000.0)), waterFlow)); // save the last value of water flow and its gap of time
                 read[0] = actual;
-                if(waterFlow > 0)
+                if (waterFlow > 0) {
                     waterFlow -= 0.5;
+                }
                 flow.setText("Water flow: " + waterFlow);
             }
         });
@@ -194,6 +194,8 @@ public class WaterFlowController extends Application {
             if (!text.isEmpty()) {
                 try {
                     bound = controller.getClientMeasurer(text);
+                    Thread thread = new Thread(bound);
+                    thread.start();
                     this.showPrimaryScreen(st);
                 } catch (ClientMeasurerNotFoundException ex) {
                     binded = false;

@@ -39,15 +39,21 @@ public class Server implements ISubject, Runnable, IObserver {
         this.devices = new HashMap<>();
         new File("src/br/com/inova/of/things/server").mkdir();
         new File("src/br/com/inova/of/things/server/bin").mkdir();
-        try {
-            this.load();
-        } catch (FileNotFoundException | ClassNotFoundException ex) {
-            System.out.println(ex.getCause() + " | " + ex.getMessage());
-        } catch (IOException ex) {
-            System.out.println(ex.getCause() + " | " + ex.getMessage());
-        }
+//        try {
+//            this.load();
+//        } catch (FileNotFoundException | ClassNotFoundException ex) {
+//            System.out.println(ex.getCause() + " | " + ex.getMessage());
+//        } catch (IOException ex) {
+//            System.out.println(ex.getCause() + " | " + ex.getMessage());
+//        }
         thread = new Thread(this);
         thread.start();
+//        try {
+//            Thread.sleep(5000);
+//            this.update();
+//        } catch (InterruptedException ex) {
+//            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+//        }
     }
 
     /*###################### CLIENTS #############################*/
@@ -106,8 +112,8 @@ public class Server implements ISubject, Runnable, IObserver {
 
     /* ####################### OBSERVER ############################# */
     @Override
-    public void Update() {
-        System.out.println("Server.updating...");
+    public void update() {
+        
     }
 
     @Override
@@ -173,8 +179,10 @@ public class Server implements ISubject, Runnable, IObserver {
             System.out.println(ex.getCause() + " | " + ex.getMessage());
         } catch (IOException ex) {
             System.out.println(ex.getCause() + " | " + ex.getMessage());
-        }
+        }        
     }
+    
+    
 
     /*#######################################################################*/
     public static void main(String[] args) {

@@ -6,11 +6,14 @@
 package br.com.inova.of.things.model;
 
 import br.com.inova.of.things.interfaces.IMyServer;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.time.LocalDateTime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,15 +21,15 @@ import java.util.logging.Logger;
  *
  * @author luciano
  */
-public class UDPServer implements Runnable,IMyServer{
+public class UDPServer implements Runnable, IMyServer {
 
-    private int PORT = 0;
+    private int PORT;
     private boolean listening;
     private DatagramSocket socket;
     private static final int BUFF_SIZE = 1024;
     private byte[] buffer = new byte[BUFF_SIZE];
     private Server server;
-    
+
     public UDPServer(int port, Server server) throws SocketException {
         this.server = server;
         this.PORT = port;
@@ -47,24 +50,38 @@ public class UDPServer implements Runnable,IMyServer{
 
     @Override
     public void run() {
-        System.out.println("Server.started listening to the port -> " + PORT+" via UDP...");
-        while (listening) {
-            try {
-                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-                socket.receive(packet);
-
-                String received = new String(packet.getData());
-                System.out.println("server.read -> " + received);
-
-                InetAddress address = packet.getAddress();
-                int port = packet.getPort();
-                packet = null;
-                String answer = "ok";
-                packet = new DatagramPacket(answer.getBytes(), answer.getBytes().length, address, port);
-                socket.send(packet);
-            } catch (IOException ex) {
-                Logger.getLogger(UDPServer.class.getName()).log(Level.SEVERE, null, ex);
+        System.out.println("Server.started listening to the port -> " + PORT + " via UDP...");
+        try {
+            byte[] incomingData = new byte[10240];
+            while (listening) {
+                DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
+                socket.receive(incomingPacket);
+                byte[] data = incomingPacket.getData();
+                ByteArrayInputStream in = new ByteArrayInputStream(data);
+                ObjectInputStream is = new ObjectInputStream(in);
+                RequestPackage request = null;
+                try {
+                    this.getRequest((RequestPackage) is.readObject());
+                } catch (ClassNotFoundException ex) {
+                    Logger.getLogger(WaterFlowMeasurer.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
+        } catch (SocketException e) {
+            e.printStackTrace();
+        } catch (IOException i) {
+            i.printStackTrace();
+        }
+    }
+
+    private void getRequest(RequestPackage requestPackage) {
+        switch (requestPackage.getMETHOD()) {
+            case "POST":
+                switch (requestPackage.getOBJECT_TYPE()) {
+                    case "client measure":
+                        System.out.println(requestPackage.getCONTENT());
+                        break;
+                }
+                break;
         }
     }
 

@@ -12,5 +12,5 @@ import br.com.inova.of.things.exceptions.ClientMeasurerNotFoundException;
  * @author luciano
  */
 public abstract interface IObserver {
-    public abstract void Update();
+    public abstract void update();
 }

@@ -14,5 +14,5 @@ import br.com.inova.of.things.interfaces.IObserver;
 public abstract class Observer implements IObserver{
 
     @Override
-    public abstract void Update();        
+    public abstract void update();        
 }

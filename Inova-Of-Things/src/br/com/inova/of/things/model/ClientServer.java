@@ -6,6 +6,8 @@
 package br.com.inova.of.things.model;
 
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -28,9 +30,9 @@ public class ClientServer {
 
     public ClientServer() {
     }
-        
+
     public static final void sendTCP(String host, int port, String msg) {
-        Socket socket = null;        
+        Socket socket = null;
         try {
             InetAddress address = InetAddress.getByName(host);
             socket = new Socket(address, port);
@@ -77,25 +79,35 @@ public class ClientServer {
         String received = new String(p.getData());
         System.out.println("client.received message -> " + received);
     }
-        
-    
+
     /**
-     *  Send an object as request to a server.
-     * 
+     * Send an object as request to a server.
+     *
      * @param host
      * @param port
      * @param request
-     * @return 
+     * @return
      * @throws java.net.UnknownHostException
      */
-    public static final Object request(String host,int port,Object request) throws UnknownHostException, IOException, ClassNotFoundException{
-        Socket clientSocket = new Socket(InetAddress.getByName(host),port);
+    public static final Object request(String host, int port, Object request) throws UnknownHostException, IOException, ClassNotFoundException {
+        Socket clientSocket = new Socket(InetAddress.getByName(host), port);
         ObjectOutputStream outToServer = new ObjectOutputStream(clientSocket.getOutputStream());
         ObjectInputStream inFromServer = new ObjectInputStream(clientSocket.getInputStream());
         outToServer.writeObject(request); // send the request
         Object retrieved = inFromServer.readObject();
         clientSocket.close();
         return retrieved;
+    }
+
+    public static final void requestUDP(String host, int port, Object request) throws UnknownHostException, SocketException, IOException, ClassNotFoundException {
+        /*  ####################  SEND THE REQUEST ##################### */
+        DatagramSocket socket = new DatagramSocket();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ObjectOutputStream os = new ObjectOutputStream(outputStream);
+        os.writeObject(request);
+        byte[] data = outputStream.toByteArray();
+        DatagramPacket sendPacket = new DatagramPacket(data, data.length, InetAddress.getByName(host), port);
+        socket.send(sendPacket);
     }
 
     public static void main(String[] args) throws IOException {
