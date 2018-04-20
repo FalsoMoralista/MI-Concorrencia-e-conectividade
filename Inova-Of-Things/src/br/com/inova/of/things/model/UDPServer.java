@@ -11,9 +11,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.SocketException;
 import java.time.LocalDateTime;
+import java.util.LinkedList;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -78,11 +79,22 @@ public class UDPServer implements Runnable, IMyServer {
             case "POST":
                 switch (requestPackage.getOBJECT_TYPE()) {
                     case "client measure":
+                        LinkedList<String> parse = this.parse(requestPackage.getCONTENT());
                         System.out.println(requestPackage.getCONTENT());
+                        server.write(parse.get(0),new ClientMeasure(parse.get(0), LocalDateTime.parse(parse.get(1)),Double.parseDouble(parse.get(2))));
                         break;
                 }
                 break;
         }
     }
-
+    
+    private LinkedList<String> parse(String str){
+        LinkedList<String> parsed = new LinkedList<>();
+        StringTokenizer token =  new StringTokenizer(str,"|");
+        while(token.hasMoreTokens()){
+            parsed.add(token.nextToken());
+        }
+        return parsed;
+    }
+    
 }

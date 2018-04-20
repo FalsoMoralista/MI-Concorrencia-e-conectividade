@@ -5,18 +5,17 @@
  */
 package br.com.inova.of.things.controller;
 
-import br.com.inova.of.things.exceptions.ClientAlreadyRegisteredException;
 import br.com.inova.of.things.exceptions.ClientAlreadyRemovedException;
 import br.com.inova.of.things.exceptions.ClientMeasurerNotFoundException;
 import br.com.inova.of.things.exceptions.ClientNotFoundException;
 import br.com.inova.of.things.model.Client;
+import br.com.inova.of.things.model.ClientRecord;
 import br.com.inova.of.things.model.ClientServer;
 import br.com.inova.of.things.model.RequestPackage;
 import br.com.inova.of.things.model.ResponsePackage;
 import br.com.inova.of.things.model.WaterFlowMeasurer;
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,7 +26,7 @@ import java.util.logging.Logger;
 public class Controller {
 
     private static String host;
-    private static int port;
+    private static int port = 8888;
     private static ClientServer cs = new ClientServer();
 
     private final String POST = "POST";
@@ -37,10 +36,10 @@ public class Controller {
     public Controller() {
     }
 
-    public Controller(String serverHost, int port) {
+    public Controller(String serverHost) {
         this.host = serverHost;
-        this.port = port;
     }
+    
 
     public void registerNewClient(Client c) throws IOException, UnknownHostException, ClassNotFoundException {
         String clInfo = "|" + c.getEmail() + "|" + c.getAddress() + "|" + c.getZone();
@@ -83,20 +82,20 @@ public class Controller {
             throw new ClientMeasurerNotFoundException();
         }
     }
+    
+    public ClientRecord getClientRecord(String key){
+        return null;
+    }
 
     public static void main(String[] args) {
         try {
-            Controller cont = new Controller("localhost", 8888);
+            Controller cont = new Controller("localhost");
             cont.registerNewClient(new Client("lucianoadfilho@gmail.com", "rua sao caetano 57", "sul"));
             System.out.println(cont.getClientMeasurer("lucianoadfilho@gmail.com").getWaterConsumed());
         } catch (NullPointerException ex) {
             System.out.println("cliente nao encontrado");
             ex.printStackTrace();
-        } catch (IOException ex) {
-            Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClientMeasurerNotFoundException ex) {
+        } catch (IOException | ClassNotFoundException | ClientMeasurerNotFoundException ex) {
             Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

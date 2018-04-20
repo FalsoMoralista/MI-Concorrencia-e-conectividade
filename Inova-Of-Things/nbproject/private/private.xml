@@ -3,12 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/luciano/Desktop/LUCIANO-UEFS/Java/MI%20-%20Concorrência%20e%20Conectividade/Inova-Of-Things/src/br/com/inova/of/things/view/RegistrateForm.java</file>
-            <file>file:/home/luciano/Desktop/LUCIANO-UEFS/Java/MI%20-%20Concorrência%20e%20Conectividade/Inova-Of-Things/src/br/com/inova/of/things/model/Client.java</file>
             <file>file:/home/luciano/Desktop/LUCIANO-UEFS/Java/MI%20-%20Concorrência%20e%20Conectividade/Inova-Of-Things/src/br/com/inova/of/things/model/Server.java</file>
-            <file>file:/home/luciano/Desktop/LUCIANO-UEFS/Java/MI%20-%20Concorrência%20e%20Conectividade/Inova-Of-Things/src/br/com/inova/of/things/view/WaterFlowController.java</file>
             <file>file:/home/luciano/Desktop/LUCIANO-UEFS/Java/MI%20-%20Concorrência%20e%20Conectividade/Inova-Of-Things/src/br/com/inova/of/things/controller/Controller.java</file>
-            <file>file:/home/luciano/Desktop/LUCIANO-UEFS/Java/MI%20-%20Concorrência%20e%20Conectividade/Inova-Of-Things/src/br/com/inova/of/things/model/TCPServer.java</file>
+            <file>file:/home/luciano/Desktop/LUCIANO-UEFS/Java/MI%20-%20Concorrência%20e%20Conectividade/Inova-Of-Things/src/br/com/inova/of/things/view/Client.java</file>
+            <file>file:/home/luciano/Desktop/LUCIANO-UEFS/Java/MI%20-%20Concorrência%20e%20Conectividade/Inova-Of-Things/src/br/com/inova/of/things/view/Main.java</file>
+            <file>file:/home/luciano/Desktop/LUCIANO-UEFS/Java/MI%20-%20Concorrência%20e%20Conectividade/Inova-Of-Things/src/br/com/inova/of/things/model/ClientRecord.java</file>
             <file>file:/home/luciano/Desktop/LUCIANO-UEFS/Java/MI%20-%20Concorrência%20e%20Conectividade/Inova-Of-Things/src/br/com/inova/of/things/model/UDPServer.java</file>
         </group>
     </open-files>

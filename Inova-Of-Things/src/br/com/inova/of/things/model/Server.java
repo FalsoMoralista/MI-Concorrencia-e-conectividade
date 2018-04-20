@@ -20,10 +20,14 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.SocketException;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * If this class loading files change directory the server will be started as a
+ * brand new.
  *
  * @author luciano
  */
@@ -33,27 +37,23 @@ public class Server implements ISubject, Runnable, IObserver {
     private Thread thread;
     private HashMap<String, Client> clients = new HashMap<>();
     private HashMap<String, WaterFlowMeasurer> devices = new HashMap<>();
+    private HashMap<String, LinkedList<ClientMeasure>> consumptions;
 
     public Server() {
         this.clients = new HashMap<>();
         this.devices = new HashMap<>();
-        new File("src/br/com/inova/of/things/server").mkdir();
-        new File("src/br/com/inova/of/things/server/bin").mkdir();
-//        try {
-//            this.load();
-//        } catch (FileNotFoundException | ClassNotFoundException ex) {
-//            System.out.println(ex.getCause() + " | " + ex.getMessage());
-//        } catch (IOException ex) {
-//            System.out.println(ex.getCause() + " | " + ex.getMessage());
-//        }
+        this.consumptions = new HashMap<>();
+        new File("server").mkdir();
+        new File("server/bin").mkdir();
+        try {
+            this.load();
+        } catch (FileNotFoundException | ClassNotFoundException ex) {
+            System.out.println("empty records, Server -> fresh starting");
+        } catch (IOException ex) {
+            System.out.println(ex.getCause() + " | " + ex.getMessage());
+        }
         thread = new Thread(this);
         thread.start();
-//        try {
-//            Thread.sleep(5000);
-//            this.update();
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-//        }
     }
 
     /*###################### CLIENTS #############################*/
@@ -94,6 +94,7 @@ public class Server implements ISubject, Runnable, IObserver {
         try {
             Client retrieve = this.clients.get(key);
             this.clients.remove(key, this.clients.get(key));
+            this.consumptions.remove(retrieve.toString(), this.consumptions.get(retrieve.toString()));
             try {
                 this.detach(this.getObserver(retrieve.toString()));
             } catch (ClientMeasurerNotFoundException ex) {
@@ -111,13 +112,14 @@ public class Server implements ISubject, Runnable, IObserver {
     }
 
     /* ####################### OBSERVER ############################# */
+    // TODO
     @Override
     public void update() {
-        
+
     }
 
     @Override
-    public Observer getObserver(String key) throws ClientMeasurerNotFoundException{
+    public Observer getObserver(String key) throws ClientMeasurerNotFoundException {
         System.out.println("Server.retrieving -> observer...");
         try {
             Observer obs = this.devices.get(key);
@@ -143,30 +145,107 @@ public class Server implements ISubject, Runnable, IObserver {
     }
 
     /*######################### SERVER #####################################*/
+    /**
+     * Loads the server state.
+     *
+     */
     private void load() throws FileNotFoundException, IOException, ClassNotFoundException {
         System.out.println("Server.loading...");
         // tcp (clients)
-        FileInputStream instream = new FileInputStream(new File("src/br/com/inova/of/things/server/bin/tcp.bin"));
+        FileInputStream instream = new FileInputStream(new File("server/bin/tcp.bin"));
         ObjectInputStream ois = new ObjectInputStream(instream);
         this.clients = (HashMap<String, Client>) ois.readObject();
         // udp (devices)
-        instream = new FileInputStream(new File("src/br/com/inova/of/things/server/bin/udp.bin"));
+        instream = new FileInputStream(new File("server/bin/udp.bin"));
         ois = new ObjectInputStream(instream);
         this.devices = (HashMap<String, WaterFlowMeasurer>) ois.readObject();
+
+        instream = new FileInputStream(new File("server/bin/register.bin"));
+        ois = new ObjectInputStream(instream);
+        this.consumptions = (HashMap<String, LinkedList<ClientMeasure>>) ois.readObject();
         System.out.println("Done");
     }
 
+    /**
+     * Saves the current "progress" of the server.
+     */
     private void save() throws FileNotFoundException, IOException {
         System.out.println("Server.saving...");
+        File f = null;
         // tcp (clients)
-        FileOutputStream stream = new FileOutputStream(new File("src/br/com/inova/of/things/server/bin/tcp.bin"));
+        f = new File("server/bin/tcp.bin");
+        if (!f.exists()) {
+            f.createNewFile();
+        }
+        FileOutputStream stream = new FileOutputStream(f);
         ObjectOutputStream oos = new ObjectOutputStream(stream);
         oos.writeObject(this.clients);
         // udp (devices)
-        stream = new FileOutputStream(new File("src/br/com/inova/of/things/server/bin/udp.bin"));
+        f = new File("server/bin/udp.bin");
+        if (!f.exists()) {
+            f.createNewFile();
+        }
+        stream = new FileOutputStream(f);
         oos = new ObjectOutputStream(stream);
         oos.writeObject(this.devices);
+        // register
+        f = new File("server/bin/register.bin");
+        if (!f.exists()) {
+            f.createNewFile();
+        }
+        stream = new FileOutputStream(f);
+        oos = new ObjectOutputStream(stream);
+        oos.writeObject(this.consumptions);
         System.out.println("Done");
+    }
+
+    /**
+     * Write down a reading from a client's WaterFlowMeasurer.
+     *
+     * @param clientKey (client measure)
+     * @param reading
+     * @see ClientMeasure
+     * @see WaterFlowMeasurer
+     */
+    public void write(String clientKey, ClientMeasure reading) {
+        System.out.println("Server.writing -> client info");
+        try {
+            List<ClientMeasure> clientRecord = this.consumptions.get(clientKey);
+            clientRecord.add(reading);
+        } catch (NullPointerException ex) {
+            this.consumptions.put(clientKey, new LinkedList<>());
+            this.consumptions.get(clientKey).add(reading);
+        }
+        try {
+            this.save();
+        } catch (IOException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    /* ################### CLIENT ##################*/
+    public ClientRecord getClientRecord(String key) {
+        Client c = this.clients.get(key);
+        System.out.println(c);
+        return new ClientRecord(c.getEmail(), this.getTotalConsumed(c.toString()), this.consumptions.get(c.toString()));
+    }
+
+    /**
+     *
+     * @param key the client measurer to string
+     * @return
+     */
+    public double getTotalConsumed(String key) {
+        Double[] total = new Double[1];
+        List<ClientMeasure> clientRecord = this.consumptions.get(key);
+        List<ClientMeasure> diff = new LinkedList<>();
+        clientRecord.forEach(m -> {
+            if (!diff.contains(m)) {
+                diff.add(m);
+            }
+        });
+        diff.forEach(m -> total[0] = m.getReading());
+        return total[0];
     }
 
     @Override
@@ -179,14 +258,14 @@ public class Server implements ISubject, Runnable, IObserver {
             System.out.println(ex.getCause() + " | " + ex.getMessage());
         } catch (IOException ex) {
             System.out.println(ex.getCause() + " | " + ex.getMessage());
-        }        
+        }
     }
-    
-    
 
     /*#######################################################################*/
     public static void main(String[] args) {
         Server server = new Server();
+        System.out.println(server.getClientRecord("lucianoadfilho@gmail.com"));
+        
     }
 
 }

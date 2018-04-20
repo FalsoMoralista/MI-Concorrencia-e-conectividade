@@ -5,13 +5,14 @@
  */
 package br.com.inova.of.things.model;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
  *
  * @author luciano
  */
-public class ClientMeasure {
+public class ClientMeasure implements Serializable{
     private String id;
     private LocalDateTime time;
     private double reading;

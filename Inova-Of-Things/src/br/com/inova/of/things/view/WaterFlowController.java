@@ -48,6 +48,8 @@ public class WaterFlowController extends Application {
     private Button more = new Button("+");
     private Button less = new Button("-");
 
+    private Thread thread;
+    
     private Text flow = new Text("Water flow: ");
     private Text status = new Text();
 
@@ -56,7 +58,7 @@ public class WaterFlowController extends Application {
     private Boolean flowing = false;
     private Boolean binded = false;
 
-    private Controller controller = new Controller("localhost", 8888);
+    private Controller controller = new Controller("localhost");
 
     private long[] read = {0};
     private List<Gap<Double, Double>> measures;
@@ -75,12 +77,8 @@ public class WaterFlowController extends Application {
         this.before(primaryStage);
         String s = LocalDateTime.now().toString();
         primaryStage.setOnCloseRequest(e -> {
-//            try {                
-//                ClientServer.sendUDP("["+LocalDateTime.now().toString()+" "+bound.toString()+" "+bound.getWaterConsumed()+"]");
-//            } catch (IOException ex) {
-//                Logger.getLogger(WaterFlowController.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-        });
+            thread.interrupt();
+       });
     }
 
     private void setUp(Stage primaryStage, GridPane grid) {
@@ -194,7 +192,7 @@ public class WaterFlowController extends Application {
             if (!text.isEmpty()) {
                 try {
                     bound = controller.getClientMeasurer(text);
-                    Thread thread = new Thread(bound);
+                    thread = new Thread(bound);
                     thread.start();
                     this.showPrimaryScreen(st);
                 } catch (ClientMeasurerNotFoundException ex) {
