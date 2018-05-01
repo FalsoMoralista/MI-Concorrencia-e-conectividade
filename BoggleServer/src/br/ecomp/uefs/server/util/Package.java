@@ -5,12 +5,14 @@
  */
 package br.ecomp.uefs.server.util;
 
+import java.io.Serializable;
+
 /**
  *  This class can be used to encapsulate messages between server and other applications.
  *  
  * @author luciano
  */
-public class Package {
+public class Package implements Serializable{
 
     private String HEADER;
     private String TYPE;
