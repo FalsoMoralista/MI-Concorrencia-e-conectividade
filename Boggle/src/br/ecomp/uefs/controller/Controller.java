@@ -6,7 +6,9 @@
 package br.ecomp.uefs.controller;
 
 import br.ecomp.uefs.model.User;
-
+import br.ecomp.uefs.util.ClientServer;
+import br.ecomp.uefs.util.Package;
+import java.io.IOException;
 /**
  *
  * @author luciano
@@ -15,7 +17,7 @@ public class Controller {
     
     private User instance;
     
-    private String host;
+    private String serverHost;
     private final int TCP = 8888;
     private final int UDP = 1111;
     
@@ -24,8 +26,8 @@ public class Controller {
     private final String DEL = "DEL";
     
 
-    public Controller(String host) {
-        this.host = host;
+    public Controller(String serverHost) {
+        this.serverHost = serverHost;
     }
     
     /**
@@ -51,8 +53,12 @@ public class Controller {
     /**
      *  Register a new user on the server. 
      * @param newUser
+     * @throws java.lang.ClassNotFoundException
+     * @throws java.io.IOException
      */
-    public void register(User newUser){        
+    public void register(User newUser) throws ClassNotFoundException, IOException{        
+        Package request = new Package(PUT, "user", newUser);
+        ClientServer.requestTCP(serverHost, 8888, request);
     }
     
     /**
@@ -62,4 +68,8 @@ public class Controller {
     public void remove(String username){        
     }
         
+    public static void main(String[] args) throws ClassNotFoundException, IOException{
+        Controller c = new Controller("localhost");
+        c.register(new User());
+    }
 }

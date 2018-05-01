@@ -5,10 +5,12 @@
  */
 package br.ecomp.uefs.model;
 
+import java.io.Serializable;
+
 /**
  *
  * @author luciano
  */
-public class User {
+public class User implements Serializable{
     
 }
