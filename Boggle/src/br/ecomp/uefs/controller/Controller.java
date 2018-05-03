@@ -6,12 +6,11 @@
 package br.ecomp.uefs.controller;
 
 import br.ecomp.uefs.model.User;
-import br.ecomp.uefs.util.ClientServer;
-import br.ecomp.uefs.util.Package;
 import java.io.IOException;
+
 /**
  *
- * @author luciano
+ * @author Luciano Araujo Dourado Filho
  */
 public class Controller {
     
@@ -58,7 +57,7 @@ public class Controller {
      */
     public void register(User newUser) throws ClassNotFoundException, IOException{        
         Package request = new Package(PUT, "user", newUser);
-        ClientServer.requestTCP(serverHost, 8888, request);
+        ClientServer.requestTCP(serverHost, 8888, request);        
     }
     
     /**

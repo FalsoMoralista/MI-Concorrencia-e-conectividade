@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.ecomp.uefs.util;
+
 
 import java.io.Serializable;
 
