@@ -5,8 +5,10 @@
  */
 package br.ecomp.uefs.controller;
 
-import br.ecomp.uefs.model.User;
+import shared.model.User;
 import java.io.IOException;
+import shared.util.ClientServer;
+import shared.util.Package;
 
 /**
  *
@@ -57,7 +59,10 @@ public class Controller {
      */
     public void register(User newUser) throws ClassNotFoundException, IOException{        
         Package request = new Package(PUT, "user", newUser);
-        ClientServer.requestTCP(serverHost, 8888, request);        
+        Package pack = (Package)ClientServer.sendTCP(serverHost, 8888, request);        
+        // TODO parse back message to treat exceptions
+        System.out.println(pack.getHEADER());
+        System.out.println(pack.getTYPE());
     }
     
     /**
@@ -69,6 +74,6 @@ public class Controller {
         
     public static void main(String[] args) throws ClassNotFoundException, IOException{
         Controller c = new Controller("localhost");
-        c.register(new User());
+        c.register(new User("luciano","123"));
     }
 }
