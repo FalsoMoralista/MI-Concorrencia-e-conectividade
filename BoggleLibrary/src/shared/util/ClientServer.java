@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 
+package shared.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
