@@ -5,8 +5,8 @@
  */
 package br.ecomp.uefs.server;
 
-import br.ecomp.uefs.server.exception.UserAlreadyRegisteredException;
-import br.ecomp.uefs.server.exception.UserNotFoundException;
+import shared.exception.UserAlreadyRegisteredException;
+import shared.exception.UserNotFoundException;
 import br.ecomp.uefs.server.tcp.TCPListener;
 import br.ecomp.uefs.server.tcp.TCPThread;
 import java.util.HashMap;
@@ -31,10 +31,10 @@ public class Server extends Thread {
     /**
      * Register an user to the server. 
      * @param obj the user
-     * @throws br.ecomp.uefs.server.exception.UserAlreadyRegisteredException
+     * @throws shared.exception.UserAlreadyRegisteredException
      */
     public void putUser(Object obj) throws UserAlreadyRegisteredException{
-        System.out.println("Server.trying to register user");
+        System.out.println("Server.trying to register user");        
         try{
             users.get(obj.toString()).toString();
             throw new UserAlreadyRegisteredException();
@@ -47,7 +47,7 @@ public class Server extends Thread {
     /**
      * Delete an user from the server. 
      * @param obj
-     * @throws br.ecomp.uefs.server.exception.UserNotFoundException
+     * @throws shared.exception.UserNotFoundException
      */
     public void deleteUser(Object obj) throws UserNotFoundException{
         System.out.println("Server.trying to remove user");

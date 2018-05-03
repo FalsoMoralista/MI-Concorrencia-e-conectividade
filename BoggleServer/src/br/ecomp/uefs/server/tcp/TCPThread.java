@@ -6,17 +6,17 @@
 package br.ecomp.uefs.server.tcp;
 
 import br.ecomp.uefs.server.Server;
-import br.ecomp.uefs.server.exception.UserAlreadyRegisteredException;
-import br.ecomp.uefs.server.util.ClientServer;
+import shared.exception.UserAlreadyRegisteredException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import br.ecomp.uefs.server.util.Package;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
+import shared.util.ClientServer;
+import shared.util.Package;
 
 /**
  * This is the request handler. It will get request Packages and parse them
@@ -31,6 +31,7 @@ public class TCPThread extends Thread {
 
     public TCPThread(Socket s, Server server) {
         this.socket = s;
+        this.server = server;
     }
 
     @Override
@@ -42,10 +43,11 @@ public class TCPThread extends Thread {
             outToClient = new ObjectOutputStream(socket.getOutputStream());
             Object request = inFromClient.readObject(); // get the request
             System.out.println("Package received from -> " + socket.getInetAddress().toString() + " via TCP");
+            Package response = null;
             if(request instanceof Package){
-                this.getRequest((Package) request,socket.getInetAddress().toString(),socket.getPort());
+                response = getRequest((Package) request);
             }
-            outToClient.writeObject("sout");
+            outToClient.writeObject(response);
         } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(TCPThread.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
@@ -58,7 +60,7 @@ public class TCPThread extends Thread {
         }
     }
 
-    private void getRequest(Package request, String host, int port) {
+    private Package getRequest(Package request) {
         switch (request.getHEADER()) {
             case "PUT": // IN CASE SOME TRY TO PUT
                 switch (request.getTYPE()) {
@@ -66,13 +68,12 @@ public class TCPThread extends Thread {
                          {
                             try {
                                 server.putUser(request.getCONTENT()); // TRY TO REGISTER THE USER ON THE SERVER
-                                response(host, port, new Package("OK",null,null)); // THROW BACK A SUCESS MESSAGE 
+                                return new Package("OK", "client registered sucessfully", "null");
                             } catch (UserAlreadyRegisteredException ex) {
                                 System.out.println(ex.getMessage());
-                                response(host, port, new Package("ERROR",null,ex)); // THROW BACK AN ERROR MESSAGE
+                                return new Package("ERROR","null",ex);
                             }
                         }
-                        break;
                 }
                 break;
             case "GET":
@@ -80,6 +81,7 @@ public class TCPThread extends Thread {
             case "DEL":
                 break;
         }
+        return new Package("ERROR","invalid type of request","null");
     }
 
     private LinkedList<String> parse(String message) {
@@ -92,15 +94,4 @@ public class TCPThread extends Thread {
         }
         return parsed;
     }
-    
-    private void response(String host, int port, Object response){
-        try {
-            ClientServer.sendTCP(host, port, response);
-        } catch (IOException ex) {
-            Logger.getLogger(TCPThread.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(TCPThread.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
 }
