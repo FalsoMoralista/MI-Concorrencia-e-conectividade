@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 /**
  * Listen to connections through TCP protocol.
  * Waits for connections then create multiple threads to handle requests.
+ * This is a "sub server"
  * @see TCPThread
  * @author luciano
  */

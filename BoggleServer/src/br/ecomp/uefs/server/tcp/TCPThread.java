@@ -15,7 +15,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
-import shared.util.ClientServer;
+import shared.exception.InvalidPasswordException;
+import shared.model.Session;
+import shared.model.User;
 import shared.util.Package;
 
 /**
@@ -44,14 +46,14 @@ public class TCPThread extends Thread {
             Object request = inFromClient.readObject(); // get the request
             System.out.println("Package received from -> " + socket.getInetAddress().toString() + " via TCP");
             Package response = null;
-            if(request instanceof Package){
+            if (request instanceof Package) {
                 response = getRequest((Package) request);
             }
             outToClient.writeObject(response);
         } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(TCPThread.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
-            try {           
+            try {
                 inFromClient.close();
                 outToClient.close();
             } catch (IOException ex) {
@@ -65,14 +67,23 @@ public class TCPThread extends Thread {
             case "PUT": // IN CASE SOME TRY TO PUT
                 switch (request.getTYPE()) {
                     case "user": // IF TRIES TO PUT AN USER:
-                         {
-                            try {
-                                server.putUser(request.getCONTENT()); // TRY TO REGISTER THE USER ON THE SERVER
-                                return new Package("OK", "client registered sucessfully", "null");
-                            } catch (UserAlreadyRegisteredException ex) {
-                                System.out.println(ex.getMessage());
-                                return new Package("ERROR","null",ex);
-                            }
+                    {
+                        try {
+                            server.putUser(request.getCONTENT()); // TRY TO REGISTER THE USER ON THE SERVER
+                            return new Package("OK", "client registered sucessfully", "null");
+                        } catch (UserAlreadyRegisteredException ex) {
+                            System.out.println(ex.getMessage());
+                            return new Package("ERROR", "exception", ex);
+                        }
+                    }
+                    case "login": // tries to authenticate an user with the server, if it does, binds the user to a session and returns it back to the client
+                        try { 
+                            Session session = (Session) request.getCONTENT();
+                            User user = (User) server.login(session.getUsername(), session.getPassword());
+                            return new Package("OK", "session", new Session(user));
+                        } catch (InvalidPasswordException ex) {
+                            System.out.println(ex);
+                            return new Package("ERROR", "exception", ex);
                         }
                 }
                 break;
@@ -81,7 +92,7 @@ public class TCPThread extends Thread {
             case "DEL":
                 break;
         }
-        return new Package("ERROR","invalid type of request","null");
+        return new Package("ERROR", "invalid type of request", "null");
     }
 
     private LinkedList<String> parse(String message) {
