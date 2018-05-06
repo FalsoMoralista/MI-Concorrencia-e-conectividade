@@ -5,6 +5,7 @@
  */
 package shared.model;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import shared.exception.MaxAmountOfPlayersReachedException;
 import shared.exception.UserAlreadyBindedException;
@@ -13,7 +14,7 @@ import shared.exception.UserAlreadyBindedException;
  * This will associate users to a room before they start a game.
  * @author Luciano Araujo Dourado Filho
  */
-public class Lobby {
+public class Lobby implements Serializable{
 
     private HashMap<String, User> players;
     private static final int MAX_NUMBER_OF_PLAYERS = 10;
