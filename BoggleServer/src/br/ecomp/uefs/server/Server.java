@@ -10,7 +10,11 @@ import shared.exception.UserNotFoundException;
 import br.ecomp.uefs.server.tcp.TCPListener;
 import br.ecomp.uefs.server.tcp.TCPThread;
 import java.util.HashMap;
+import java.util.LinkedList;
 import shared.exception.InvalidPasswordException;
+import shared.exception.MaxAmountOfPlayersReachedException;
+import shared.exception.UserAlreadyBindedException;
+import shared.model.Lobby;
 import shared.model.User;
 
 /**
@@ -24,46 +28,54 @@ public class Server extends Thread {
 
     private HashMap<String, Object> users;
     private HashMap<Integer,Object> rooms;
-            
+
+    private LinkedList<Object> lobbies;
+    private static final int MAX_NUMBER_OF_ROOMS = 10;
+    
     public Server() {
-        this.users = new HashMap<>();
+        users = new HashMap<>();
+        lobbies = new LinkedList<>();
+        for(int i = 0; i < MAX_NUMBER_OF_ROOMS; i++){
+            lobbies.add(new Lobby());
+        }
         new Thread(this).start();
     }
 
+    /*-------------------------  USER CONTROL --------------------------------*/
     /**
      * Register an user to the server.
      *
-     * @param obj the user
+     * @param user
      * @throws shared.exception.UserAlreadyRegisteredException
      */
-    public void putUser(Object obj) throws UserAlreadyRegisteredException {
+    public void putUser(Object user) throws UserAlreadyRegisteredException {
         System.out.println("Server.trying to register user");
         try {
-            users.get(obj.toString()).toString();
+            users.get(user.toString()).toString();
             throw new UserAlreadyRegisteredException();
         } catch (NullPointerException ex) {
-            users.put(obj.toString(), obj);
+            users.put(user.toString(), user);
             System.out.println("Server-> User registered sucessfully");
         }
     }
-
+    /*------------------------------------------------------------------------*/
     /**
      * Delete an user from the server.
      *
-     * @param obj
+     * @param user
      * @throws shared.exception.UserNotFoundException
      */
-    public void deleteUser(Object obj) throws UserNotFoundException {
+    public void deleteUser(Object user) throws UserNotFoundException {
         System.out.println("Server.trying to remove user");
         try {
-            this.users.get(obj.toString()).toString();
-            this.users.remove(obj.toString(), obj);
+            this.users.get(user.toString()).toString();
+            this.users.remove(user.toString(), user);
             System.out.println("Server -> User removed sucessfully");
         } catch (NullPointerException ex) {
             throw new UserNotFoundException();
         }
     }
-
+    /*------------------------------------------------------------------------*/
     /**
      * Returns an user given it's key
      *
@@ -72,8 +84,8 @@ public class Server extends Thread {
      */
     public Object getUser(String key) {
         return this.users.get(key);
-    }
-    
+    } 
+    /*------------------------------------------------------------------------*/    
     /**
      *  Authenticates an user given it's user name and password.
      * @param username
@@ -85,11 +97,54 @@ public class Server extends Thread {
         System.out.println("Server.login attempt");
         User u = (User)users.get(username);
         if(u.getPassword().equals(password)){
-            System.out.println("Server -> sucess");
+            System.out.println("Server -> sucessfully authenticated");
             return u;
         }
         throw new InvalidPasswordException();
     }
+    /*-------------------------- GAME CONTROL --------------------------------*/
+    /**
+     * Associates an user to a lobby given its number. 
+     * @param roomNumber
+     * @param user
+     * @throws shared.exception.UserAlreadyBindedException
+     * @throws shared.exception.MaxAmountOfPlayersReachedException
+     */
+    public void bindUserToLobby(int roomNumber,Object user) throws UserAlreadyBindedException, MaxAmountOfPlayersReachedException{
+        Lobby lobby = (Lobby) lobbies.get(roomNumber);
+        User usr = (User) user;
+        lobby.bindUser(usr);
+    }
+    /*------------------------------------------------------------------------*/
+    /**
+     * Removes an user from a lobby. 
+     * @param roomNumber
+     * @param user
+     */
+    public void removeUserFromLobby(int roomNumber,Object user){
+        Lobby lobby = (Lobby) lobbies.get(roomNumber);
+        User usr = (User) user;
+        lobby.removeUser(usr);        
+    }
+    /*------------------------------------------------------------------------*/
+    /**
+     *  Return the actual number of players online for a given room. 
+     * @param roomNumber
+     * @return 
+     */
+    public int getRoomAmountOfPlayers(int roomNumber){
+        Lobby lobby = (Lobby) lobbies.get(roomNumber);
+        return lobby.getAmountOfPlayers();
+    }
+    /*------------------------------------------------------------------------*/
+    /**
+     *  Returns a list of all lobbies available.
+     * @return 
+     */
+    public LinkedList<Object> listRooms(){
+        return lobbies;
+    } 
+    /*------------------------------------------------------------------------*/
 
     @Override
     public void run() {

@@ -99,14 +99,10 @@ public class Controller {
         }
     }
 
-    private void parse(Package response) {
-        
-    }
-
     public static void main(String[] args) throws ClassNotFoundException, IOException, UserAlreadyRegisteredException, UnknownHostException, InvalidPasswordException {
         Controller c = new Controller("localhost");
         User luciano = new User("luciano", "123");
-//        c.register(luciano);
+        c.register(luciano);
         System.out.println(c.authenticate("luciano","123"));
         System.out.println(c.getInstance());
     }
