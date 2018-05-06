@@ -16,6 +16,10 @@ import java.util.logging.Logger;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
 import shared.exception.InvalidPasswordException;
+import shared.exception.MaxAmountOfPlayersReachedException;
+import shared.exception.UserAlreadyBindedException;
+import shared.model.Lobby;
+import shared.model.LobbyParameter;
 import shared.model.Session;
 import shared.model.User;
 import shared.util.Package;
@@ -77,7 +81,7 @@ public class TCPThread extends Thread {
                         }
                     }
                     case "login": // tries to authenticate an user with the server, if it does, binds the user to a session and returns it back to the client
-                        try { 
+                        try {
                             Session session = (Session) request.getCONTENT();
                             User user = (User) server.login(session.getUsername(), session.getPassword());
                             return new Package("OK", "session", new Session(user));
@@ -85,12 +89,32 @@ public class TCPThread extends Thread {
                             System.out.println(ex);
                             return new Package("ERROR", "exception", ex);
                         }
+                    case "lobby":
+                        LobbyParameter lobbyRequest = (LobbyParameter) request.getCONTENT();
+                         {
+                            try {
+                                Lobby userLobby = server.bindUserToLobby(lobbyRequest.getLobbyNumber(), lobbyRequest.getUser());
+                                return new Package("OK", "lobby", userLobby);
+                            } catch (UserAlreadyBindedException | MaxAmountOfPlayersReachedException ex) {
+                                return new Package("ERROR", "exception", ex);
+                            }
+                        }
+                    default:
+                        return new Package("ERROR", "invalid type of request", "null");
                 }
-                break;
             case "GET":
-                break;
+                switch (request.getTYPE()) {
+                    case "lobbies":
+                        LinkedList<Object> lobbies = server.listRooms();
+                        return new Package("OK", "lobbies", lobbies);
+                    default:
+                        return new Package("ERROR", "invalid type of request", "null");
+                }
             case "DEL":
-                break;
+                switch (request.getTYPE()) {
+                    default:
+                        return new Package("ERROR", "invalid type of request", "null");
+                }
         }
         return new Package("ERROR", "invalid type of request", "null");
     }

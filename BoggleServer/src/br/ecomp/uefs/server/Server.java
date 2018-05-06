@@ -107,13 +107,17 @@ public class Server extends Thread {
      * Associates an user to a lobby given its number. 
      * @param roomNumber
      * @param user
+     * @return 
      * @throws shared.exception.UserAlreadyBindedException
      * @throws shared.exception.MaxAmountOfPlayersReachedException
      */
-    public void bindUserToLobby(int roomNumber,Object user) throws UserAlreadyBindedException, MaxAmountOfPlayersReachedException{
+    public Lobby bindUserToLobby(int roomNumber,Object user) throws UserAlreadyBindedException, MaxAmountOfPlayersReachedException{
+        System.out.println("Server.binding user to lobby");
         Lobby lobby = (Lobby) lobbies.get(roomNumber);
         User usr = (User) user;
         lobby.bindUser(usr);
+        System.out.println("Server -> user binded");
+        return lobby;
     }
     /*------------------------------------------------------------------------*/
     /**
@@ -122,9 +126,11 @@ public class Server extends Thread {
      * @param user
      */
     public void removeUserFromLobby(int roomNumber,Object user){
+        System.out.println("Server.removing user from lobby");
         Lobby lobby = (Lobby) lobbies.get(roomNumber);
         User usr = (User) user;
         lobby.removeUser(usr);        
+        System.out.println("Server -> user removed");
     }
     /*------------------------------------------------------------------------*/
     /**
@@ -133,8 +139,10 @@ public class Server extends Thread {
      * @return 
      */
     public int getRoomAmountOfPlayers(int roomNumber){
+        System.out.println("Server.retrieving room number of players");
         Lobby lobby = (Lobby) lobbies.get(roomNumber);
-        return lobby.getAmountOfPlayers();
+        System.out.println("Server -> retrieved");
+        return lobby.getAmountOfPlayers();        
     }
     /*------------------------------------------------------------------------*/
     /**
@@ -142,6 +150,7 @@ public class Server extends Thread {
      * @return 
      */
     public LinkedList<Object> listRooms(){
+        System.out.println("Server -> retrieving available lobbies");
         return lobbies;
     } 
     /*------------------------------------------------------------------------*/
