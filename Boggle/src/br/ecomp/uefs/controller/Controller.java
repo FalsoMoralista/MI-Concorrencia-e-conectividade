@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import shared.exception.InvalidPasswordException;
 import shared.exception.InvalidTypeOfRequestException;
 import shared.exception.MaxAmountOfPlayersReachedException;
+import shared.exception.NoneLogInException;
 import shared.exception.UserAlreadyBindedException;
 import shared.exception.UserAlreadyRegisteredException;
 import shared.model.Lobby;
@@ -149,7 +150,7 @@ public class Controller {
      * @throws shared.exception.UserAlreadyBindedException
      * @throws shared.exception.MaxAmountOfPlayersReachedException
      */
-    public Lobby enterLobby(int lobbyNumber) throws InvalidTypeOfRequestException, IOException, UnknownHostException, ClassNotFoundException, UserAlreadyBindedException, MaxAmountOfPlayersReachedException{
+    public Lobby enterLobby(int lobbyNumber) throws InvalidTypeOfRequestException, IOException, UnknownHostException, ClassNotFoundException, UserAlreadyBindedException, MaxAmountOfPlayersReachedException, NoneLogInException{
         Lobby userLobby = null;
         if (instance instanceof User) {
             LobbyParameter lobbyRequest = new LobbyParameter(instance, lobbyNumber);
@@ -175,7 +176,7 @@ public class Controller {
                     }
             }
         } else {
-            System.out.println("throw not logged exception");
+            throw new NoneLogInException();
         }
         return userLobby;
     }
