@@ -5,6 +5,7 @@
  */
 package br.ecomp.uefs.view;
 
+import com.sun.javafx.collections.ObservableListWrapper;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,7 +16,10 @@ import javafx.event.EventType;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.TilePane;
@@ -36,6 +40,7 @@ public class InGameScreen extends Application {
     private Button x = new Button("x");
     private LinkedList<String> myWords = new LinkedList<>();
     private LinkedList<String> letterSet = new LinkedList<>();
+    private ListView seeWords = new ListView();
 
     public InGameScreen() {
         dices = new GameDices();
@@ -51,12 +56,14 @@ public class InGameScreen extends Application {
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(0);
-        grid.setVgap(15);
+        grid.setVgap(10);
         grid.autosize();
         grid.add(textField, 0, 1);
         grid.add(submit, 1, 2);
         grid.add(clear, 2, 2);
         grid.add(x, 0, 2);
+        grid.add(new Label("My words"), 6, 0);
+        grid.add(seeWords, 6, 1);
         grid.setPadding(new Insets(20, 20, 20, 20));
         Scene scene = new Scene(grid, 800, 600);
         primaryStage.setScene(scene);
@@ -86,24 +93,47 @@ public class InGameScreen extends Application {
                         letterSet.remove(btnName);
                         textField.setText(textField.getText() + btnName);
                     } else {
-                        System.out.println("throw no letters remaining exception, (all letters available added)");
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setHeaderText("No letters remaining, all letters available already added");
+                        alert.show();
                     }
                 });
             }
         }
         clear.setOnAction(e -> textField.clear());
         submit.setOnAction(e -> {
+
+            Alert alert = null;
+
             String txt = textField.getText();
-            if (!myWords.contains(txt)) {
-                myWords.add(txt);
-                int j= 1;
-                for(int i = 0; i < txt.length(); i++){
-                    letterSet.add(txt.substring(i, j++));
+
+            if (!txt.isEmpty()) {
+
+                if (txt.length() > 2) {
+
+                    if (!myWords.contains(txt)) {
+                        if(verifyWord(txt)){
+                            
+                        }
+                        myWords.add(txt);
+                        seeWords.setItems(new ObservableListWrapper(myWords));
+
+                    } else {
+                        alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setHeaderText("Word already added");
+                        alert.show();
+                    }
+                } else {
+                    alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setHeaderText("Not a valid word");
+                    alert.show();
                 }
-                textField.clear();
-            }else{
-                System.out.println("throw word already added exception");
             }
+            int j = 1;
+            for (int i = 0; i < txt.length(); i++) {
+                letterSet.add(txt.substring(i, j++));
+            }
+            textField.clear();
         });
 
         x.setOnAction(e -> {
@@ -112,6 +142,8 @@ public class InGameScreen extends Application {
             textField.setText(textField.getText().substring(0, textField.getText().length() - 1));
         });
         textField.setEditable(false);
+        seeWords.setPrefHeight(200);
+        seeWords.setPrefWidth(150);
     }
 
     /**
@@ -196,5 +228,9 @@ public class InGameScreen extends Application {
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    private boolean verifyWord(String txt) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
