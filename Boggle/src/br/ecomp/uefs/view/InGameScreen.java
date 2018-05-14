@@ -6,6 +6,7 @@
 package br.ecomp.uefs.view;
 
 import com.sun.javafx.collections.ObservableListWrapper;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,6 +26,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.TilePane;
 import javafx.stage.Stage;
 import shared.model.GameDices;
+import shared.model.GameSession;
 
 /**
  * The main game screen
@@ -32,6 +34,8 @@ import shared.model.GameDices;
  * @author Luciano Araujo Dourado Filho
  */
 public class InGameScreen extends Application {
+
+    GameSession session;
 
     private Button[][] buttons = new Button[4][4];
     private TextField textField = new TextField();
@@ -42,8 +46,9 @@ public class InGameScreen extends Application {
     private LinkedList<String> letterSet = new LinkedList<>();
     private ListView seeWords = new ListView();
 
-    public InGameScreen() {
+    public InGameScreen() throws IOException {
         dices = new GameDices();
+        session = new GameSession();
     }
 
     private GameDices dices;
@@ -100,7 +105,15 @@ public class InGameScreen extends Application {
                 });
             }
         }
-        clear.setOnAction(e -> textField.clear());
+        clear.setOnAction(e -> {
+            String txt = textField.getText();
+            int j = 1;
+            for (int i = 0; i < txt.length(); i++) {
+                letterSet.add(txt.substring(i, j++));
+            }
+            textField.clear();
+            
+        });
         submit.setOnAction(e -> {
 
             Alert alert = null;
@@ -112,11 +125,14 @@ public class InGameScreen extends Application {
                 if (txt.length() > 2) {
 
                     if (!myWords.contains(txt)) {
-                        if(verifyWord(txt)){
-                            
+                        if (verifyWord(txt)) {
+                            myWords.add(txt);
+                            seeWords.setItems(new ObservableListWrapper(myWords));
+                        }else{
+                            alert = new Alert(Alert.AlertType.ERROR);
+                            alert.setHeaderText("Not a word");
+                            alert.show();
                         }
-                        myWords.add(txt);
-                        seeWords.setItems(new ObservableListWrapper(myWords));
 
                     } else {
                         alert = new Alert(Alert.AlertType.ERROR);
@@ -231,6 +247,6 @@ public class InGameScreen extends Application {
     }
 
     private boolean verifyWord(String txt) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return session.verifyWord(txt);
     }
 }
