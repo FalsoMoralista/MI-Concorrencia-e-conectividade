@@ -36,7 +36,7 @@ public class Server extends Thread {
         users = new HashMap<>();
         lobbies = new LinkedList<>();
         for(int i = 0; i < MAX_NUMBER_OF_ROOMS; i++){
-            lobbies.add(new Lobby());
+            lobbies.add(new Lobby(i));
         }
         new Thread(this).start();
     }

@@ -24,6 +24,7 @@ import shared.exception.InvalidTypeOfRequestException;
 import shared.exception.MaxAmountOfPlayersReachedException;
 import shared.exception.NoneLogInException;
 import shared.exception.UserAlreadyBindedException;
+import shared.model.Lobby;
 import shared.model.User;
 
 /**
@@ -37,6 +38,8 @@ public class MainMenu extends Application {
     
     private Button join = new Button("Join Lobby");
     
+    private Stage stage;
+    
     public MainMenu() {
 
     }
@@ -47,10 +50,15 @@ public class MainMenu extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+
+        this.stage = primaryStage;
+
         this.before(primaryStage);
+
         if(this.controller.getInstance() instanceof User){
             this.setListItems();
         }
+
         primaryStage.show();
     }
 
@@ -85,19 +93,23 @@ public class MainMenu extends Application {
     private void setProperties(){
 
         availableRooms.setPrefHeight(200);
-
         availableRooms.setPrefWidth(300);
 
         join.setOnAction(e ->{
             Alert alert = null;
             try {
-                System.out.println(controller.enterLobby(availableRooms.getSelectionModel().getSelectedIndex()));
+                Lobby lobby = ((Lobby)availableRooms.getSelectionModel().getSelectedItem());
+                lobby = controller.enterLobby(lobby.getId());
+                WaitingLobby waitingLobby = new WaitingLobby(lobby, controller);
+                waitingLobby.start(stage);
             } catch (InvalidTypeOfRequestException | IOException | ClassNotFoundException | UserAlreadyBindedException ex) {
                 Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
             } catch (MaxAmountOfPlayersReachedException | NoneLogInException ex) {
                 alert = new Alert(Alert.AlertType.ERROR);
                 alert.setHeaderText(ex.getMessage());
                 alert.show();
+            } catch (Exception ex) {
+                Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
     }
