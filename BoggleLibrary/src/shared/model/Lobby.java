@@ -74,7 +74,14 @@ public class Lobby implements Serializable{
     public int getAmountOfPlayers(){
         return players.size();
     }        
-        
+
+    @Override
+    public String toString() {
+        return "Lobby[" + "players: " + this.getAmountOfPlayers()+"/"+MAX_NUMBER_OF_PLAYERS +']';
+    }
+    
+    
+    
     public static void main(String[] args) throws UserAlreadyBindedException, MaxAmountOfPlayersReachedException{
         Lobby lobby = new Lobby();
         User u = new User("luciano","123");

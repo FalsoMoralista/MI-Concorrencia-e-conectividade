@@ -9,9 +9,10 @@ import java.io.Serializable;
 
 /**
  *
- * @author luciano
+ * @author Luciano Araujo Dourado Filho
  */
 public class User implements Serializable{
+
     String username;
     String password;
 
