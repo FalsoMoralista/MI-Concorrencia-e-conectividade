@@ -6,6 +6,10 @@
 
 package br.ecomp.uefs;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -17,17 +21,32 @@ import java.net.UnknownHostException;
  */
 public class MulticastPublisher {
 
-    private DatagramSocket socket;
-    private InetAddress group;
-    private byte[] buffer;    
     private Peer peer;
+
+    private DatagramSocket socket;
+
+    private InetAddress group;
+
+    private byte[] buffer;    
+    
+    private static final int PORT =  4446;
 
     public MulticastPublisher(Peer peer) throws SocketException, UnknownHostException {
         this.peer = peer;
         socket = new DatagramSocket();
-        group = InetAddress.getByName(peer.getGroup().getGroupAddress().toString());
+        group = peer.getGroup().getGroupAddress();
     }
                 
-    public void multicast(Object message){
+    public void multicast(Object message) throws IOException{
+                
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        ObjectOutputStream os = new ObjectOutputStream(outputStream);
+
+        os.writeObject(message);
+
+        buffer = outputStream.toByteArray();
+        
+        socket.send(new DatagramPacket(buffer, buffer.length, group,PORT));
     }
 }
