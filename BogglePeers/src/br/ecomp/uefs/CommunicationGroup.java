@@ -7,6 +7,8 @@
 package br.ecomp.uefs;
 
 import java.net.InetAddress;
+import java.util.HashMap;
+import shared.model.User;
 
 /**
  *
@@ -15,9 +17,11 @@ import java.net.InetAddress;
 public class CommunicationGroup {
 
     private InetAddress groupAddress;
-
-    public CommunicationGroup(InetAddress groupAddress) {
+    protected HashMap<String,User> users;
+    
+    public CommunicationGroup(InetAddress groupAddress, HashMap<String,User> users) {
         this.groupAddress = groupAddress;
+        this.users = users;
     }
 
     public InetAddress getGroupAddress() {
