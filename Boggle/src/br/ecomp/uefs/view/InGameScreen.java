@@ -25,6 +25,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.TilePane;
 import javafx.stage.Stage;
+import shared.model.Game;
 import shared.model.GameDices;
 import shared.model.GameSession;
 
@@ -36,7 +37,8 @@ import shared.model.GameSession;
 public class InGameScreen extends Application {
 
     GameSession session;
-
+    Game game;
+    
     private Button[][] buttons = new Button[4][4];
     private TextField textField = new TextField();
     private Button submit = new Button("submit");
@@ -46,10 +48,12 @@ public class InGameScreen extends Application {
     private LinkedList<String> letterSet = new LinkedList<>();
     private ListView seeWords = new ListView();
 
-    public InGameScreen() throws IOException {
+    public InGameScreen(Game game) throws IOException {
+        this.game = game;
         dices = new GameDices();
         session = new GameSession();
     }
+    
 
     private GameDices dices;
 

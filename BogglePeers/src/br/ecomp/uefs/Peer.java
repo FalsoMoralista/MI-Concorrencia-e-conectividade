@@ -6,6 +6,8 @@
 
 package br.ecomp.uefs;
 
+import shared.util.CommunicationGroup;
+
 /**
  *
  * @author Luciano Araujo Dourado Filho

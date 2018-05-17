@@ -11,10 +11,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
+import shared.exception.InsufficientAmountOfPlayersException;
 import shared.exception.InvalidPasswordException;
 import shared.exception.MaxAmountOfPlayersReachedException;
 import shared.exception.UserAlreadyBindedException;
@@ -65,7 +67,7 @@ public class TCPThread extends Thread {
             }
         }
     }
-
+    
     private Package getRequest(Package request) {
         switch (request.getHEADER()) {
             case "PUT": // IN CASE SOME TRY TO PUT
@@ -91,13 +93,21 @@ public class TCPThread extends Thread {
                         }
                     case "lobby":
                         LobbyParameter lobbyRequest = (LobbyParameter) request.getCONTENT();
-                         {
-                            try {
-                                Lobby userLobby = server.bindUserToLobby(lobbyRequest.getLobbyNumber(), lobbyRequest.getUser());
-                                return new Package("OK", "lobby", userLobby);
-                            } catch (UserAlreadyBindedException | MaxAmountOfPlayersReachedException ex) {
-                                return new Package("ERROR", "exception", ex);
-                            }
+                        try {
+                            Lobby userLobby = server.bindUserToLobby(lobbyRequest.getLobbyNumber(), lobbyRequest.getUser());
+                            return new Package("OK", "lobby", userLobby);
+                        } catch (UserAlreadyBindedException | MaxAmountOfPlayersReachedException ex) {
+                            return new Package("ERROR", "exception", ex);
+                        }
+                    case "game":
+                        int id = (int) request.getCONTENT();
+                        try {
+                            Object game = server.startGame(id);
+                            return new Package("OK", "game", game);
+                        } catch (InsufficientAmountOfPlayersException ex) {
+                            return new Package("ERROR", "exception",ex);
+                        } catch (UnknownHostException ex) {
+                            Logger.getLogger(TCPThread.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     default:
                         return new Package("ERROR", "invalid type of request", "null");

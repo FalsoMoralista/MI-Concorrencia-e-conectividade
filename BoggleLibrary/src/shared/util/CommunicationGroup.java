@@ -4,24 +4,21 @@
  * and open the template in the editor.
  */
 
-package br.ecomp.uefs;
+package shared.util;
 
+import java.io.Serializable;
 import java.net.InetAddress;
-import java.util.HashMap;
-import shared.model.User;
 
 /**
  *
  * @author Luciano Araujo Dourado Filho
  */
-public class CommunicationGroup {
+public class CommunicationGroup implements Serializable{
 
     private InetAddress groupAddress;
-    protected HashMap<String,User> users;
     
-    public CommunicationGroup(InetAddress groupAddress, HashMap<String,User> users) {
+    public CommunicationGroup(InetAddress groupAddress) {
         this.groupAddress = groupAddress;
-        this.users = users;
     }
 
     public InetAddress getGroupAddress() {

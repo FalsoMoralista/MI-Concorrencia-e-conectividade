@@ -5,7 +5,7 @@
  */
 package br.ecomp.uefs.server;
 
-import br.ecomp.uefs.CommunicationGroup;
+import shared.util.CommunicationGroup;
 import shared.exception.UserAlreadyRegisteredException;
 import shared.exception.UserNotFoundException;
 import br.ecomp.uefs.server.tcp.TCPListener;
@@ -18,6 +18,7 @@ import shared.exception.InsufficientAmountOfPlayersException;
 import shared.exception.InvalidPasswordException;
 import shared.exception.MaxAmountOfPlayersReachedException;
 import shared.exception.UserAlreadyBindedException;
+import shared.model.Game;
 import shared.model.Lobby;
 import shared.model.User;
 
@@ -164,16 +165,19 @@ public class Server extends Thread {
      * @throws shared.exception.InsufficientAmountOfPlayersException
      * @throws java.net.UnknownHostException
      */
-    public void startGame(int lobbyID) throws InsufficientAmountOfPlayersException, UnknownHostException{
+    public Object startGame(int lobbyID) throws InsufficientAmountOfPlayersException, UnknownHostException{
+        Game game = null;
         Lobby lobby = (Lobby) lobbies.get(lobbyID);
         if(lobby.getAmountOfPlayers() < 2){
             throw new InsufficientAmountOfPlayersException();
         }else{
             HashMap<String,User> players = lobby.getPlayers();
-            CommunicationGroup group = new CommunicationGroup(InetAddress.getByName("230.0.0.0"),players);
+            CommunicationGroup group = new CommunicationGroup(InetAddress.getByName("230.0.0.0"));
+            game = new Game(players, group);
             lobbies.remove(lobbyID);
             lobbies.add(new Lobby(lobbies.size()));
         }
+        return game;
     }    
     /*------------------------------------------------------------------------*/
 

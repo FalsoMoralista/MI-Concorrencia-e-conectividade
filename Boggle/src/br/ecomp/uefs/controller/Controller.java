@@ -9,12 +9,14 @@ import shared.model.User;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.LinkedList;
+import shared.exception.InsufficientAmountOfPlayersException;
 import shared.exception.InvalidPasswordException;
 import shared.exception.InvalidTypeOfRequestException;
 import shared.exception.MaxAmountOfPlayersReachedException;
 import shared.exception.NoneLogInException;
 import shared.exception.UserAlreadyBindedException;
 import shared.exception.UserAlreadyRegisteredException;
+import shared.model.Game;
 import shared.model.Lobby;
 import shared.model.LobbyParameter;
 import shared.model.Session;
@@ -180,15 +182,26 @@ public class Controller {
         }
         return userLobby;
     }
-    /**
-     * ***********************************************************************
-     */
-    /**
-     * ***********************************************************************
-     */
-    /**
-     * ***********************************************************************
-     */
+    
+    public Game startGame(int id) throws IOException, UnknownHostException, ClassNotFoundException, InsufficientAmountOfPlayersException{
+        Package request = new Package("PUT", "game", id);
+        Package pack = (Package) ClientServer.sendTCP(serverHost, 8888, request);
+        switch (pack.getHEADER()) {
+            case "OK":
+                switch (pack.getTYPE()) {
+                    case "game":
+                        Game game  = (Game) pack.getCONTENT();
+                        return game;
+                }
+            case "ERROR":
+                switch (pack.getTYPE()) {
+                    case "exception":
+                        throw new InsufficientAmountOfPlayersException();
+                }
+        }
+        return null;
+        
+    }
 
     public static void main(String[] args) throws ClassNotFoundException, IOException, UserAlreadyRegisteredException, UnknownHostException, InvalidPasswordException, InvalidTypeOfRequestException, Exception {
         Controller c = new Controller("localhost");
