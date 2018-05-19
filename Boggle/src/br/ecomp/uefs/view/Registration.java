@@ -68,7 +68,7 @@ public class Registration extends Application implements Serializable {
         this.controller = new Controller("localhost");
     }
 
-    public User getInfo() throws InvalidDataException {
+    public User getInfo() throws InvalidDataException, IOException {
         if (passwordField.getText().isEmpty() && loginField.getText().isEmpty()) {
             throw new InvalidDataException();
         }
@@ -134,6 +134,8 @@ public class Registration extends Application implements Serializable {
             } catch (InvalidDataException ide) {
                 infoError.setFill(Color.FIREBRICK);
                 infoError.setText("Missing information");
+            } catch (IOException ex) {
+                Logger.getLogger(Registration.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
 

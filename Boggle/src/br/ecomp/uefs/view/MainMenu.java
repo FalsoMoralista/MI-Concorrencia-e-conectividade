@@ -8,6 +8,7 @@ package br.ecomp.uefs.view;
 import br.ecomp.uefs.controller.Controller;
 import com.sun.javafx.collections.ObservableListWrapper;
 import java.io.IOException;
+import static java.lang.Thread.sleep;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -56,7 +57,8 @@ public class MainMenu extends Application {
         this.before(primaryStage);
 
         if(this.controller.getInstance() instanceof User){
-            this.setListItems();
+            setListItems();
+            synchronize();
         }
 
         primaryStage.show();
@@ -113,13 +115,28 @@ public class MainMenu extends Application {
             }
         });
     }
-    
-    
-    
+            
     private void setListItems() throws IOException, UnknownHostException, ClassNotFoundException, InvalidTypeOfRequestException{
         this.availableRooms.setItems(new ObservableListWrapper(controller.getAvailableRooms()));
     }
         
+    private void synchronize(){
+        Runnable r = ( ) -> {            
+            try {
+                sleep(10000);
+                setListItems();
+            } catch (IOException ex) {
+                Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InvalidTypeOfRequestException ex) {
+                Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        };
+        new Thread(r).start();
+    }
     
     public static void main(String[] args){
         launch(args);

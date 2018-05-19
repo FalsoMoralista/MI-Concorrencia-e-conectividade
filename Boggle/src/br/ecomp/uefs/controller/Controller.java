@@ -208,7 +208,6 @@ public class Controller {
         User luciano = new User("luciano", "123");
         c.register(luciano);
         System.out.println(c.authenticate("luciano", "123"));
-        System.out.println(c.getInstance());
         LinkedList<Lobby> list = c.getAvailableRooms();
         System.out.println("Available rooms:");
         list.forEach(System.out::println);

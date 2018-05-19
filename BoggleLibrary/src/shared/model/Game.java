@@ -7,7 +7,7 @@ package shared.model;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import shared.util.CommunicationGroup;
+import br.ecomp.uefs.CommunicationGroup;
 
 /**
  *

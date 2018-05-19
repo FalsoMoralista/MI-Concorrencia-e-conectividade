@@ -60,21 +60,27 @@ public class WaitingLobby extends Application {
         this.stage = primaryStage;
         before(primaryStage);
         syncrhonize();
+        User u = controller.getInstance();
+        u.setGroup(lobby.getGroup());
+        u.start();
+        u.multicast("entrei na sala carai");
     }
 
     private void syncrhonize() {
         Runnable r = () -> {
-            while (synchronizing) {
-                try {
+            while (true) {
+                try {                    
                     Thread.sleep(5000); // waits for 15 seconds then synchronize with the server
-                    LinkedList<Lobby> lobbies = controller.getAvailableRooms();
-                    Lobby l = lobbies.get(this.lobby.getId());
-                    this.seePlayers.setItems(new ObservableListWrapper(listPlayers()));
                     
+                    LinkedList<Lobby> lobbies = controller.getAvailableRooms();
+                    
+                    Lobby l = lobbies.get(this.lobby.getId());
+                    
+                    this.seePlayers.setItems(new ObservableListWrapper(listPlayers()));                    
                 } catch (IOException | ClassNotFoundException | InvalidTypeOfRequestException | InterruptedException ex) {
                     Logger.getLogger(WaitingLobby.class.getName()).log(Level.SEVERE, null, ex);
                 }catch(NullPointerException ex){
-                    
+                    System.out.println(ex);
                 }
             }
         };

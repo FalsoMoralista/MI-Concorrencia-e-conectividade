@@ -7,6 +7,7 @@
 package br.ecomp.uefs;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -17,7 +18,7 @@ import java.util.logging.Logger;
  *
  * @author Luciano Araujo Dourado Filho
  */
-public class MulticastListener extends Thread{
+public class MulticastListener extends Thread implements Serializable{
 
     private MulticastSocket socket;
     
@@ -40,10 +41,13 @@ public class MulticastListener extends Thread{
     public void run(){
         try {
             socket.joinGroup(group);
-            byte[] incomingData = new byte[10240];
+            buffer = new byte[10240];
             while(true){
-                DatagramPacket pack = new DatagramPacket(incomingData, incomingData.length);
+                DatagramPacket pack = new DatagramPacket(buffer, buffer.length);
                 socket.receive(pack);
+                byte[] data = pack.getData();
+                MulticastHandler handle = new MulticastHandler(peer,data);
+                handle.run();
             }
         } catch (IOException ex) {
             Logger.getLogger(MulticastListener.class.getName()).log(Level.SEVERE, null, ex);

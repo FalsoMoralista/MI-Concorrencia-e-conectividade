@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package shared.util;
+package br.ecomp.uefs;
 
 import java.io.Serializable;
 import java.net.InetAddress;

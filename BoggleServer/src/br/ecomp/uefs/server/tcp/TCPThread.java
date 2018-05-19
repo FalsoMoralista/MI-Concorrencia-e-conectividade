@@ -5,6 +5,7 @@
  */
 package br.ecomp.uefs.server.tcp;
 
+import br.ecomp.uefs.exception.EmptyGroupException;
 import br.ecomp.uefs.server.Server;
 import shared.exception.UserAlreadyRegisteredException;
 import java.io.IOException;
@@ -67,8 +68,8 @@ public class TCPThread extends Thread {
             }
         }
     }
-    
-    private Package getRequest(Package request) {
+
+    private Package getRequest(Package request) throws IOException {
         switch (request.getHEADER()) {
             case "PUT": // IN CASE SOME TRY TO PUT
                 switch (request.getTYPE()) {
@@ -98,6 +99,8 @@ public class TCPThread extends Thread {
                             return new Package("OK", "lobby", userLobby);
                         } catch (UserAlreadyBindedException | MaxAmountOfPlayersReachedException ex) {
                             return new Package("ERROR", "exception", ex);
+                        } catch (EmptyGroupException ex) {
+                            return new Package("ERROR", "exception", ex);
                         }
                     case "game":
                         int id = (int) request.getCONTENT();
@@ -105,7 +108,7 @@ public class TCPThread extends Thread {
                             Object game = server.startGame(id);
                             return new Package("OK", "game", game);
                         } catch (InsufficientAmountOfPlayersException ex) {
-                            return new Package("ERROR", "exception",ex);
+                            return new Package("ERROR", "exception", ex);
                         } catch (UnknownHostException ex) {
                             Logger.getLogger(TCPThread.class.getName()).log(Level.SEVERE, null, ex);
                         }

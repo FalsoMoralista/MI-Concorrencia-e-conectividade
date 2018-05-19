@@ -5,7 +5,11 @@
  */
 package shared.model;
 
+import br.ecomp.uefs.CommunicationGroup;
+import br.ecomp.uefs.exception.EmptyGroupException;
+import java.io.IOException;
 import java.io.Serializable;
+import java.net.InetAddress;
 import java.util.HashMap;
 import shared.exception.MaxAmountOfPlayersReachedException;
 import shared.exception.UserAlreadyBindedException;
@@ -22,11 +26,14 @@ public class Lobby implements Serializable {
     private User leader;
 
     private int id;
-
+    
+    private CommunicationGroup group;
+    
     private static final int MAX_NUMBER_OF_PLAYERS = 10;
 
-    public Lobby(int id) {
+    public Lobby(int id, CommunicationGroup group) {
         players = new HashMap<>();
+        this.group = group;
         this.id = id;
     }
 
@@ -39,6 +46,10 @@ public class Lobby implements Serializable {
         return id;
     }
 
+    public CommunicationGroup getGroup(){
+        return this.group;
+    }
+    
     /**
      * Returns the current user that leads this lobby.
      *
@@ -55,7 +66,7 @@ public class Lobby implements Serializable {
      * @throws shared.exception.UserAlreadyBindedException
      * @throws shared.exception.MaxAmountOfPlayersReachedException
      */
-    public void bindUser(User u) throws UserAlreadyBindedException, MaxAmountOfPlayersReachedException {
+    public void bindUser(User u) throws UserAlreadyBindedException, MaxAmountOfPlayersReachedException, IOException, EmptyGroupException {
         if (players.size() < MAX_NUMBER_OF_PLAYERS) {
             if (players.size() == 0) {
                 leader = u;
@@ -112,14 +123,27 @@ public class Lobby implements Serializable {
         return "Lobby-" + id + "[" + "players: " + this.getAmountOfPlayers() + "/" + MAX_NUMBER_OF_PLAYERS + ']';
     }
 
-    public static void main(String[] args) throws UserAlreadyBindedException, MaxAmountOfPlayersReachedException {
-        Lobby lobby = new Lobby(0);
+    public static void main(String[] args) throws UserAlreadyBindedException, MaxAmountOfPlayersReachedException, IOException, EmptyGroupException {
+        Lobby lobby = new Lobby(0,new CommunicationGroup(InetAddress.getByName("230.0.0.255")));
+        
         User u = new User("luciano", "123");
-        lobby.bindUser(u);
-        System.out.println(lobby.getAmountOfPlayers() == 1);
-        System.out.println(lobby.getPlayer("luciano"));
-        lobby.removeUser(u);
-        lobby.bindUser(u);
-        lobby.bindUser(u);
+        lobby.bindUser(u);        
+
+
+        User usr = new User("USERNAME", "PASS");
+
+
+        lobby.bindUser(usr);
+        
+        u.start();
+        usr.start();
+        
+        u.multicast("testando");
+
+//        System.out.println(lobby.getAmountOfPlayers() == 1);
+//        System.out.println(lobby.getPlayer("luciano"));
+//        lobby.removeUser(u);
+//        lobby.bindUser(u);
+//        lobby.bindUser(u);
     }
 }

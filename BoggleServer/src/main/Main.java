@@ -6,13 +6,14 @@
 package main;
 
 import br.ecomp.uefs.server.Server;
+import java.net.UnknownHostException;
 
 /**
  *
  * @author luciano
  */
 public class Main {
-    public static void main(String[] args){
+    public static void main(String[] args) throws UnknownHostException{
         Server server = new Server();
     }
 }

@@ -9,6 +9,7 @@ package br.ecomp.uefs;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -19,7 +20,7 @@ import java.net.UnknownHostException;
  * This class will be used to communicate between peers.
  * @author Luciano Araujo Dourado Filho
  */
-public class MulticastPublisher {
+public class MulticastPublisher implements Serializable{
 
     private Peer peer;
 
