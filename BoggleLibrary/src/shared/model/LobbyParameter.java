@@ -5,6 +5,7 @@
  */
 package shared.model;
 
+import br.ecomp.uefs.model.User;
 import java.io.Serializable;
 
 /**

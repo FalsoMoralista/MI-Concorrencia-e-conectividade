@@ -5,6 +5,7 @@
  */
 package shared.model;
 
+import br.ecomp.uefs.model.User;
 import br.ecomp.uefs.CommunicationGroup;
 import br.ecomp.uefs.exception.EmptyGroupException;
 import java.io.IOException;

@@ -6,6 +6,7 @@
 
 package shared.model;
 
+import br.ecomp.uefs.model.User;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,6 +21,7 @@ import java.util.stream.Stream;
  * @author Luciano Araujo Dourado Filho
  */
 public class GameSession {
+    
     private HashMap<String,Integer> dictionary;
     private User user;
     private LinkedList<User> participants;
@@ -35,11 +37,19 @@ public class GameSession {
             dictionary.put(line, i[0]++);            
         });
     }
-    
-    public GameSession() throws IOException{
-        loadDictionary();
+
+    public GameSession(User user) {
+        this.user = user;
+        this.participants = new LinkedList<>();
+        participants.add(user);
     }
     
+    public void addUser(User user){
+        if(!participants.contains(user)){
+            participants.add(user);
+        }            
+    }
+            
     public boolean verifyWord(String word){
         try{
             dictionary.get(word).toString();
