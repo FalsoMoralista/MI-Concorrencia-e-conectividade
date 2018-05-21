@@ -5,6 +5,7 @@
  */
 package br.ecomp.uefs.view;
 
+import br.ecomp.uefs.game.InGameScreen;
 import br.ecomp.uefs.controller.Controller;
 import com.sun.javafx.collections.ObservableListWrapper;
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -23,10 +25,11 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import shared.exception.InsufficientAmountOfPlayersException;
 import shared.exception.InvalidTypeOfRequestException;
-import shared.model.Game;
+import br.ecomp.uefs.game.Game;
 import shared.model.GameSession;
 import shared.model.Lobby;
-import shared.model.User;
+import br.ecomp.uefs.MultiPackage;
+import br.ecomp.uefs.model.User;
 
 /**
  *
@@ -39,11 +42,11 @@ public class WaitingLobby extends Application {
 
     private ListView seePlayers;
     private Button start = new Button("Start game");
-    
+
     private boolean synchronizing;
 
     private Stage stage;
-    
+
     public WaitingLobby(Lobby lobby, Controller controller) {
         this.lobby = lobby;
         this.controller = controller;
@@ -57,34 +60,48 @@ public class WaitingLobby extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+
         this.stage = primaryStage;
+
         before(primaryStage);
+
+        setListItems();
+
         syncrhonize();
+
         User u = controller.getInstance();
+
         u.setGroup(lobby.getGroup());
-        u.start();
-        u.multicast("entrei na sala carai");
+
+        GameSession session = new GameSession(u);
+
+        u.start();  
+        MultiPackage pack = new MultiPackage(u.toString(), "1",u);
+        u.multicast(pack);
     }
 
     private void syncrhonize() {
         Runnable r = () -> {
-            while (true) {
-                try {                    
+            while (synchronizing) {
+                try {
                     Thread.sleep(5000); // waits for 15 seconds then synchronize with the server
-                    
+
                     LinkedList<Lobby> lobbies = controller.getAvailableRooms();
-                    
+
                     Lobby l = lobbies.get(this.lobby.getId());
-                    
-                    this.seePlayers.setItems(new ObservableListWrapper(listPlayers()));                    
+                    setListItems();
                 } catch (IOException | ClassNotFoundException | InvalidTypeOfRequestException | InterruptedException ex) {
                     Logger.getLogger(WaitingLobby.class.getName()).log(Level.SEVERE, null, ex);
-                }catch(NullPointerException ex){
+                } catch (NullPointerException ex) {
                     System.out.println(ex);
                 }
             }
         };
         new Thread(r).start();
+    }
+
+    private void setListItems() {
+        this.seePlayers.setItems(new ObservableListWrapper(listPlayers()));
     }
 
     private void before(Stage primaryStage) {
@@ -122,10 +139,15 @@ public class WaitingLobby extends Application {
     private void setProperties() {
 
         start.setOnAction(e -> {
-            try {                
-                Game game = controller.startGame(lobby.getId());
+            try {
+                User instance = controller.getInstance();
+//                Game game = controller.startGame(lobby.getId());
+                Game game = new Game(null, null);
                 synchronizing = false;
-                new InGameScreen(game).start(stage);
+                InGameScreen screen = new InGameScreen(game);
+                MultiPackage pack = new MultiPackage(instance.toString(), "s",game);
+                instance.multicast(pack);
+                screen.start(stage);
             } catch (IOException ex) {
                 Logger.getLogger(WaitingLobby.class.getName()).log(Level.SEVERE, null, ex);
             } catch (ClassNotFoundException ex) {
@@ -139,7 +161,7 @@ public class WaitingLobby extends Application {
                 Logger.getLogger(WaitingLobby.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
-        
+
         this.seePlayers.setPrefHeight(250);
         this.seePlayers.setPrefWidth(200);
         this.seePlayers.setItems(new ObservableListWrapper(listPlayers()));

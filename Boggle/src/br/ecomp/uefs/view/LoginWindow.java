@@ -31,7 +31,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import shared.exception.InvalidPasswordException;
 import shared.exception.InvalidTypeOfRequestException;
-import shared.model.User;
+import br.ecomp.uefs.model.User;
 
 /**
  *

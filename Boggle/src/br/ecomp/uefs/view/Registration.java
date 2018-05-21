@@ -33,7 +33,7 @@ import javafx.stage.Stage;
 import shared.exception.InvalidDataException;
 import shared.exception.InvalidTypeOfRequestException;
 import shared.exception.UserAlreadyRegisteredException;
-import shared.model.User;
+import br.ecomp.uefs.model.User;
 
 /**
  *

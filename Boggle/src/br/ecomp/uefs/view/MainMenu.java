@@ -13,6 +13,7 @@ import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -26,7 +27,7 @@ import shared.exception.MaxAmountOfPlayersReachedException;
 import shared.exception.NoneLogInException;
 import shared.exception.UserAlreadyBindedException;
 import shared.model.Lobby;
-import shared.model.User;
+import br.ecomp.uefs.model.User;
 
 /**
  *
@@ -123,7 +124,7 @@ public class MainMenu extends Application {
     private void synchronize(){
         Runnable r = ( ) -> {            
             try {
-                sleep(10000);
+                sleep(5000);
                 setListItems();
             } catch (IOException ex) {
                 Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);

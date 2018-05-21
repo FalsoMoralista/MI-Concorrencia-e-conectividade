@@ -5,7 +5,7 @@
  */
 package br.ecomp.uefs.controller;
 
-import shared.model.User;
+import br.ecomp.uefs.model.User;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.LinkedList;
@@ -16,7 +16,7 @@ import shared.exception.MaxAmountOfPlayersReachedException;
 import shared.exception.NoneLogInException;
 import shared.exception.UserAlreadyBindedException;
 import shared.exception.UserAlreadyRegisteredException;
-import shared.model.Game;
+import br.ecomp.uefs.game.Game;
 import shared.model.Lobby;
 import shared.model.LobbyParameter;
 import shared.model.Session;
