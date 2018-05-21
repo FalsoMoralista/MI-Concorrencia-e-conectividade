@@ -20,9 +20,9 @@ import shared.exception.InsufficientAmountOfPlayersException;
 import shared.exception.InvalidPasswordException;
 import shared.exception.MaxAmountOfPlayersReachedException;
 import shared.exception.UserAlreadyBindedException;
-import shared.model.Game;
+import br.ecomp.uefs.game.Game;
 import shared.model.Lobby;
-import shared.model.User;
+import br.ecomp.uefs.model.User;
 
 /**
  * This class will be the runner for all services implemented.

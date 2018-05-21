@@ -24,7 +24,7 @@ import shared.exception.UserAlreadyBindedException;
 import shared.model.Lobby;
 import shared.model.LobbyParameter;
 import shared.model.Session;
-import shared.model.User;
+import br.ecomp.uefs.model.User;
 import shared.util.Package;
 
 /**
