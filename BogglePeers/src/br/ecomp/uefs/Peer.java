@@ -30,7 +30,15 @@ public class Peer implements Serializable{
     public void setGroup(CommunicationGroup group) {
         this.group = group;
     }
-
+    
+    /**
+     *  Add a participant to the group. 
+     * @param participant
+     */
+    public void addToGroup(Object participant){
+        this.group.addParticipant(participant);
+    }
+    
     /**
      *  Multicast a message through the group. 
      * @param message
