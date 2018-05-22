@@ -65,7 +65,7 @@ public class WaitingLobby extends Application {
         before(primaryStage);
 
         setListItems();
-
+        
         syncrhonize();
 
         User u = controller.getInstance();
@@ -77,14 +77,12 @@ public class WaitingLobby extends Application {
 
     private void syncrhonize() {
         Runnable r = () -> {
-            while (synchronizing) {
+            while (true) {
                 try {
-                    Thread.sleep(5000); // waits for 5 seconds then synchronize with the server
-
                     LinkedList<Lobby> lobbies = controller.getAvailableRooms();
-
                     Lobby l = lobbies.get(this.lobby.getId());
                     setListItems();
+                    Thread.sleep(5000); // waits for 5 seconds then synchronize with the server
                 } catch (IOException | ClassNotFoundException | InvalidTypeOfRequestException | InterruptedException ex) {
                     Logger.getLogger(WaitingLobby.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (NullPointerException ex) {
