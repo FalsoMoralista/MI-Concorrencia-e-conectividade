@@ -5,8 +5,8 @@
  */
 package br.ecomp.uefs.game;
 
-import br.ecomp.uefs.CommunicationGroup;
-import br.ecomp.uefs.MultiPackage;
+import br.ecomp.uefs.multicast.CommunicationGroup;
+import br.ecomp.uefs.multicast.MultiPackage;
 import com.sun.javafx.collections.ObservableListWrapper;
 import java.io.IOException;
 import java.io.Serializable;

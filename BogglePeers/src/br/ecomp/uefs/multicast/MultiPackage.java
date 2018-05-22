@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package br.ecomp.uefs;
+package br.ecomp.uefs.multicast;
 
 import java.io.Serializable;
 

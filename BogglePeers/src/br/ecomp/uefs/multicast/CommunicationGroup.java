@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.ecomp.uefs;
+package br.ecomp.uefs.multicast;
 
 import br.ecomp.uefs.game.Word;
 import br.ecomp.uefs.model.User;
@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 /**
@@ -72,20 +73,44 @@ public class CommunicationGroup implements Serializable {
             groupMessages.put(obj.toString(), new LinkedList<>());
         }
     }
-    
-    public void addUserMessage(String userID, Word message) {
-        System.out.println("Adicionando a palavra numero: " +message.getNumber()+" ("+message.getWord()+") "+" ao usuario: "+userID);
+
+    public void addUserMessage(String userID, Word message) throws IOException {
+        System.out.println("Adicionando a palavra numero: " + message.getNumber() + " (" + message.getWord() + ") " + " ao usuario: " + userID);
 
         LinkedList<Word> words = groupMessages.get(userID);
 
         System.out.println("Participantes:");
         participants.forEach(System.out::println);
 
-        System.out.println("Palavras atuais do usuario " +userID);
+        System.out.println("Palavras atuais do usuario " + userID);
         words.forEach(System.out::println);
 
         if (!words.contains(message)) {
-            words.add(message);
+            if (words.size() > 0) {
+                try {
+                    System.out.println(words.get(message.getNumber() - 1).getWord());
+                } catch (NullPointerException ex) {
+
+                    Iterator i = participants.iterator();
+
+                    User u = null;
+
+                    while(i.hasNext()){
+                        User aux = (User) i.next();
+                        if(aux.toString().equals(userID)){
+                            u = aux;
+                        }
+                    }
+                    
+                    u.multicast(new MultiRequest(userID,"w",message.getNumber()-1));
+                }
+            } else {
+                if (message.getNumber() == 0) {
+                    words.add(message);
+                }else{
+                    // pedir mensagem nao recebida na rede.
+                }
+            }
         }
     }
 

@@ -28,7 +28,7 @@ import shared.exception.InvalidTypeOfRequestException;
 import br.ecomp.uefs.game.Game;
 import shared.model.GameSession;
 import shared.model.Lobby;
-import br.ecomp.uefs.MultiPackage;
+import br.ecomp.uefs.multicast.MultiPackage;
 import br.ecomp.uefs.model.User;
 
 /**
@@ -64,29 +64,36 @@ public class WaitingLobby extends Application {
 
         before(primaryStage);
 
-        setListItems();
-        
+//        setListItems();
         syncrhonize();
 
         User u = controller.getInstance();
 
         u.setGroup(lobby.getGroup());
 
-        u.start();  
+        u.start();
     }
 
     private void syncrhonize() {
         Runnable r = () -> {
             while (true) {
-                try {
+                try {                    
                     LinkedList<Lobby> lobbies = controller.getAvailableRooms();
                     Lobby l = lobbies.get(this.lobby.getId());
-                    setListItems();
-                    Thread.sleep(5000); // waits for 5 seconds then synchronize with the server
-                } catch (IOException | ClassNotFoundException | InvalidTypeOfRequestException | InterruptedException ex) {
+                    setListItems();                    
+                    try {
+                        Thread.sleep(5000); // waits for 5 seconds then synchronize with the server
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(WaitingLobby.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (NullPointerException ex) {
+                        this.stage.close();
+                    }
+                } catch (IOException ex) {
                     Logger.getLogger(WaitingLobby.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (NullPointerException ex) {
-                    this.stage.close();
+                } catch (ClassNotFoundException ex) {
+                    Logger.getLogger(WaitingLobby.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (InvalidTypeOfRequestException ex) {
+                    Logger.getLogger(WaitingLobby.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         };
@@ -140,9 +147,9 @@ public class WaitingLobby extends Application {
 
                 synchronizing = false;
 
-                InGameScreen screen = new InGameScreen(game,instance);
-                                                               
-                MultiPackage pack = new MultiPackage(instance.toString(), "s",game);
+                InGameScreen screen = new InGameScreen(game, instance);
+
+                MultiPackage pack = new MultiPackage(instance.toString(), "s", game);
 
                 instance.multicast(pack);
 

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.ecomp.uefs;
+package br.ecomp.uefs.multicast;
 
 import br.ecomp.uefs.exception.EmptyGroupException;
 import br.ecomp.uefs.model.User;

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.ecomp.uefs;
+package br.ecomp.uefs.multicast;
 
 import br.ecomp.uefs.game.Game;
 import br.ecomp.uefs.game.InGameScreen;
@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.net.DatagramPacket;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,7 +22,11 @@ import javafx.application.Platform;
 import javafx.stage.Stage;
 
 /**
+ * This is be responsible for handling requests and parsing messages through the
+ * network.
  *
+ * @see MultiPackage
+ * @see MultiRequest
  * @author Luciano Araujo Dourado Filho
  */
 public class MulticastHandler implements Runnable, Serializable {
@@ -64,12 +69,12 @@ public class MulticastHandler implements Runnable, Serializable {
                 return;
             }
             switch (pack.getOP()) {
-                case "hello":
+                case "hello": // in case an user is identifying himself on the network
                     if (pack.hasAttachment()) {
                         peer.addToGroup((User) pack.getATTACHMENT());
                     }
                     break;
-                case "all":
+                case "all": // case an user is sending a linked list of users
                     if (pack.hasAttachment()) {
                         peer.getGroup().addCollection((LinkedList<User>) pack.getATTACHMENT());
                     }
@@ -96,6 +101,34 @@ public class MulticastHandler implements Runnable, Serializable {
                     }
                     break;
             }
+        } else if (readObject instanceof MultiRequest) {
+            MultiRequest pack = (MultiRequest) readObject;
+            if (pack.getREQ_ID().equals(peer.toString())) {
+                return;
+            }
+            switch (pack.getREQ_OP()) {
+                case "w": { // in case some is requesting a word from an user.
+
+                    String usr = pack.getREQ_ID();
+
+                    CommunicationGroup group = peer.getGroup();
+
+                    LinkedList<User> participants = group.getParticipants();
+
+                    User u = null;
+
+                    Iterator it = participants.iterator();
+
+                    while (it.hasNext()) {
+                        User aux = (User) it.next();
+                        if (aux.toString().equals(peer.toString())) {
+                            u = aux;
+                        }
+                    }
+                }
+
+            }
+
         }
     }
 

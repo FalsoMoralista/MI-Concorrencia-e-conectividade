@@ -5,7 +5,7 @@
  */
 package br.ecomp.uefs.server;
 
-import br.ecomp.uefs.CommunicationGroup;
+import br.ecomp.uefs.multicast.CommunicationGroup;
 import br.ecomp.uefs.exception.EmptyGroupException;
 import shared.exception.UserAlreadyRegisteredException;
 import shared.exception.UserNotFoundException;

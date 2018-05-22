@@ -7,8 +7,8 @@ package br.ecomp.uefs.game;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import br.ecomp.uefs.CommunicationGroup;
-import br.ecomp.uefs.CommunicationGroup;
+import br.ecomp.uefs.multicast.CommunicationGroup;
+import br.ecomp.uefs.multicast.CommunicationGroup;
 import br.ecomp.uefs.model.GameDices;
 import br.ecomp.uefs.model.User;
 import java.util.Collections;
@@ -19,7 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * This represents the Game.
  * @author Luciano Araujo Dourado Filho
  */
 public class Game implements Serializable {
