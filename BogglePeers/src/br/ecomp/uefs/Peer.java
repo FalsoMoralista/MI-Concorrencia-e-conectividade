@@ -6,6 +6,7 @@
 package br.ecomp.uefs;
 
 import br.ecomp.uefs.exception.EmptyGroupException;
+import br.ecomp.uefs.model.User;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.SocketException;
@@ -35,7 +36,7 @@ public class Peer implements Serializable{
      *  Add a participant to the group. 
      * @param participant
      */
-    public void addToGroup(Object participant){
+    public void addToGroup(User participant){
         this.group.addParticipant(participant);
     }
     

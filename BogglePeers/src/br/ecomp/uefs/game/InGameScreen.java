@@ -5,6 +5,8 @@
  */
 package br.ecomp.uefs.game;
 
+import br.ecomp.uefs.CommunicationGroup;
+import br.ecomp.uefs.MultiPackage;
 import com.sun.javafx.collections.ObservableListWrapper;
 import java.io.IOException;
 import java.io.Serializable;
@@ -27,6 +29,17 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.TilePane;
 import javafx.stage.Stage;
 import br.ecomp.uefs.model.GameDices;
+import br.ecomp.uefs.model.User;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /**
  * The main game screen
@@ -35,7 +48,11 @@ import br.ecomp.uefs.model.GameDices;
  */
 public class InGameScreen extends Application implements Serializable {
 
+    private User player;
+    
     Game game;
+    
+    private HashMap<String, Integer> dictionary;
 
     protected Button[][] buttons = new Button[4][4];
     private TextField textField = new TextField();
@@ -46,10 +63,32 @@ public class InGameScreen extends Application implements Serializable {
     private LinkedList<String> letterSet;
     private ListView seeWords = new ListView();
 
-    public InGameScreen(Game game) throws IOException {
+    public InGameScreen(Game game, User player) throws IOException {
+        
         this.game = game;
         this.letterSet = game.getLetterSet();
-//        session = new GameSession();
+        this.player = player;
+        
+        Iterator it = game.users.entrySet().iterator();
+        CommunicationGroup group = player.getGroup();
+
+        while(it.hasNext()){
+            Entry e = (Entry) it.next();
+            group.addParticipant((User) e.getValue());
+        }
+    }
+
+    private void loadDictionary() throws IOException {
+
+        this.dictionary = new HashMap<>();
+        
+        Path path = Paths.get(new File("src/br/ecomp/uefs/game/resources/English (American).dic").getPath());
+
+        Stream<String> lines = Files.lines(path);
+        int[] i = new int[1];
+        lines.forEach(line -> {
+            dictionary.put(line.toLowerCase(), i[0]++);
+        });
     }
 
     /**
@@ -113,6 +152,7 @@ public class InGameScreen extends Application implements Serializable {
             textField.clear();
 
         });
+        
         submit.setOnAction(e -> {
 
             Alert alert = null;
@@ -127,6 +167,13 @@ public class InGameScreen extends Application implements Serializable {
                         if (verifyWord(txt)) {
                             myWords.add(txt);
                             seeWords.setItems(new ObservableListWrapper(myWords));
+                            int wordIndex = myWords.indexOf(txt);
+                            MultiPackage pack = new MultiPackage(player.toString(), "w", new Word(txt,wordIndex));
+                            try {
+                                player.multicast(pack);
+                            } catch (IOException ex) {
+                                Logger.getLogger(InGameScreen.class.getName()).log(Level.SEVERE, null, ex);
+                            }
                         } else {
                             alert = new Alert(Alert.AlertType.ERROR);
                             alert.setHeaderText("Not a word");
@@ -168,7 +215,7 @@ public class InGameScreen extends Application implements Serializable {
         game.reset();
         this.myWords.clear();
         this.setDices();
-    }    
+    }
 
     private void setDices() {
         int get = 0;
@@ -186,6 +233,7 @@ public class InGameScreen extends Application implements Serializable {
         this.initializeButtons();
         this.setDices();
         this.setActions();
+        loadDictionary();
         GridPane grid = (GridPane) primaryStage.getScene().getRoot();
 
         TilePane pane = new TilePane();
@@ -209,6 +257,6 @@ public class InGameScreen extends Application implements Serializable {
     }
 
     private boolean verifyWord(String txt) {
-        return false;
+        return dictionary.containsKey(txt.toLowerCase());
     }
 }

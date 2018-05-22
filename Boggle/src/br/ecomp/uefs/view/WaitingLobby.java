@@ -60,7 +60,6 @@ public class WaitingLobby extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-
         this.stage = primaryStage;
 
         before(primaryStage);
@@ -73,10 +72,10 @@ public class WaitingLobby extends Application {
 
         u.setGroup(lobby.getGroup());
 
-        GameSession session = new GameSession(u);
-
         u.start();  
-        MultiPackage pack = new MultiPackage(u.toString(), "1",u);
+
+        MultiPackage pack = new MultiPackage(u.toString(), "hello",u);
+
         u.multicast(pack);
     }
 
@@ -84,7 +83,7 @@ public class WaitingLobby extends Application {
         Runnable r = () -> {
             while (synchronizing) {
                 try {
-                    Thread.sleep(5000); // waits for 15 seconds then synchronize with the server
+                    Thread.sleep(5000); // waits for 5 seconds then synchronize with the server
 
                     LinkedList<Lobby> lobbies = controller.getAvailableRooms();
 
@@ -93,7 +92,7 @@ public class WaitingLobby extends Application {
                 } catch (IOException | ClassNotFoundException | InvalidTypeOfRequestException | InterruptedException ex) {
                     Logger.getLogger(WaitingLobby.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (NullPointerException ex) {
-                    System.out.println(ex);
+                    this.stage.close();
                 }
             }
         };
@@ -140,13 +139,19 @@ public class WaitingLobby extends Application {
 
         start.setOnAction(e -> {
             try {
+
                 User instance = controller.getInstance();
-//                Game game = controller.startGame(lobby.getId());
-                Game game = new Game(null, null);
+
+                Game game = controller.startGame(lobby.getId());
+
                 synchronizing = false;
-                InGameScreen screen = new InGameScreen(game);
+
+                InGameScreen screen = new InGameScreen(game,instance);
+                                                               
                 MultiPackage pack = new MultiPackage(instance.toString(), "s",game);
+
                 instance.multicast(pack);
+
                 screen.start(stage);
             } catch (IOException ex) {
                 Logger.getLogger(WaitingLobby.class.getName()).log(Level.SEVERE, null, ex);

@@ -66,6 +66,8 @@ public class Lobby implements Serializable {
      * @param u
      * @throws shared.exception.UserAlreadyBindedException
      * @throws shared.exception.MaxAmountOfPlayersReachedException
+     * @throws java.io.IOException
+     * @throws br.ecomp.uefs.exception.EmptyGroupException
      */
     public void bindUser(User u) throws UserAlreadyBindedException, MaxAmountOfPlayersReachedException, IOException, EmptyGroupException {
         if (players.size() < MAX_NUMBER_OF_PLAYERS) {

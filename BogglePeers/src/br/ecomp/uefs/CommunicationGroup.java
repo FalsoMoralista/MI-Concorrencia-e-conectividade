@@ -5,8 +5,12 @@
  */
 package br.ecomp.uefs;
 
+import br.ecomp.uefs.game.Word;
+import br.ecomp.uefs.model.User;
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetAddress;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 /**
@@ -16,11 +20,15 @@ import java.util.LinkedList;
 public class CommunicationGroup implements Serializable {
 
     private InetAddress groupAddress;
-    private LinkedList<Object> participants;
+
+    private LinkedList<User> participants;
+
+    private HashMap<String, LinkedList<Word>> groupMessages;
 
     public CommunicationGroup(InetAddress groupAddress) {
         this.groupAddress = groupAddress;
         this.participants = new LinkedList<>();
+        this.groupMessages = new HashMap<>();
     }
 
     public InetAddress getGroupAddress() {
@@ -36,33 +44,66 @@ public class CommunicationGroup implements Serializable {
         return groupAddress.toString();
     }
 
-    public LinkedList<Object> getParticipants() {
+    public LinkedList<User> getParticipants() {
         return participants;
     }
 
-    public void setParticipants(LinkedList<Object> participants) {
+    public void setParticipants(LinkedList<User> participants) {
         this.participants = participants;
     }
 
-    public void addCollection(LinkedList<Object> collec){
-        collec.forEach( c ->{
-            if(!participants.contains(c)){
+    public void addCollection(LinkedList<User> collec) {
+        collec.forEach(c -> {
+            if (!participants.contains(c)) {
                 participants.add(c);
-            }                
+            }
         });
+        System.out.println("total de players final, apos start: " + participants.size());
     }
-    
-    
+
     /**
      * Adds an participant to the group.
      *
      * @param obj
      */
-    public void addParticipant(Object obj) {
-        System.out.println("adding participant");        
+    public void addParticipant(User obj) {
         if (!participants.contains(obj)) {
             participants.add(obj);
+            groupMessages.put(obj.toString(), new LinkedList<>());
         }
-        System.out.println("amount of participants:" +this.participants.size());
+    }
+    
+    public void addUserMessage(String userID, Word message) {
+        System.out.println("Adicionando a palavra " +message.getWord()+" ao usuario: "+userID);
+        LinkedList<Word> words = groupMessages.get(userID);
+        System.out.println(participants.size());
+        System.out.println(words.size());
+        if (!words.contains(message)) {
+            words.add(message);
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
+
+        LinkedList<User> users = new LinkedList<>();
+
+        User a = new User("a", "a");
+        User b = new User("b", "b");
+        User c = new User("c", "c");
+
+        CommunicationGroup g = new CommunicationGroup(null);
+
+        g.addParticipant(a);
+
+        users.add(a);
+        users.add(b);
+        users.add(c);
+
+        System.out.println("tam antes " + g.participants.size());
+
+        g.addCollection(users);
+
+        System.out.println("tam despues " + g.participants.size());
+
     }
 }

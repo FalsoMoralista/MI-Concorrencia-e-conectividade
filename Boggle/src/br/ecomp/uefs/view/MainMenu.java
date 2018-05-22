@@ -66,7 +66,7 @@ public class MainMenu extends Application {
     }
 
     private void before(Stage primaryStage) {
-        
+        primaryStage.setTitle("Main menu");
         GridPane grid = new GridPane();
 
         grid.setAlignment(Pos.CENTER);
@@ -101,8 +101,10 @@ public class MainMenu extends Application {
         join.setOnAction(e ->{
             Alert alert = null;
             try {
+
                 Lobby lobby = ((Lobby)availableRooms.getSelectionModel().getSelectedItem());
                 lobby = controller.enterLobby(lobby.getId());
+
                 WaitingLobby waitingLobby = new WaitingLobby(lobby, controller);
                 waitingLobby.start(stage);
             } catch (InvalidTypeOfRequestException | IOException | ClassNotFoundException | UserAlreadyBindedException ex) {

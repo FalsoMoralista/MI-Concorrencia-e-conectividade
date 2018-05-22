@@ -7,6 +7,8 @@ package br.ecomp.uefs;
 
 import br.ecomp.uefs.game.Game;
 import br.ecomp.uefs.game.InGameScreen;
+import br.ecomp.uefs.game.Word;
+import br.ecomp.uefs.model.User;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -62,24 +64,23 @@ public class MulticastHandler implements Runnable, Serializable {
                 return;
             }
             switch (pack.getOP()) {
-                case "1":
+                case "hello":
                     if (pack.hasAttachment()) {
-                        peer.addToGroup(pack.getATTACHMENT());
+                        peer.addToGroup((User) pack.getATTACHMENT());
                     }
                     break;
-                case "2":
+                case "all":
                     if (pack.hasAttachment()) {
-                        peer.getGroup().addCollection((LinkedList<Object>) pack.getATTACHMENT());
+                        peer.getGroup().addCollection((LinkedList<User>) pack.getATTACHMENT());
                     }
-                    System.out.println("total de players usuario->" + peer.getGroup().getParticipants().size());
                     break;
-                case "s":
+                case "s": // (starting game)
                     if (pack.hasAttachment()) {
                         Platform.runLater(new Runnable() {
                             @Override
                             public void run() {
                                 try {
-                                    new InGameScreen((Game) pack.getATTACHMENT()).start(new Stage());
+                                    new InGameScreen((Game) pack.getATTACHMENT(), (User) peer).start(new Stage());
                                 } catch (IOException ex) {
                                     Logger.getLogger(MulticastHandler.class.getName()).log(Level.SEVERE, null, ex);
                                 } catch (Exception ex) {
@@ -87,6 +88,11 @@ public class MulticastHandler implements Runnable, Serializable {
                                 }
                             }
                         });
+                    }
+                    break;
+                case "w": // (word)
+                    if (pack.hasAttachment()) {
+                        peer.getGroup().addUserMessage(pack.getID(), (Word) pack.getATTACHMENT());
                     }
                     break;
             }

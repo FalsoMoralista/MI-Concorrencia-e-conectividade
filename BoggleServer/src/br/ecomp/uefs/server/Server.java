@@ -119,6 +119,8 @@ public class Server extends Thread {
      * @return 
      * @throws shared.exception.UserAlreadyBindedException
      * @throws shared.exception.MaxAmountOfPlayersReachedException
+     * @throws java.io.IOException
+     * @throws br.ecomp.uefs.exception.EmptyGroupException
      */
     public Lobby bindUserToLobby(int roomNumber,Object user) throws UserAlreadyBindedException, MaxAmountOfPlayersReachedException, IOException, EmptyGroupException{
         System.out.println("Server.binding user to lobby");
@@ -171,16 +173,16 @@ public class Server extends Thread {
      */
     public Object startGame(int lobbyID) throws InsufficientAmountOfPlayersException, UnknownHostException{
         Game game = null;
-//        Lobby lobby = (Lobby) lobbies.get(lobbyID);
-//        if(lobby.getAmountOfPlayers() < 2){
-//            throw new InsufficientAmountOfPlayersException();
-//        }else{
-//            HashMap<String,User> players = lobby.getPlayers();
-//            CommunicationGroup group = new CommunicationGroup(InetAddress.getByName("230.0.0.0"));
-//            game = new Game(players, group);
-//            lobbies.remove(lobbyID);
-//            lobbies.add(new Lobby(lobbies.size()));
-//        }
+        Lobby lobby = (Lobby) lobbies.get(lobbyID);
+        if(lobby.getAmountOfPlayers() < 2){
+            throw new InsufficientAmountOfPlayersException();
+        }else{
+            HashMap<String,User> players = lobby.getPlayers();
+            game = new Game(players, null);
+            lobbies.remove(lobbyID);
+            CommunicationGroup group = new CommunicationGroup(InetAddress.getByName("230.0.0"+Integer.toString(lobbies.size()+1)));
+            lobbies.add(new Lobby(lobbies.size(),group));
+        }
         return game;
     }    
     /*------------------------------------------------------------------------*/

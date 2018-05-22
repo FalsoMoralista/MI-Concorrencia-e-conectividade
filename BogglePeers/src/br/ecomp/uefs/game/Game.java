@@ -15,6 +15,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -36,6 +38,7 @@ public class Game implements Serializable {
         this.dices = new GameDices();
         this.shuffleDices();
         this.randomizeDices();
+        this.start();
     }
 
     public LinkedList<String> getLetterSet() {
@@ -53,8 +56,7 @@ public class Game implements Serializable {
     public void setDices(GameDices dices) {
         this.dices = dices;
     }
-    
-    
+        
 
     public HashMap<String, User> getUsers() {
         return users;
@@ -127,7 +129,18 @@ public class Game implements Serializable {
         this.randomizeDices();
         this.letterSet.clear();
     }
-     
+    
+    public void start(){
+        Runnable r = () ->{
+            try {
+                Thread.sleep(180000);
+                System.out.println("TIME IS OVER");
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        };
+        new Thread(r).start();
+    }
     
     public static void main(String[] args){
         Game g = new Game(null, null);        
