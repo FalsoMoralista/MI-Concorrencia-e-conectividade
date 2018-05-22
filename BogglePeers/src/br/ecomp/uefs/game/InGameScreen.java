@@ -10,13 +10,8 @@ import br.ecomp.uefs.MultiPackage;
 import com.sun.javafx.collections.ObservableListWrapper;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventType;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -28,7 +23,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.TilePane;
 import javafx.stage.Stage;
-import br.ecomp.uefs.model.GameDices;
 import br.ecomp.uefs.model.User;
 import java.io.File;
 import java.nio.file.Files;
@@ -36,10 +30,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 
 /**
  * The main game screen
@@ -49,9 +47,9 @@ import java.util.stream.Stream;
 public class InGameScreen extends Application implements Serializable {
 
     private User player;
-    
+
     Game game;
-    
+
     private HashMap<String, Integer> dictionary;
 
     protected Button[][] buttons = new Button[4][4];
@@ -62,27 +60,39 @@ public class InGameScreen extends Application implements Serializable {
     private LinkedList<String> myWords = new LinkedList<>();
     private LinkedList<String> letterSet;
     private ListView seeWords = new ListView();
+    private ListView seePlayers = new ListView();
+
+    public InGameScreen() {
+
+    }
 
     public InGameScreen(Game game, User player) throws IOException {
-        
+
         this.game = game;
         this.letterSet = game.getLetterSet();
         this.player = player;
-        
+
         Iterator it = game.users.entrySet().iterator();
         CommunicationGroup group = player.getGroup();
-
-        while(it.hasNext()){
+        List<String> users = new LinkedList<>();
+        while (it.hasNext()) {
             Entry e = (Entry) it.next();
-            group.addParticipant((User) e.getValue());
+            User u = (User) e.getValue();
+            group.addParticipant(u);
+            if (u.toString().equals(player.toString())) {
+                users.add(u.toString()+" (me)");
+            }else{
+                users.add(u.toString());
+            }
         }
+        seePlayers.setItems(new ObservableListWrapper(users));
     }
 
     private void loadDictionary() throws IOException {
 
         this.dictionary = new HashMap<>();
-        
-        Path path = Paths.get(new File("src/br/ecomp/uefs/game/resources/English (American).dic").getPath());
+
+        Path path = Paths.get(new File("/home/luciano/Desktop/LUCIANO-UEFS/Java/MI - Concorrência e Conectividade/Boggle/src/br/ecomp/uefs/game/resources/English (American).dic"/*"src/br/ecomp/uefs/game/resources/English (American).dic"*/).getPath());
 
         Stream<String> lines = Files.lines(path);
         int[] i = new int[1];
@@ -95,20 +105,85 @@ public class InGameScreen extends Application implements Serializable {
      * Set up screen properties.
      */
     private void setUp(Stage primaryStage) {
+
         primaryStage.setTitle("Boggle");
-        GridPane grid = new GridPane();
-        grid.setAlignment(Pos.CENTER);
-        grid.setHgap(0);
-        grid.setVgap(10);
-        grid.autosize();
-        grid.add(textField, 0, 1);
-        grid.add(submit, 1, 2);
-        grid.add(clear, 2, 2);
-        grid.add(x, 0, 2);
-        grid.add(new Label("My words"), 6, 0);
-        grid.add(seeWords, 6, 1);
-        grid.setPadding(new Insets(20, 20, 20, 20));
-        Scene scene = new Scene(grid, 800, 600);
+
+        BorderPane border = new BorderPane();
+
+        // top 
+        GridPane top = new GridPane();
+        top.setAlignment(Pos.CENTER);
+        top.setHgap(10);
+        top.setVgap(10);
+        top.autosize();
+        top.setPadding(new Insets(25, 50, 0, 0));
+
+        border.topProperty().setValue(top);
+        //---------------------------------------------------------------------
+        // MIDDLE        
+        GridPane mid = new GridPane();
+
+        mid.setAlignment(Pos.CENTER);
+        mid.setHgap(0);
+        mid.setVgap(10);
+        mid.autosize();
+        mid.setPadding(new Insets(50, 0, 0, 0));
+
+        border.setCenter(mid);
+        //---------------------------------------------------------------------
+        // Right
+        GridPane right = new GridPane();
+        right.setAlignment(Pos.CENTER);
+        right.setHgap(0);
+        right.setVgap(10);
+        right.autosize();
+        right.setPadding(new Insets(0, 50, 0, 0));
+
+        right.add(new Label("         My words"), 0, 0);
+
+        right.add(seeWords, 0, 1);
+        seeWords.setPrefHeight(300);
+        seeWords.setPrefWidth(150);
+
+        border.setRight(right);
+        //---------------------------------------------------------------------
+        // left
+        GridPane left = new GridPane();
+        left.setAlignment(Pos.CENTER);
+        left.setHgap(0);
+        left.setVgap(10);
+        left.autosize();
+        left.setPadding(new Insets(0, 0, 0, 50));
+
+        left.add(new Label("          Players"), 0, 0);
+
+        left.add(seePlayers, 0, 1);
+        seePlayers.setPrefHeight(300);
+        seePlayers.setPrefWidth(150);
+
+        border.setLeft(left);
+        //---------------------------------------------------------------------        
+        //Bottom
+        GridPane bot = new GridPane();
+        bot.setAlignment(Pos.CENTER);
+        bot.setHgap(10);
+        bot.setVgap(5);
+        bot.autosize();
+        bot.setPadding(new Insets(0, 0, 80, 30));
+
+        bot.add(x, 0, 1);
+
+        bot.add(textField, 1, 1);
+
+        bot.add(submit, 2, 1);
+
+        bot.add(clear, 3, 1);
+
+        textField.setPrefHeight(25);
+
+        border.setBottom(bot);
+        //---------------------------------------------------------------------
+        Scene scene = new Scene(border, 800, 600);
         primaryStage.setScene(scene);
     }
 
@@ -152,7 +227,7 @@ public class InGameScreen extends Application implements Serializable {
             textField.clear();
 
         });
-        
+
         submit.setOnAction(e -> {
 
             Alert alert = null;
@@ -161,14 +236,14 @@ public class InGameScreen extends Application implements Serializable {
 
             if (!txt.isEmpty()) {
 
-                if (txt.length() > 2) {
+                if (txt.length() >= 2) {
 
                     if (!myWords.contains(txt)) {
                         if (verifyWord(txt)) {
                             myWords.add(txt);
                             seeWords.setItems(new ObservableListWrapper(myWords));
                             int wordIndex = myWords.indexOf(txt);
-                            MultiPackage pack = new MultiPackage(player.toString(), "w", new Word(txt,wordIndex));
+                            MultiPackage pack = new MultiPackage(player.toString(), "w", new Word(txt, wordIndex));
                             try {
                                 player.multicast(pack);
                             } catch (IOException ex) {
@@ -204,8 +279,7 @@ public class InGameScreen extends Application implements Serializable {
             textField.setText(textField.getText().substring(0, textField.getText().length() - 1));
         });
         textField.setEditable(false);
-        seeWords.setPrefHeight(200);
-        seeWords.setPrefWidth(150);
+
     }
 
     /**
@@ -234,7 +308,9 @@ public class InGameScreen extends Application implements Serializable {
         this.setDices();
         this.setActions();
         loadDictionary();
-        GridPane grid = (GridPane) primaryStage.getScene().getRoot();
+
+        BorderPane border = (BorderPane) primaryStage.getScene().getRoot();
+        GridPane grid = (GridPane) border.getCenter();
 
         TilePane pane = new TilePane();
         pane.setPrefColumns(4);
@@ -244,7 +320,9 @@ public class InGameScreen extends Application implements Serializable {
 
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                pane.getChildren().add(buttons[i][j]);
+                Button b = buttons[i][j];
+                b.setPrefSize(50, 50);
+                pane.getChildren().add(b);
             }
         }
 

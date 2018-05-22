@@ -74,10 +74,16 @@ public class CommunicationGroup implements Serializable {
     }
     
     public void addUserMessage(String userID, Word message) {
-        System.out.println("Adicionando a palavra " +message.getWord()+" ao usuario: "+userID);
+        System.out.println("Adicionando a palavra numero: " +message.getNumber()+" ("+message.getWord()+") "+" ao usuario: "+userID);
+
         LinkedList<Word> words = groupMessages.get(userID);
-        System.out.println(participants.size());
-        System.out.println(words.size());
+
+        System.out.println("Participantes:");
+        participants.forEach(System.out::println);
+
+        System.out.println("Palavras atuais do usuario " +userID);
+        words.forEach(System.out::println);
+
         if (!words.contains(message)) {
             words.add(message);
         }

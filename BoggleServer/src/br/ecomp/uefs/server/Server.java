@@ -181,7 +181,7 @@ public class Server extends Thread {
             game = new Game(players, null);
             lobbies.remove(lobbyID);
             CommunicationGroup group = new CommunicationGroup(InetAddress.getByName("230.0.0"+Integer.toString(lobbies.size()+1)));
-            lobbies.add(new Lobby(lobbies.size(),group));
+            lobbies.add(new Lobby(lobbies.size()+1,group));
         }
         return game;
     }    
