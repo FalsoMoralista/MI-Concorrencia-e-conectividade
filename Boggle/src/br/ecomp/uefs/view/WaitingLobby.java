@@ -73,10 +73,6 @@ public class WaitingLobby extends Application {
         u.setGroup(lobby.getGroup());
 
         u.start();  
-
-        MultiPackage pack = new MultiPackage(u.toString(), "hello",u);
-
-        u.multicast(pack);
     }
 
     private void syncrhonize() {
