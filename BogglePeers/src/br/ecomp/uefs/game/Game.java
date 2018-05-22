@@ -8,7 +8,6 @@ package br.ecomp.uefs.game;
 import java.io.Serializable;
 import java.util.HashMap;
 import br.ecomp.uefs.multicast.CommunicationGroup;
-import br.ecomp.uefs.multicast.CommunicationGroup;
 import br.ecomp.uefs.model.GameDices;
 import br.ecomp.uefs.model.User;
 import java.util.Collections;
@@ -25,8 +24,11 @@ import java.util.logging.Logger;
 public class Game implements Serializable {
 
     protected HashMap<String, User> users;
+
     protected CommunicationGroup group;
 
+    protected long STARTING_TIME;
+            
     protected LinkedList<String> letterSet = new LinkedList<>();
        
     protected GameDices dices;
@@ -56,7 +58,10 @@ public class Game implements Serializable {
     public void setDices(GameDices dices) {
         this.dices = dices;
     }
-        
+
+    public long getSTARTING_TIME() {
+        return STARTING_TIME;
+    }           
 
     public HashMap<String, User> getUsers() {
         return users;
@@ -131,15 +136,7 @@ public class Game implements Serializable {
     }
     
     public void start(){
-        Runnable r = () ->{
-            try {
-                Thread.sleep(180000);
-                System.out.println("TIME IS OVER");
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        };
-        new Thread(r).start();
+        STARTING_TIME = System.currentTimeMillis();        
     }
     
     public static void main(String[] args){

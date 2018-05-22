@@ -97,23 +97,23 @@ public class MulticastHandler implements Runnable, Serializable {
                     break;
                 case "w": // (word)
                     if (pack.hasAttachment()) {
-                        peer.getGroup().addUserMessage(pack.getID(), (Word) pack.getATTACHMENT());
+                        peer.getGroup().addUserMessage(peer.toString(), pack.getID(), (Word) pack.getATTACHMENT());
                     }
                     break;
             }
         } else if (readObject instanceof MultiRequest) {
             MultiRequest pack = (MultiRequest) readObject;
-            if (pack.getREQ_ID().equals(peer.toString())) {
+            if (pack.getRequester().equals(peer.toString())) {
                 return;
             }
             switch (pack.getREQ_OP()) {
                 case "w": { // in case some is requesting a word from an user.
 
-                    String usr = pack.getREQ_ID();
+                    String usr = pack.getFrom(); // get the user which the word hasn't delivered.
 
-                    CommunicationGroup group = peer.getGroup();
+                    CommunicationGroup group = peer.getGroup(); // get its group
 
-                    LinkedList<User> participants = group.getParticipants();
+                    LinkedList<User> participants = group.getParticipants(); // participants
 
                     User u = null;
 
@@ -121,15 +121,25 @@ public class MulticastHandler implements Runnable, Serializable {
 
                     while (it.hasNext()) {
                         User aux = (User) it.next();
-                        if (aux.toString().equals(peer.toString())) {
-                            u = aux;
+                        if (aux.toString().equals(usr)) {
+                            u = aux; // find him according to its id
                         }
                     }
+                    LinkedList<Word> usrWords = u.getGroup().getMessages().get(usr); // get his wordlist
+                    Word w = usrWords.get(pack.getWordNumber()); // get the missing word.
+
+                    u.multicast(new MultiResponse(pack.getRequester(), usr, w)); // this is a response containing:
+                    // the lost word from usr, to pack.getRequester()
                 }
-
             }
-
+        } else if (readObject instanceof MultiRequest) {
+            MultiResponse pack = (MultiResponse) readObject;
+            if (!pack.getTo().equals(peer.toString())) { // check if the message belongs to me
+                return;
+            }
+             peer.getGroup().addUserMessage(peer.toString(), pack.getFrom(), pack.getResponse()); // otherwise, try to add to the user
         }
+
     }
 
 }

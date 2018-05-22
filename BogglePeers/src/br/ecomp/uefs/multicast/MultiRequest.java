@@ -9,27 +9,37 @@ package br.ecomp.uefs.multicast;
 import java.io.Serializable;
 
 /**
- * This will be used to send request through the network.
+ * This will be used to send requests through the network.
  * @author Luciano Araujo Dourado Filho
  */
 public class MultiRequest implements Serializable{
     
-    private String REQ_ID;
+    private String requester;
+    private String from;
     private String REQ_OP;
-    private int number;
+    private int wordNumber;
 
-    public MultiRequest(String REQ_ID, String REQ_OP, int number) {
-        this.REQ_ID = REQ_ID;
+    public MultiRequest(String requester, String from, String REQ_OP, int wordNumber) {
+        this.requester = requester;
+        this.from = from;
         this.REQ_OP = REQ_OP;
-        this.number = number;
+        this.wordNumber = wordNumber;
     }
 
-    public String getREQ_ID() {
-        return REQ_ID;
+    public String getRequester() {
+        return requester;
     }
 
-    public void setREQ_ID(String REQ_ID) {
-        this.REQ_ID = REQ_ID;
+    public void setRequester(String requester) {
+        this.requester = requester;
+    }
+
+    public String getFrom() {
+        return from;
+    }
+
+    public void setFrom(String from) {
+        this.from = from;
     }
 
     public String getREQ_OP() {
@@ -40,12 +50,12 @@ public class MultiRequest implements Serializable{
         this.REQ_OP = REQ_OP;
     }
 
-    public int getNumber() {
-        return number;
+    public int getWordNumber() {
+        return wordNumber;
     }
 
-    public void setNumber(int number) {
-        this.number = number;
+    public void setWordNumber(int wordNumber) {
+        this.wordNumber = wordNumber;
     }
     
     

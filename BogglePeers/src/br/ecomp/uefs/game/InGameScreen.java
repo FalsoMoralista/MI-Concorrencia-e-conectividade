@@ -35,6 +35,7 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
+import javafx.concurrent.Task;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -80,8 +81,8 @@ public class InGameScreen extends Application implements Serializable {
             User u = (User) e.getValue();
             group.addParticipant(u);
             if (u.toString().equals(player.toString())) {
-                users.add(u.toString()+" (me)");
-            }else{
+                users.add(u.toString() + " (me)");
+            } else {
                 users.add(u.toString());
             }
         }
@@ -245,6 +246,7 @@ public class InGameScreen extends Application implements Serializable {
                             int wordIndex = myWords.indexOf(txt);
                             MultiPackage pack = new MultiPackage(player.toString(), "w", new Word(txt, wordIndex));
                             try {
+                                player.getGroup().addUserMessage(player.toString(), player.toString(), new Word(txt, wordIndex));
                                 player.multicast(pack);
                             } catch (IOException ex) {
                                 Logger.getLogger(InGameScreen.class.getName()).log(Level.SEVERE, null, ex);
@@ -327,14 +329,34 @@ public class InGameScreen extends Application implements Serializable {
         }
 
         grid.add(pane, 0, 0);
+        countTime();
         primaryStage.show();
+    }
+
+    private void countTime() {
+        
+        Runnable r = () -> {
+            long start = game.getSTARTING_TIME();
+            while (((System.currentTimeMillis() - start)/1000) != 180) {
+            }
+            endGame();
+        };
+        new Thread(r).start();
+    }
+
+    private void endGame(){
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setHeaderText("TIME IS OVER MY FRIENDS");
+            alert.show();
+            player.getGroup().account().forEach(System.out::println);
+    }
+    
+    private boolean verifyWord(String txt) {
+        return dictionary.containsKey(txt.toLowerCase());
     }
 
     public static void main(String[] args) {
         launch(args);
     }
 
-    private boolean verifyWord(String txt) {
-        return dictionary.containsKey(txt.toLowerCase());
-    }
 }
