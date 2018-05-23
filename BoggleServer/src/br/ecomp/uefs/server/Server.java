@@ -180,8 +180,8 @@ public class Server extends Thread {
             HashMap<String,User> players = lobby.getPlayers();
             game = new Game(players, null);
             lobbies.remove(lobbyID);
-            CommunicationGroup group = new CommunicationGroup(InetAddress.getByName("230.0.0"+Integer.toString(lobbies.size()+1)));
-            lobbies.add(new Lobby(lobbies.size()+1,group));
+//            CommunicationGroup group = new CommunicationGroup(InetAddress.getByName("230.0.0"+Integer.toString(lobbies.size()+1)));
+//            lobbies.add(new Lobby(lobbies.size()+1,group));
         }
         return game;
     }    

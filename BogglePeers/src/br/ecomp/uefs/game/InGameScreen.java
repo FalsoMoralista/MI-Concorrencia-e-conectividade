@@ -35,6 +35,7 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Font;
@@ -334,23 +335,25 @@ public class InGameScreen extends Application implements Serializable {
     }
 
     private void countTime() {
-        
+
         Runnable r = () -> {
             long start = game.getSTARTING_TIME();
-            while (((System.currentTimeMillis() - start)/1000) != 180) {
+            while (((System.currentTimeMillis() - start) / 1000) != 180) {
             }
-            endGame();
+            Platform.runLater(() -> {
+                endGame();
+            });
         };
         new Thread(r).start();
     }
 
-    private void endGame(){
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setHeaderText("TIME IS OVER MY FRIENDS");
-            alert.show();
-            player.getGroup().account().forEach(System.out::println);
+    private void endGame() {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setHeaderText("TIME IS OVER MY FRIENDS");
+        alert.show();
+        player.getGroup().account().forEach(System.out::println);
     }
-    
+
     private boolean verifyWord(String txt) {
         return dictionary.containsKey(txt.toLowerCase());
     }
