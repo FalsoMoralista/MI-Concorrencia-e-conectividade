@@ -77,31 +77,40 @@ public class WaitingLobby extends Application {
     private void syncrhonize() {
         Runnable r = () -> {
             while (true) {
-                try {                    
+                try {
+                    Thread.sleep(5000); // waits for 5 seconds then synchronize with the server
                     LinkedList<Lobby> lobbies = controller.getAvailableRooms();
-                    Lobby l = lobbies.get(this.lobby.getId());
-                    setListItems();                    
-                    try {
-                        Thread.sleep(5000); // waits for 5 seconds then synchronize with the server
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(WaitingLobby.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (NullPointerException ex) {
-                        this.stage.close();
-                    }
-                } catch (IOException ex) {
+                    lobby = lobbies.get(this.lobby.getId());
+                    Platform.runLater(() ->{
+                        this.seePlayers.setItems(new ObservableListWrapper(listPlayers()));                    
+                    });
+                } catch (InterruptedException | IOException | ClassNotFoundException | InvalidTypeOfRequestException ex) {
                     Logger.getLogger(WaitingLobby.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (ClassNotFoundException ex) {
-                    Logger.getLogger(WaitingLobby.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (InvalidTypeOfRequestException ex) {
-                    Logger.getLogger(WaitingLobby.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (NullPointerException ex) {
+                    this.stage.close();
                 }
             }
         };
         new Thread(r).start();
     }
 
-    private void setListItems() {
-        this.seePlayers.setItems(new ObservableListWrapper(listPlayers()));
+    private LinkedList<String> listPlayers() {
+
+        LinkedList<String> players = new LinkedList<>();
+
+        HashMap<String, User> lobbyPlayers = lobby.getPlayers();
+
+        lobbyPlayers.keySet().forEach(s -> {
+
+            if (lobby.getLeader().toString().equals(s)) {
+                players.add(s + " - Group leader");
+            } else {
+                players.add(s);
+            }
+        });
+
+        return players;
+
     }
 
     private void before(Stage primaryStage) {
@@ -171,24 +180,5 @@ public class WaitingLobby extends Application {
         this.seePlayers.setPrefHeight(250);
         this.seePlayers.setPrefWidth(200);
         this.seePlayers.setItems(new ObservableListWrapper(listPlayers()));
-    }
-
-    private LinkedList<String> listPlayers() {
-
-        LinkedList<String> players = new LinkedList<>();
-
-        HashMap<String, User> lobbyPlayers = lobby.getPlayers();
-
-        lobbyPlayers.keySet().forEach(s -> {
-
-            if (lobby.getLeader().toString().equals(s)) {
-                players.add(s + " - Group leader");
-            } else {
-                players.add(s);
-            }
-        });
-
-        return players;
-
     }
 }

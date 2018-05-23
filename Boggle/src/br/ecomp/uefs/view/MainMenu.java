@@ -13,7 +13,6 @@ import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -28,6 +27,10 @@ import shared.exception.NoneLogInException;
 import shared.exception.UserAlreadyBindedException;
 import shared.model.Lobby;
 import br.ecomp.uefs.model.User;
+import java.util.LinkedList;
+import javafx.application.Platform;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 
 /**
  *
@@ -37,11 +40,11 @@ public class MainMenu extends Application {
 
     private Controller controller = new Controller("localhost");
     private ListView availableRooms = new ListView();
-    
+
     private Button join = new Button("Join Lobby");
-    
+
     private Stage stage;
-    
+
     public MainMenu() {
 
     }
@@ -57,7 +60,7 @@ public class MainMenu extends Application {
 
         this.before(primaryStage);
 
-        if(this.controller.getInstance() instanceof User){
+        if (this.controller.getInstance() instanceof User) {
             setListItems();
             synchronize();
         }
@@ -73,36 +76,36 @@ public class MainMenu extends Application {
         grid.setHgap(0);
         grid.setVgap(10);
         grid.autosize();
-        
+
         this.setProperties();
-        
+
         grid.add(availableRooms, 0, 1);
         BorderPane border = new BorderPane(grid);
-        
+
         GridPane bottomGrid = new GridPane();
-        
+
         bottomGrid.setAlignment(Pos.TOP_CENTER);
         bottomGrid.setHgap(10);
         bottomGrid.setVgap(0);
         bottomGrid.autosize();
         bottomGrid.add(join, 0, 0);
-        
+
         border.setBottom(bottomGrid);
-        Scene scene = new Scene(border,500,300);
+        Scene scene = new Scene(border, 500, 300);
 
         primaryStage.setScene(scene);
     }
-    
-    private void setProperties(){
+
+    private void setProperties() {
 
         availableRooms.setPrefHeight(200);
         availableRooms.setPrefWidth(300);
 
-        join.setOnAction(e ->{
+        join.setOnAction(e -> {
             Alert alert = null;
             try {
 
-                Lobby lobby = ((Lobby)availableRooms.getSelectionModel().getSelectedItem());
+                Lobby lobby = ((Lobby) availableRooms.getSelectionModel().getSelectedItem());
                 lobby = controller.enterLobby(lobby.getId());
 
                 WaitingLobby waitingLobby = new WaitingLobby(lobby, controller);
@@ -118,30 +121,30 @@ public class MainMenu extends Application {
             }
         });
     }
-            
-    private void setListItems() throws IOException, UnknownHostException, ClassNotFoundException, InvalidTypeOfRequestException{
-        this.availableRooms.setItems(new ObservableListWrapper(controller.getAvailableRooms()));
+
+    private void setListItems() throws IOException, UnknownHostException, ClassNotFoundException, InvalidTypeOfRequestException {
+        LinkedList<Lobby> lobbies = controller.getAvailableRooms();
+        this.availableRooms.setItems(new ObservableListWrapper(lobbies));
     }
-        
-    private void synchronize(){
-        Runnable r = ( ) -> {            
-            try {
-                sleep(5000);
-                setListItems();
-            } catch (IOException ex) {
-                Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (ClassNotFoundException ex) {
-                Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (InvalidTypeOfRequestException ex) {
-                Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
+
+    private void synchronize() {
+        Runnable r = () -> {
+            while (true) {
+                try {
+                    sleep(5000);
+                    LinkedList<Lobby> lobbies = controller.getAvailableRooms();
+                    Platform.runLater(() ->{
+                        availableRooms.setItems(new ObservableListWrapper(lobbies));                        
+                    });
+                } catch (InterruptedException | IOException | ClassNotFoundException | InvalidTypeOfRequestException ex) {
+                    Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         };
-        new Thread(r).start();
+        new Thread(r).start();        
     }
-    
-    public static void main(String[] args){
+
+    public static void main(String[] args) {
         launch(args);
     }
 }
