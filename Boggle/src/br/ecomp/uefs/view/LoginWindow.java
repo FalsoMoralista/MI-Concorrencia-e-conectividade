@@ -181,19 +181,6 @@ public class LoginWindow extends Application implements Serializable {
         sucessfull.show();
     }
 
-    /**
-     * TODO FIX
-     */
-    public void load() {
-        try {
-            FileInputStream restFile = new FileInputStream(PATH);
-            ObjectInputStream stream = new ObjectInputStream(restFile);
-            stream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public boolean handshake() {
         return ok;
     }

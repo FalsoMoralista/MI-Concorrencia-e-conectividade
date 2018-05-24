@@ -358,13 +358,12 @@ public class InGameScreen extends Application implements Serializable {
         messages.add("Ranking:"+"\n");
         
         int count = 1;
-        System.out.println("printando");
         for(int i = rank.size(); i <= 0; i--){
             messages.add(count+"-"+""+rank.get(i)+"\n");
         }
         
         Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setHeaderText("Winner"+"\n"+rank.get(rank.size()));
+        alert.setHeaderText("Winner"+"\n"+rank.get(rank.size()-1));
         alert.show();
     }
 

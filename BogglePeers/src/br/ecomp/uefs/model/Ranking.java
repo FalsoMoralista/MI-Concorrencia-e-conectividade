@@ -35,7 +35,7 @@ public class Ranking implements Comparable<Ranking>{
 
     @Override
     public String toString() {
-        return '['+ user + ", score= " + score + ']';
+        return user + ", score= " + score;
     }
         
     
