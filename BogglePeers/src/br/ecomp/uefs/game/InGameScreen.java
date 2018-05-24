@@ -364,7 +364,7 @@ public class InGameScreen extends Application implements Serializable {
         }
         
         Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setHeaderText("TIME IS OVER MY FRIENDS"+"\n"+messages);
+        alert.setHeaderText("Ranking"+"\n"+rank.get(rank.size()));
         alert.show();
     }
 
