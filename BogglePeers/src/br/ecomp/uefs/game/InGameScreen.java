@@ -364,7 +364,7 @@ public class InGameScreen extends Application implements Serializable {
         }
         
         Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setHeaderText("Ranking"+"\n"+rank.get(rank.size()));
+        alert.setHeaderText("Winner"+"\n"+rank.get(rank.size()));
         alert.show();
     }
 
