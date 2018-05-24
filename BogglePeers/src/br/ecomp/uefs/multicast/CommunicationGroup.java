@@ -130,33 +130,34 @@ public class CommunicationGroup implements Serializable {
         System.out.println("Palavras atuais do usuario " + userID);
         words.forEach(System.out::println);
     }
-    
+
     /**
-     *  Accounts the game score.
-     *  For each word, check if any other player have one equal, if not, account.
+     * Accounts the game score. For each word, check if any other player have
+     * one equal, if not, account.
      */
-    public LinkedList<Ranking> account(){
+    public LinkedList<Ranking> account() {
         LinkedList<Ranking> ranking = new LinkedList<>();
         participants.forEach(player -> {
             Ranking r = null;
-            
-            LinkedList<Word> wordlist = groupMessages.get(participants.toString()); // get the user 1 wordlist
 
-            int[] score = new int[1];   
-            
-            wordlist.forEach(word ->{
-                boolean[]op = new boolean[1];
+            LinkedList<Word> wordlist = groupMessages.get(player.toString()); // get the user 1 wordlist
+            int[] score = new int[1];
+
+            wordlist.forEach(word -> {
+                boolean[] op = new boolean[1];
                 op[0] = true;
-                for(int i = 0; i < participants.size(); i++){
+                for (int i = 0; i < participants.size(); i++) {
                     User u = participants.get(i);
-                    LinkedList<Word> userWords = groupMessages.get(u.toString());
-                    userWords.forEach(userWord->{
-                        if(word.getWord().equals(userWord.getWord())){
-                            op[0] = false;
-                        }
-                    });
+                    if (!u.toString().equals(player.toString())) {
+                        LinkedList<Word> userWords = groupMessages.get(u.toString());
+                        userWords.forEach(userWord -> {
+                            if (word.getWord().equals(userWord.getWord())) {
+                                op[0] = false;
+                            }
+                        });
+                    }
                 }
-                if(op[0]){
+                if (op[0]) {
                     score[0] += word.getWord().length();
                 }
             });

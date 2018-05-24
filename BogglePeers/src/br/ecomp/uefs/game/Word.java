@@ -37,6 +37,10 @@ public class Word implements Serializable{
     public void setNumber(int number) {
         this.number = number;
     }
-    
+
+    @Override
+    public String toString() {
+        return "Word{" + "word=" + word + ", number=" + number + '}';
+    }    
     
 }

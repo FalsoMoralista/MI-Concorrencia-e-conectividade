@@ -81,13 +81,15 @@ public class WaitingLobby extends Application {
                     Thread.sleep(5000); // waits for 5 seconds then synchronize with the server
                     LinkedList<Lobby> lobbies = controller.getAvailableRooms();
                     lobby = lobbies.get(this.lobby.getId());
-                    Platform.runLater(() ->{
-                        this.seePlayers.setItems(new ObservableListWrapper(listPlayers()));                    
+                    Platform.runLater(() -> {
+                        this.seePlayers.setItems(new ObservableListWrapper(listPlayers()));
                     });
                 } catch (InterruptedException | IOException | ClassNotFoundException | InvalidTypeOfRequestException ex) {
                     Logger.getLogger(WaitingLobby.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (NullPointerException ex) {
-                    this.stage.close();
+                } catch (NullPointerException | IndexOutOfBoundsException ex) {
+                    Platform.runLater(() -> {
+                        this.stage.close();
+                    });
                 }
             }
         };
@@ -162,7 +164,7 @@ public class WaitingLobby extends Application {
 
                 instance.multicast(pack);
 
-                screen.start(stage);
+                screen.start(new Stage());
             } catch (IOException ex) {
                 Logger.getLogger(WaitingLobby.class.getName()).log(Level.SEVERE, null, ex);
             } catch (ClassNotFoundException ex) {

@@ -5,6 +5,7 @@
  */
 package br.ecomp.uefs.game;
 
+import br.ecomp.uefs.model.Ranking;
 import br.ecomp.uefs.multicast.CommunicationGroup;
 import br.ecomp.uefs.multicast.MultiPackage;
 import com.sun.javafx.collections.ObservableListWrapper;
@@ -51,6 +52,8 @@ public class InGameScreen extends Application implements Serializable {
     private User player;
 
     Game game;
+
+    private Stage stage;
 
     private HashMap<String, Integer> dictionary;
 
@@ -305,7 +308,7 @@ public class InGameScreen extends Application implements Serializable {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-
+        this.stage = stage;
         this.setUp(primaryStage);
         this.initializeButtons();
         this.setDices();
@@ -338,7 +341,7 @@ public class InGameScreen extends Application implements Serializable {
 
         Runnable r = () -> {
             long start = game.getSTARTING_TIME();
-            while (((System.currentTimeMillis() - start) / 1000) != 180) {
+            while (((System.currentTimeMillis() - start) / 1000) != 60) { // 180
             }
             Platform.runLater(() -> {
                 endGame();
@@ -348,10 +351,21 @@ public class InGameScreen extends Application implements Serializable {
     }
 
     private void endGame() {
+        LinkedList<Ranking> rank = player.getGroup().account();
+
+        LinkedList<String> messages = new LinkedList<>();
+
+        messages.add("Ranking:"+"\n");
+        
+        int count = 1;
+        System.out.println("printando");
+        for(int i = rank.size(); i <= 0; i--){
+            messages.add(count+"-"+""+rank.get(i)+"\n");
+        }
+        
         Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setHeaderText("TIME IS OVER MY FRIENDS");
+        alert.setHeaderText("TIME IS OVER MY FRIENDS"+"\n"+messages);
         alert.show();
-        player.getGroup().account().forEach(System.out::println);
     }
 
     private boolean verifyWord(String txt) {
