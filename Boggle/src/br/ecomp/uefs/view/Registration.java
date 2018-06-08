@@ -50,7 +50,7 @@ public class Registration extends Application implements Serializable {
     private Button submit;
     private Button cancel;
 
-    private Controller controller = new Controller("localhost");
+    private Controller controller;
 
     protected User user;
 
@@ -65,7 +65,7 @@ public class Registration extends Application implements Serializable {
     }
     
     public Registration(Controller controller) {
-        this.controller = new Controller("localhost");
+        this.controller = controller;
     }
 
     public User getInfo() throws InvalidDataException, IOException {

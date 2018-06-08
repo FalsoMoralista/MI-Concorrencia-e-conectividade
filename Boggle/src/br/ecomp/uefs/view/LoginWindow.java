@@ -48,7 +48,7 @@ public class LoginWindow extends Application implements Serializable {
     private Label email;
     private Label password;
 
-    private Controller controller = new Controller("localhost");
+    private Controller controller;
 
     private String user;
     private String pw;

@@ -38,7 +38,7 @@ import javafx.concurrent.Task;
  */
 public class MainMenu extends Application {
 
-    private Controller controller = new Controller("localhost");
+    private Controller controller;
     private ListView availableRooms = new ListView();
 
     private Button join = new Button("Join Lobby");
