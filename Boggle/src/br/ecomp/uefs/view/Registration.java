@@ -120,16 +120,12 @@ public class Registration extends Application implements Serializable {
                     } else {
                         primaryStage.close();
                     }
-                } catch (ClassNotFoundException ex) {
-                    Logger.getLogger(Registration.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (IOException ex) {
+                } catch (ClassNotFoundException | IOException | InvalidTypeOfRequestException ex) {
                     Logger.getLogger(Registration.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (UserAlreadyRegisteredException ex) {
                     error.setTitle("Error");
                     error.setHeaderText("User name already in use");
                     error.show();
-                } catch (InvalidTypeOfRequestException ex) {
-                    Logger.getLogger(Registration.class.getName()).log(Level.SEVERE, null, ex);
                 }
             } catch (InvalidDataException ide) {
                 infoError.setFill(Color.FIREBRICK);

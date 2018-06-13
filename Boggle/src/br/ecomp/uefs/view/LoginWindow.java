@@ -6,9 +6,7 @@
 package br.ecomp.uefs.view;
 
 import br.ecomp.uefs.controller.Controller;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -55,8 +53,6 @@ public class LoginWindow extends Application implements Serializable {
 
     private boolean succeded;
     private boolean ok;
-
-    private static final String PATH = "src/br/uefs/ecomp/roadTrips/bin/sv.bin";
 
     private final Text authError = new Text();
 
@@ -110,13 +106,7 @@ public class LoginWindow extends Application implements Serializable {
                     pw = passwordField.getText();
                     succeded = controller.authenticate(user, pw);
                 } catch (NullPointerException e) {
-                } catch (IOException ex) {
-                    Logger.getLogger(LoginWindow.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (ClassNotFoundException ex) {
-                    Logger.getLogger(LoginWindow.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (InvalidPasswordException ex) {
-                    Logger.getLogger(LoginWindow.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (InvalidTypeOfRequestException ex) {
+                } catch (IOException | ClassNotFoundException | InvalidPasswordException | InvalidTypeOfRequestException ex) {
                     Logger.getLogger(LoginWindow.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
