@@ -5,8 +5,8 @@
  */
 package service;
 
-import java.rmi.Naming;
 import java.rmi.RemoteException;
+import java.util.HashMap;
 import library.interfaces.IServices;
 import library.model.Product;
 
@@ -15,15 +15,32 @@ import library.model.Product;
  * @author Luciano Araujo Dourado Filho
  */
 public class Server implements IServices{
+    
+    private HashMap <Long,Product> products;
 
+    public Server(){
+        products = new HashMap<>();
+    }
+    
     @Override
     public boolean sell(Product product) throws RemoteException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
+        System.out.println("Selling product "+product);        
+
+        Product p = products.get(product.toString());
+        products.remove(p,p.toString());
+
+        System.out.println("ok");
+
+        return true;
     }
 
     @Override
     public Product get(long ID) throws RemoteException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
+        System.out.println("Returning product "+ID);
+
+        return products.get(ID);
     }
 
     public static void main(String[] args) {        
