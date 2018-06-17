@@ -3,11 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package library.interfaces;
+package sdcom.interfaces;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import library.model.Product;
+import sdcom.model.Product;
 
 /**
  *

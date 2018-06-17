@@ -3,14 +3,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package service;
+package sdcom.service;
 
 import java.net.MalformedURLException;
+import java.rmi.AlreadyBoundException;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.HashMap;
-import library.interfaces.IServices;
-import library.model.Product;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import sdcom.interfaces.IServices;
+import sdcom.model.Product;
 
 /**
  *
@@ -20,7 +25,7 @@ public class Server implements IServices {
 
     private HashMap<Long, Product> products;
 
-    public Server() {
+    public Server() throws RemoteException {
         System.out.println("[Server started]");
         products = new HashMap<>();
     }
@@ -50,12 +55,13 @@ public class Server implements IServices {
         products.put(product.getID(), product);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws AlreadyBoundException {
         try {
             Server server = new Server();
-            Naming.rebind("sdcom", server);
-        } catch (MalformedURLException | RemoteException e) {
-            System.out.println("Server errors: " + e.getMessage());
+            Registry registry =  LocateRegistry.createRegistry(10112);
+            registry.bind("amazon", server);
+        } catch (RemoteException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }
