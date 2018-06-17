@@ -11,6 +11,7 @@ import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -58,8 +59,14 @@ public class Server implements IServices {
     public static void main(String[] args) throws AlreadyBoundException {
         try {
             Server server = new Server();
-            Registry registry =  LocateRegistry.createRegistry(10112);
-            registry.bind("amazon", server);
+
+            Registry registry = LocateRegistry.createRegistry(1099);
+            
+            IServices stub = (IServices) UnicastRemoteObject.exportObject(server, 1099);
+                        
+            registry.bind("amazon", stub);            
+            
+            System.out.println("Server running");
         } catch (RemoteException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }

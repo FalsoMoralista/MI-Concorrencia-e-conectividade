@@ -6,11 +6,13 @@
 
 package sdcom.model;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Luciano Araujo Dourado Filho <ladfilho@gmail.com>
  */
-public class Product {
+public class Product implements Serializable{
     
     private final long ID;
     private String name;
