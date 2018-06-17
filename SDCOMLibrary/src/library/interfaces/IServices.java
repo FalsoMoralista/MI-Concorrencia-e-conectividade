@@ -19,4 +19,5 @@ public interface IServices extends Remote{
 
     public Product get(long ID) throws RemoteException;        
     
+    public void add(Product product) throws RemoteException;
 }
