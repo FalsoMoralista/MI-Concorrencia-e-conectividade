@@ -17,7 +17,7 @@ public interface IServices extends Remote{
         
     public boolean sell(Product product) throws RemoteException;        
 
-    public Product get(long ID) throws RemoteException;        
+    public Product get(int ID) throws RemoteException;        
     
     public void add(Product product) throws RemoteException;
 }

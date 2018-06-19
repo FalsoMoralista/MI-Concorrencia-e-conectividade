@@ -14,10 +14,10 @@ import java.io.Serializable;
  */
 public class Product implements Serializable{
     
-    private final long ID;
+    private final int ID;
     private String name;
 
-    public Product(long ID, String name) {
+    public Product(int ID, String name) {
         this.ID = ID;
         this.name = name;
     }
@@ -30,12 +30,12 @@ public class Product implements Serializable{
         this.name = name;
     }
 
-    public long getID() {
+    public int getID() {
         return ID;
     }
-           
+       
     @Override
     public String toString() {
-        return "{" + ID + '}';
-    }        
+        return "[" + "ID=" + ID + ", name=" + name + "]";
+    }           
 }

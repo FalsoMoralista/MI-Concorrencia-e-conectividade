@@ -6,6 +6,7 @@
 package sdcom.service;
 
 import java.net.MalformedURLException;
+import java.rmi.AccessException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
@@ -24,10 +25,17 @@ import sdcom.model.Product;
  */
 public class Server implements IServices {
 
-    private HashMap<Long, Product> products;
+    private HashMap<Integer, Product> products;
+    private static String NAME;
+    private static int PORT;
 
     public Server() throws RemoteException {
-        System.out.println("[Server started]");
+        products = new HashMap<>();
+    }
+
+    public Server(String name, int port) throws RemoteException {
+        NAME = name;
+        PORT = port;
         products = new HashMap<>();
     }
 
@@ -45,7 +53,7 @@ public class Server implements IServices {
     }
 
     @Override
-    public Product get(long ID) throws RemoteException {
+    public Product get(int ID) throws RemoteException {
         System.out.println("Returning product " + ID);
         return products.get(ID);
     }
@@ -56,17 +64,20 @@ public class Server implements IServices {
         products.put(product.getID(), product);
     }
 
+    public void run() throws RemoteException, AlreadyBoundException {
+            Registry registry = LocateRegistry.createRegistry(PORT);
+
+            IServices stub = (IServices) UnicastRemoteObject.exportObject(this, PORT);
+
+            registry.bind(NAME, stub);
+
+            System.out.println("Server running");
+    }
+
     public static void main(String[] args) throws AlreadyBoundException {
         try {
-            Server server = new Server();
-
-            Registry registry = LocateRegistry.createRegistry(1099);
-            
-            IServices stub = (IServices) UnicastRemoteObject.exportObject(server, 1099);
-                        
-            registry.bind("amazon", stub);            
-            
-            System.out.println("Server running");
+            Server server = new Server("amazon",1092);   
+            server.run();
         } catch (RemoteException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
