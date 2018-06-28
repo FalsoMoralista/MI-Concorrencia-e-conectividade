@@ -23,6 +23,6 @@ public class Client implements Serializable{
         Registry reg = LocateRegistry.getRegistry("10.0.0.6", 1092);
         System.out.println(reg.list());
         IServices s =  (IServices) reg.lookup("amazon");
-        s.add(new Product(03112, "Refrigerante"));
+//        s.add(new Product(03112, "Refrigerante"));
     }
 }

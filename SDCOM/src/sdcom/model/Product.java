@@ -14,14 +14,18 @@ import java.io.Serializable;
  */
 public class Product implements Serializable{
     
-    private final int ID;
     private String name;
+    private final int ID;
+    private int quantity;
+    private double price;
 
-    public Product(int ID, String name) {
-        this.ID = ID;
+    public Product(String name, int ID, int quantity,double price) {
         this.name = name;
+        this.ID = ID;
+        this.quantity = quantity;
+        this.price = price;
     }
-
+                
     public String getName() {
         return name;
     }
@@ -33,7 +37,23 @@ public class Product implements Serializable{
     public int getID() {
         return ID;
     }
-       
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+             
     @Override
     public String toString() {
         return "[" + "ID=" + ID + ", name=" + name + "]";
