@@ -5,21 +5,29 @@
  */
 package sdcom.view;
 
+import com.sun.javafx.collections.ObservableListWrapper;
+import java.awt.Font;
 import java.io.File;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.TilePane;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import sdcom.model.Product;
 
@@ -66,27 +74,40 @@ public class StoreScreen extends Application {
 
         BorderPane border = new BorderPane();
 
-        TilePane tile = new TilePane(1, 2);
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setHgap(0);
+        grid.setVgap(0);
+        grid.autosize();
 
-        tile.setPrefColumns(3);
+        ListView list = new ListView();
 
-        setProducts(tile);
+        setProducts(list);
 
-        border.setCenter(tile);
+        list.setPrefHeight(200);
+        list.setPrefWidth(500);
+
+        grid.add(list, 0, 0);
+
+        border.setCenter(grid);
 
         stage.setScene(new Scene(border, 800, 600));
     }
 
-    private void setProducts(TilePane t) {        
+    private void setProducts(ListView l) {
+
+        LinkedList<Product> listProducts = new LinkedList<>();
+
         Iterator it = products.values().iterator();
 
         Image image = new Image(getClass().getResourceAsStream("store.png"));
 
         while (it.hasNext()) {
             Product product = (Product) it.next();
-            Button b = new Button(product.getName(), new ImageView(image));
-            t.getChildren().add(b);
+            listProducts.add(product);
         }
+        ObservableListWrapper<Product> olw = new ObservableListWrapper<>(listProducts);
+        l.getItems().addAll(listProducts);
     }
 
     public synchronized void buy(Product p) {
@@ -101,8 +122,6 @@ public class StoreScreen extends Application {
     }
 
     public static void main(String[] args) throws Exception {
-        StoreScreen s = new StoreScreen();
-        s.loadProducts();
         launch(args);
     }
 }
