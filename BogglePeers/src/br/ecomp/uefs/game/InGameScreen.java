@@ -97,7 +97,7 @@ public class InGameScreen extends Application implements Serializable {
 
         this.dictionary = new HashMap<>();
 
-        Path path = Paths.get(new File("src/br/ecomp/uefs/game/resources/English (American).dic"/*"src/br/ecomp/uefs/game/resources/English (American).dic"*/).getPath());
+        Path path = Paths.get(new File("English (American).dic"/*"src/br/ecomp/uefs/game/resources/English (American).dic"*/).getPath());
 
         Stream<String> lines = Files.lines(path);
         int[] i = new int[1];
