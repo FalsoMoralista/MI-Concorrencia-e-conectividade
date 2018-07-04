@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 import javafx.application.Application;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -38,7 +39,11 @@ import sdcom.model.Product;
 public class StoreScreen extends Application {
 
     private HashMap<Integer, Product> products;
-
+    private ListView<Product> productView;
+    private Button select;
+    private Button buy;
+    private int cart;
+            
     public StoreScreen() {
         products = new HashMap<>();
     }
@@ -64,7 +69,6 @@ public class StoreScreen extends Application {
                     products.put(p.getID(), p);
                 }
             });
-            System.out.println(products.get(1));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -80,34 +84,56 @@ public class StoreScreen extends Application {
         grid.setVgap(0);
         grid.autosize();
 
-        ListView list = new ListView();
+        productView = new ListView();
 
-        setProducts(list);
+        setProducts(productView);
 
-        list.setPrefHeight(200);
-        list.setPrefWidth(500);
+        productView.setPrefHeight(200);
+        productView.setPrefWidth(500);
 
-        grid.add(list, 0, 0);
+        grid.add(productView, 0, 0);
 
         border.setCenter(grid);
 
+        GridPane bottomGrid = new GridPane();
+        bottomGrid.setAlignment(Pos.CENTER);
+        bottomGrid.setAlignment(Pos.CENTER);
+        bottomGrid.setHgap(10);
+        bottomGrid.setVgap(5);
+        bottomGrid.autosize();
+        bottomGrid.setPadding(new Insets(0, 0, 100, 0));
+        
+        buy = new Button("Buy");
+        select = new Button("Select");
+        
+        bottomGrid.add(select, 0,0);
+        bottomGrid.add(buy, 1,0);
+            
+        border.setBottom(bottomGrid);
+        
         stage.setScene(new Scene(border, 800, 600));
     }
 
-    private void setProducts(ListView l) {
+    private void setProducts(ListView<Product> l) {
 
         LinkedList<Product> listProducts = new LinkedList<>();
 
         Iterator it = products.values().iterator();
 
-        Image image = new Image(getClass().getResourceAsStream("store.png"));
-
         while (it.hasNext()) {
             Product product = (Product) it.next();
             listProducts.add(product);
         }
+
         ObservableListWrapper<Product> olw = new ObservableListWrapper<>(listProducts);
+
         l.getItems().addAll(listProducts);
+    }
+
+    private void setActions() {
+        select.setOnAction(e ->{            
+            System.out.println(productView.getSelectionModel().getSelectedItem());
+        });        
     }
 
     public synchronized void buy(Product p) {
@@ -118,6 +144,7 @@ public class StoreScreen extends Application {
     public void start(Stage stage) throws Exception {
         loadProducts();
         screenProperties(stage);
+        setActions();
         stage.show();
     }
 
