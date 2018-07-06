@@ -6,11 +6,12 @@
 package sdcom.view;
 
 import com.sun.javafx.collections.ObservableListWrapper;
-import java.awt.Font;
-import java.io.File;
-import java.net.URI;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -20,16 +21,16 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.TilePane;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import sdcom.model.Client;
 import sdcom.model.Product;
 
 /**
@@ -42,10 +43,14 @@ public class StoreScreen extends Application {
     private ListView<Product> productView;
     private Button select;
     private Button buy;
-    private int cart;
-            
-    public StoreScreen() {
+    private Product cart;
+    private Label selected = new Label("Selected: ");
+    private Text onCart = new Text();
+    private Client op;
+
+    public StoreScreen() throws IOException, FileNotFoundException, RemoteException, NotBoundException {
         products = new HashMap<>();
+        op = new Client("src/sdcom/view/resources/rmi.properties");
     }
 
     public void loadProducts() {
@@ -99,18 +104,23 @@ public class StoreScreen extends Application {
         bottomGrid.setAlignment(Pos.CENTER);
         bottomGrid.setAlignment(Pos.CENTER);
         bottomGrid.setHgap(10);
-        bottomGrid.setVgap(5);
+        bottomGrid.setVgap(15);
         bottomGrid.autosize();
         bottomGrid.setPadding(new Insets(0, 0, 100, 0));
-        
+
         buy = new Button("Buy");
         select = new Button("Select");
-        
-        bottomGrid.add(select, 0,0);
-        bottomGrid.add(buy, 1,0);
-            
+
+        selected.setFont(javafx.scene.text.Font.font("", FontWeight.NORMAL, 20));
+
+        bottomGrid.add(selected, 0, 0);
+        bottomGrid.add(onCart, 1, 0);
+
+        bottomGrid.add(select, 0, 3);
+        bottomGrid.add(buy, 1, 3);
+
         border.setBottom(bottomGrid);
-        
+
         stage.setScene(new Scene(border, 800, 600));
     }
 
@@ -131,13 +141,28 @@ public class StoreScreen extends Application {
     }
 
     private void setActions() {
-        select.setOnAction(e ->{            
-            System.out.println(productView.getSelectionModel().getSelectedItem());
-        });        
-    }
+        select.setOnAction(e -> {
+            cart = productView.getSelectionModel().getSelectedItem();
+            onCart.setText(cart.getName());
+        });
 
-    public synchronized void buy(Product p) {
-
+        buy.setOnAction(e -> {
+            Alert alert;
+            try {
+                boolean sold = op.sell(cart);
+                if (sold) {
+                    alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("Warning");
+                    alert.setHeaderText("Sold successfully");
+                    alert.show();
+                }
+            } catch (RemoteException ex) {
+                alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText(ex.getMessage());
+                alert.show();
+            }
+        });
     }
 
     @Override

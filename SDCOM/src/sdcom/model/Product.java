@@ -56,6 +56,6 @@ public class Product implements Serializable{
              
     @Override
     public String toString() {
-        return ID +"- "+ name +"- Price - " + price +"- Amount - "+ quantity;
+        return ID +"|"+ name +"|" + price +"|"+ quantity+"|";
     }           
 }
