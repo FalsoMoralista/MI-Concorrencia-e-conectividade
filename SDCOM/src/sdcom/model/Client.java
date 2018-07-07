@@ -29,9 +29,9 @@ public class Client implements Serializable, IServices {
     private String SERVICE_NAME;
     private IServices services;
 
-    public Client(String pathToConfigFile) throws FileNotFoundException, IOException, RemoteException, NotBoundException {
+    public Client(String name) throws FileNotFoundException, IOException, RemoteException, NotBoundException {
         Properties config = new Properties();
-        config.load(new FileInputStream(new File(pathToConfigFile)));
+        config.load(new FileInputStream(new File("resources/"+name+".properties")));
         this.IP = config.getProperty("IP");
         this.PORT = Integer.parseInt(config.getProperty("PORT"));
         this.SERVICE_NAME = config.getProperty("SERVICE_NAME");
@@ -59,6 +59,6 @@ public class Client implements Serializable, IServices {
     }
 
     public static void main(String[] args) throws RemoteException, NotBoundException, IOException {
-        Client c = new Client("src/sdcom/view/resources/rmi.properties");
+        Client c = new Client("SDCOM");
     }
 }

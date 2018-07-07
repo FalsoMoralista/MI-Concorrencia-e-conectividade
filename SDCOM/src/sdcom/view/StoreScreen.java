@@ -35,7 +35,7 @@ import sdcom.model.Product;
 
 /**
  *
- * @author luciano
+ * @author Luciano Araujo Dourado Filho
  */
 public class StoreScreen extends Application {
 
@@ -47,15 +47,19 @@ public class StoreScreen extends Application {
     private Label selected = new Label("Selected: ");
     private Text onCart = new Text();
     private Client op;
-
-    public StoreScreen() throws IOException, FileNotFoundException, RemoteException, NotBoundException {
-        products = new HashMap<>();
-        op = new Client("src/sdcom/view/resources/rmi.properties");
+    private String db;
+    
+    public StoreScreen(){
+        
     }
-
+    
+    public StoreScreen(String name) throws IOException, FileNotFoundException, RemoteException, NotBoundException {
+        products = new HashMap<>();
+        op = new Client(name);
+        db = "db/"+name+".db";
+    }
+        
     public void loadProducts() {
-
-        String db = "src/sdcom/db/database.db";
 
         try {
 
