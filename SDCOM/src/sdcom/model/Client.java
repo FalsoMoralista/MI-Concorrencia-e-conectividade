@@ -31,7 +31,7 @@ public class Client implements Serializable, IServices {
 
     public Client(String name) throws FileNotFoundException, IOException, RemoteException, NotBoundException {
         Properties config = new Properties();
-        config.load(new FileInputStream(new File("resources/"+name+".properties")));
+        config.load(new FileInputStream(new File("resources/service_list/"+name+".properties")));
         this.IP = config.getProperty("IP");
         this.PORT = Integer.parseInt(config.getProperty("PORT"));
         this.SERVICE_NAME = config.getProperty("SERVICE_NAME");
@@ -44,8 +44,8 @@ public class Client implements Serializable, IServices {
     }
 
     @Override
-    public boolean sell(Product product) throws RemoteException {
-        return services.sell(product);
+    public void sell(Product product) throws RemoteException {
+        services.sell(product);
     }
 
     @Override
@@ -60,5 +60,10 @@ public class Client implements Serializable, IServices {
 
     public static void main(String[] args) throws RemoteException, NotBoundException, IOException {
         Client c = new Client("SDCOM");
+    }
+
+    @Override
+    public boolean canSell(Product product) throws RemoteException {
+        return services.canSell(product);
     }
 }

@@ -15,9 +15,11 @@ import sdcom.model.Product;
  */
 public interface IServices extends Remote {
 
-    public boolean sell(Product product) throws RemoteException;
+    public void sell(Product product) throws RemoteException;
 
     public Product get(int ID) throws RemoteException;
 
     public void add(Product product) throws RemoteException;
+    
+    public boolean canSell(Product product) throws RemoteException;
 }

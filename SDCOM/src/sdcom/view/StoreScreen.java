@@ -153,12 +153,18 @@ public class StoreScreen extends Application {
         buy.setOnAction(e -> {
             Alert alert;
             try {
-                boolean sold = op.sell(cart);
-                if (sold) {
-                    alert = new Alert(Alert.AlertType.CONFIRMATION);
+                boolean canSell = op.canSell(cart);
+                if (canSell) {
+                    op.sell(cart);
+                    alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("Warning");
                     alert.setHeaderText("Sold successfully");
                     alert.show();
+                }else{
+                    alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error");
+                    alert.setHeaderText("The product is not avaiable");
+                    alert.show();                    
                 }
             } catch (RemoteException ex) {
                 alert = new Alert(Alert.AlertType.ERROR);

@@ -49,7 +49,7 @@ public class Server implements IServices {
     public Server(String propertiesName) throws RemoteException, FileNotFoundException, IOException {
 
         Properties properties = new Properties();
-        properties.load(new FileInputStream(new File("resources/" + propertiesName + ".properties")));
+        properties.load(new FileInputStream(new File("resources/service_list/" + propertiesName + ".properties")));
 
         SERVICE_NAME = properties.getProperty("SERVICE_NAME");
         PORT = Integer.parseInt(properties.getProperty("PORT"));
@@ -109,9 +109,9 @@ public class Server implements IServices {
     }
 
     @Override
-    public synchronized boolean sell(Product product) throws RemoteException {
+    public synchronized void sell(Product product) throws RemoteException {
 
-        System.out.println("Selling product " + product);
+        System.out.println("Selling product " + product + " ->"+'['+SERVICE_NAME+']');
 
         Product p = products.get(product.getID());
         p.setQuantity(p.getQuantity() - 1);
@@ -125,18 +125,23 @@ public class Server implements IServices {
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return true;
     }
 
     @Override
+    public boolean canSell(Product product) throws RemoteException {
+        Product check = get(product.getID());
+        return check.getQuantity() >= 1;        
+    }
+        
+    @Override
     public Product get(int ID) throws RemoteException {
-        System.out.println("Returning product " + ID);
+        System.out.println("Returning product " + ID + " ->"+'['+SERVICE_NAME+']');
         return products.get(ID);
     }
 
     @Override
     public void add(Product product) throws RemoteException {
-        System.out.println("Adding product " + product);
+        System.out.println("Adding product " + product + " ->"+'['+SERVICE_NAME+']');
         products.put(product.getID(), product);
         try {
             save();
