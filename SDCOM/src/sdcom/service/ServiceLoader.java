@@ -23,11 +23,10 @@ public class ServiceLoader {
         Properties services = new Properties();
         services.load(new FileInputStream(new File("resources/services.properties")));
         Server[] servers = new Server[services.size()];
-        for (int i = 0; i < services.size(); i++) {
+        for (int i = 0; i < services.size()-1; i++) {
             String SERVICE_NAME = services.getProperty("SERVICE_NAME" + '[' + Integer.toString(i) + ']');
             servers[i] = new Server(SERVICE_NAME);
             servers[i].run();
-
         }
     }
 }

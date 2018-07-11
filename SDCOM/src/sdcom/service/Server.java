@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.rmi.AlreadyBoundException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -28,6 +29,7 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import sdcom.interfaces.IServices;
+import sdcom.model.Client;
 import sdcom.model.Product;
 
 /**
@@ -41,6 +43,8 @@ public class Server implements IServices {
     private static int PORT;
     private String DB;
 
+    private Client[] server_list;
+    
     public Server() throws RemoteException {
         products = new HashMap<>();
         load();
@@ -150,21 +154,35 @@ public class Server implements IServices {
         }
     }
 
-    public void run() throws RemoteException, AlreadyBoundException {
+    public void run() throws RemoteException, AlreadyBoundException, FileNotFoundException, IOException, NotBoundException {
         Registry registry = LocateRegistry.createRegistry(PORT);
 
         IServices stub = (IServices) UnicastRemoteObject.exportObject(this, PORT);
 
         registry.bind(SERVICE_NAME, stub);
+        
 
+        Properties services = new Properties();
+
+        services.load(new FileInputStream(new File("resources/services.properties")));
+
+        server_list = new Client[services.size()-1];
+
+        for (int i = 0; i < services.size(); i++) {
+            String NAME = services.getProperty("SERVICE_NAME" + '[' + Integer.toString(i) + ']');
+            if(!NAME.equals(SERVICE_NAME)){
+                server_list[i] = new Client(NAME);                
+            }
+        }
+                
         System.out.println("Server " + '[' + SERVICE_NAME + ']' + " running");
     }
 
     public static void main(String[] args) throws AlreadyBoundException, IOException {
         try {
-            Server server = new Server("SDCOM");
+            Server server = new Server("SULAMERICANAS");
             server.run();
-        } catch (RemoteException ex) {
+        } catch (RemoteException | FileNotFoundException | NotBoundException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
