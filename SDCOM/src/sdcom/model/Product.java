@@ -9,7 +9,7 @@ package sdcom.model;
 import java.io.Serializable;
 
 /**
- *
+ * Represents a product.
  * @author Luciano Araujo Dourado Filho <ladfilho@gmail.com>
  */
 public class Product implements Serializable{

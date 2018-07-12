@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.rmi.AlreadyBoundException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.Properties;
 
@@ -19,7 +20,7 @@ import java.util.Properties;
  */
 public class ServiceLoader {
 
-    public static void main(String[] args) throws FileNotFoundException, IOException, RemoteException, AlreadyBoundException {
+    public static void main(String[] args) throws FileNotFoundException, IOException, RemoteException, AlreadyBoundException, NotBoundException {
         Properties services = new Properties();
         services.load(new FileInputStream(new File("resources/services.properties")));
         Server[] servers = new Server[services.size()];
@@ -27,6 +28,6 @@ public class ServiceLoader {
             String SERVICE_NAME = services.getProperty("SERVICE_NAME" + '[' + Integer.toString(i) + ']');
             servers[i] = new Server(SERVICE_NAME);
             servers[i].run();
-        }
+        }                
     }
 }

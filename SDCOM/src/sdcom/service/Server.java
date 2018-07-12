@@ -33,6 +33,7 @@ import sdcom.model.Client;
 import sdcom.model.Product;
 
 /**
+ * Represents a server.
  *
  * @author Luciano Araujo Dourado Filho
  */
@@ -44,7 +45,7 @@ public class Server implements IServices {
     private String DB;
 
     private Client[] server_list;
-    
+
     public Server() throws RemoteException {
         products = new HashMap<>();
         load();
@@ -62,14 +63,17 @@ public class Server implements IServices {
         load();
     }
 
+    /**
+     * Save the current state.
+     */
     private void save() throws RemoteException, IOException {
 
         LinkedList<Product> listProducts = new LinkedList<>();
 
         Iterator it = products.values().iterator();
-        
+
         File f = new File(DB);
-        
+
         f.delete();
         f.createNewFile();
 
@@ -77,7 +81,7 @@ public class Server implements IServices {
 
         while (it.hasNext()) {
             Product product = (Product) it.next();
-            try (BufferedWriter writer = Files.newBufferedWriter(path,StandardOpenOption.APPEND)) {
+            try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.APPEND)) {
                 writer.write(product.getID() + "|");
                 writer.write(product.getName() + "|");
                 writer.write(product.getQuantity() + "|");
@@ -88,6 +92,9 @@ public class Server implements IServices {
         }
     }
 
+    /**
+     * Loads the current state.
+     */
     private void load() throws RemoteException {
 
         try {
@@ -112,40 +119,101 @@ public class Server implements IServices {
         }
     }
 
+    /**
+     * Sell a product. First check if the current server has the product in
+     * stock, then ask to the other servers if can sell the product, if so, sell
+     * it, other- wise don't sell.
+     *
+     * @param product
+     * @throws java.rmi.RemoteException
+     */
     @Override
-    public synchronized void sell(Product product) throws RemoteException {
+    public synchronized boolean sell(Product product) throws RemoteException {
 
-        System.out.println("Selling product " + product + " ->"+'['+SERVICE_NAME+']');
-
-        Product p = products.get(product.getID());
-        p.setQuantity(p.getQuantity() - 1);
-        System.out.println("Quantidade atual: " + p.getQuantity());
-        products.remove(p, p.toString());
-
-        System.out.println("ok");
-
+        System.out.println("Trying to sell product " + product + " by ->" + '[' + SERVICE_NAME + ']');
         try {
-            save();
-        } catch (IOException ex) {
+            connect();
+        } catch (IOException | NotBoundException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
+        if (get(product.getID()).getQuantity() >= 1) {
+            boolean op = true;
+            for (int i = 0; i < server_list.length; i++) {
+                op = server_list[i].canSell(product);
+            }
+            if (op) {
+                Product p = products.get(product.getID());
+                p.setQuantity(p.getQuantity() - 1);
+
+                try {
+                    save();
+                } catch (IOException ex) {
+                    Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                System.out.println("ok");
+                return true;
+            } else {
+                System.out.println("Product could not be sold, sorry.");
+                return false;
+            }
+        }
+        return false;
     }
 
+    /**
+     * Returns whether a product can be sold or not.
+     *
+     * @param product
+     * @return
+     * @throws java.rmi.RemoteException
+     */
     @Override
     public boolean canSell(Product product) throws RemoteException {
+        System.out.println("Can " + SERVICE_NAME + " sell the product " + product + "???");
         Product check = get(product.getID());
-        return check.getQuantity() >= 1;        
+        if (check == null) {
+            System.out.println("Yes(i don't have)");
+            return true;
+        }
+        boolean sell = check.getQuantity() >= 1;
+        if (sell) {
+            System.out.println("Yes");
+            Product p = products.get(product.getID());
+            p.setQuantity(p.getQuantity() - 1);
+
+            try {
+                save();
+            } catch (IOException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        } else {
+            System.out.println("No");
+        }
+        return sell;
     }
-        
+
+    /**
+     * Return a product given its ID.
+     *
+     * @param ID
+     * @return
+     * @throws RemoteException
+     */
     @Override
     public Product get(int ID) throws RemoteException {
-        System.out.println("Returning product " + ID + " ->"+'['+SERVICE_NAME+']');
+        System.out.println("Returning product " + ID + " ->" + '[' + SERVICE_NAME + ']');
         return products.get(ID);
     }
 
+    /**
+     *
+     * @param product
+     * @throws RemoteException
+     */
     @Override
     public void add(Product product) throws RemoteException {
-        System.out.println("Adding product " + product + " ->"+'['+SERVICE_NAME+']');
+        System.out.println("Adding product " + product + " ->" + '[' + SERVICE_NAME + ']');
         products.put(product.getID(), product);
         try {
             save();
@@ -154,28 +222,38 @@ public class Server implements IServices {
         }
     }
 
+    /**
+     *
+     * @throws RemoteException
+     * @throws AlreadyBoundException
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @throws NotBoundException
+     */
     public void run() throws RemoteException, AlreadyBoundException, FileNotFoundException, IOException, NotBoundException {
         Registry registry = LocateRegistry.createRegistry(PORT);
 
         IServices stub = (IServices) UnicastRemoteObject.exportObject(this, PORT);
 
         registry.bind(SERVICE_NAME, stub);
-        
 
+        System.out.println("Server " + '[' + SERVICE_NAME + ']' + " running");
+    }
+
+    public void connect() throws FileNotFoundException, FileNotFoundException, IOException, RemoteException, NotBoundException {
         Properties services = new Properties();
 
         services.load(new FileInputStream(new File("resources/services.properties")));
 
-        server_list = new Client[services.size()-1];
+        server_list = new Client[services.size() - 1];
 
         for (int i = 0; i < services.size(); i++) {
             String NAME = services.getProperty("SERVICE_NAME" + '[' + Integer.toString(i) + ']');
-            if(!NAME.equals(SERVICE_NAME)){
-                server_list[i] = new Client(NAME);                
+            if (!NAME.equals(SERVICE_NAME)) {
+                server_list[i] = new Client(NAME);
             }
         }
-                
-        System.out.println("Server " + '[' + SERVICE_NAME + ']' + " running");
+
     }
 
     public static void main(String[] args) throws AlreadyBoundException, IOException {

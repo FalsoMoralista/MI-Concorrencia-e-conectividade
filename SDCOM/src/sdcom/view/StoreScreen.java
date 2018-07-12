@@ -48,17 +48,20 @@ public class StoreScreen extends Application {
     private Text onCart = new Text();
     private Client op;
     private String db;
-    
-    public StoreScreen(){
-        
+
+    public StoreScreen() {
+
     }
-    
+
     public StoreScreen(String name) throws IOException, FileNotFoundException, RemoteException, NotBoundException {
         products = new HashMap<>();
         op = new Client(name);
-        db = "db/"+name+".db";
+        db = "db/" + name + ".db";
     }
-        
+
+    /**
+     *  Load the list of products from de database. 
+     */
     public void loadProducts() {
 
         try {
@@ -83,6 +86,9 @@ public class StoreScreen extends Application {
         }
     }
 
+    /**
+     *  Starts the screen properties. 
+     */
     private void screenProperties(Stage stage) {
 
         BorderPane border = new BorderPane();
@@ -128,6 +134,9 @@ public class StoreScreen extends Application {
         stage.setScene(new Scene(border, 800, 600));
     }
 
+    /**
+     *  Set the products list on the screen. 
+     */
     private void setProducts(ListView<Product> l) {
 
         LinkedList<Product> listProducts = new LinkedList<>();
@@ -143,7 +152,10 @@ public class StoreScreen extends Application {
 
         l.getItems().addAll(listProducts);
     }
-
+    
+    /**
+     * Set all buttons actions. 
+     */
     private void setActions() {
         select.setOnAction(e -> {
             cart = productView.getSelectionModel().getSelectedItem();
@@ -153,28 +165,35 @@ public class StoreScreen extends Application {
         buy.setOnAction(e -> {
             Alert alert;
             try {
-                boolean canSell = op.canSell(cart);
+                boolean canSell = op.sell(cart);
+
                 if (canSell) {
-                    op.sell(cart);
                     alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("Warning");
                     alert.setHeaderText("Sold successfully");
                     alert.show();
-                }else{
+                    loadProducts();
+                    setProducts(productView);
+                } else {
                     alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Error");
-                    alert.setHeaderText("The product is not avaiable");
-                    alert.show();                    
+                    alert.setHeaderText("Sorry, you almost got it");
+                    alert.show();
                 }
             } catch (RemoteException ex) {
                 alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error");
                 alert.setHeaderText(ex.getMessage());
                 alert.show();
-            }
+            }            
         });
     }
 
+    /**
+     * Starts the application. 
+     * @param stage
+     * @throws java.lang.Exception
+     */
     @Override
     public void start(Stage stage) throws Exception {
         loadProducts();

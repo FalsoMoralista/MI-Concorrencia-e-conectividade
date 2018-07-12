@@ -37,33 +37,60 @@ public class Client implements Serializable, IServices {
         this.SERVICE_NAME = config.getProperty("SERVICE_NAME");
         init();
     }
-
+    
+    /**
+     * Start.
+     */
     private void init() throws RemoteException, NotBoundException {
         Registry reg = LocateRegistry.getRegistry(IP, PORT);
         services = (IServices) reg.lookup(SERVICE_NAME);
     }
-
+    
+    /**
+     * Sell a product.
+     * @see Server
+     * @param product
+     * @return 
+     * @throws java.rmi.RemoteException
+     */
     @Override
-    public void sell(Product product) throws RemoteException {
-        services.sell(product);
+    public boolean sell(Product product) throws RemoteException {
+        return services.sell(product);
     }
 
+    /**
+     * Return a product.  
+     * @param ID
+     * @return
+     * @throws RemoteException
+     */
     @Override
     public Product get(int ID) throws RemoteException {
         return services.get(ID);
     }
 
+    /**
+     * Add a product. 
+     * @param product
+     * @throws RemoteException
+     */
     @Override
     public void add(Product product) throws RemoteException {
         services.add(product);
     }
 
-    public static void main(String[] args) throws RemoteException, NotBoundException, IOException {
-        Client c = new Client("SDCOM");
-    }
-
+    /**
+     * Return whether a product can be sold.  
+     * @param product
+     * @return
+     * @throws RemoteException
+     */
     @Override
     public boolean canSell(Product product) throws RemoteException {
         return services.canSell(product);
+    }
+
+    public static void main(String[] args) throws RemoteException, NotBoundException, IOException {
+        Client c = new Client("SDCOM");
     }
 }
