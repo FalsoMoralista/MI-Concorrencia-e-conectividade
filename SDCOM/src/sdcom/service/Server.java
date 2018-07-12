@@ -125,6 +125,7 @@ public class Server implements IServices {
      * it, other- wise don't sell.
      *
      * @param product
+     * @return 
      * @throws java.rmi.RemoteException
      */
     @Override
