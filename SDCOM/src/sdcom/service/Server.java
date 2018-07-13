@@ -281,7 +281,7 @@ public class Server implements IServices {
 
     public static void main(String[] args) throws AlreadyBoundException, IOException {
         try {
-            Server server = new Server("AMAZONIA");
+            Server server = new Server(args[0]);
             server.run();
         } catch (RemoteException | FileNotFoundException | NotBoundException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
