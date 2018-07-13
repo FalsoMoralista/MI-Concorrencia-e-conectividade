@@ -182,6 +182,7 @@ public class StoreScreen extends Application {
                     alert.show();
                 }
             } catch (RemoteException ex) {
+                ex.printStackTrace();
                 alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error");
                 alert.setHeaderText(ex.getMessage());

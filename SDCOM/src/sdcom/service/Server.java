@@ -43,6 +43,7 @@ public class Server implements IServices {
     private static String SERVICE_NAME;
     private static int PORT;
     private String DB;
+    private String IP;
 
     private Client[] server_list;
 
@@ -58,8 +59,10 @@ public class Server implements IServices {
 
         SERVICE_NAME = properties.getProperty("SERVICE_NAME");
         PORT = Integer.parseInt(properties.getProperty("PORT"));
+        IP = properties.getProperty("IP");
         DB = "db/" + SERVICE_NAME + ".db";
         products = new HashMap<>();
+        System.setProperty("java.rmi.server."+SERVICE_NAME,IP);
         load();
     }
 
