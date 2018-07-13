@@ -87,7 +87,7 @@ public class Server implements IServices {
             String NAME = services.getProperty("SERVICE_NAME" + '[' + Integer.toString(i) + ']');
             HashMap<Integer, Product> prds = serverProducts.get(NAME);
             String db = "db/" + NAME + ".db";
-            Iterator it = serverProducts.values().iterator();
+            Iterator it = prds.values().iterator();
             File f = new File(db);
 
             f.delete();
@@ -273,6 +273,9 @@ public class Server implements IServices {
         int aux = 0;
         for (int i = 0; i < services.size(); i++) {
             String NAME = services.getProperty("SERVICE_NAME" + '[' + Integer.toString(i) + ']');
+            System.out.println(NAME);
+            System.out.println(SERVICE_NAME);
+            System.out.println("Equals? "+NAME.equals(SERVICE_NAME));
             if (!NAME.equals(SERVICE_NAME)) {
                 server_list[aux++] = new Client(NAME);
             }
