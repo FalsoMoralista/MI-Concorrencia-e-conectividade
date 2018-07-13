@@ -39,7 +39,6 @@ import sdcom.model.Product;
  */
 public class Server implements IServices {
 
-    private HashMap<Integer, Product> products;
     private HashMap<String, HashMap<Integer, Product>> serverProducts;
     private static String SERVICE_NAME;
     private static int PORT;
@@ -54,7 +53,6 @@ public class Server implements IServices {
     private Properties services = new Properties();
 
     public Server() throws RemoteException, IOException {
-        products = new HashMap<>();
         services = new Properties();
         load();
     }
@@ -69,7 +67,6 @@ public class Server implements IServices {
         PORT = Integer.parseInt(properties.getProperty("PORT"));
         IP = properties.getProperty("IP");
         DB = "db/" + SERVICE_NAME + ".db";
-        products = new HashMap<>();
 
         services.load(new FileInputStream(new File("resources/services.properties")));
 
@@ -163,9 +160,7 @@ public class Server implements IServices {
                 op = server_list[i].canSell(product);
             }
             if (op) {
-                Product p = products.get(product.getID());
-                p.setQuantity(p.getQuantity() - 1);
-
+                decrease(product);
                 try {
                     save();
                 } catch (IOException ex) {
@@ -179,6 +174,17 @@ public class Server implements IServices {
             }
         }
         return false;
+    }
+
+    private void decrease(Product p) {
+        for (int i = 0; i < services.size(); i++) {
+            String NAME = services.getProperty("SERVICE_NAME" + '[' + Integer.toString(i) + ']');
+            HashMap<Integer, Product> prds = serverProducts.get(NAME);
+            String db = "db/" + NAME + ".db";
+            Product prod = prds.get(p.getID());
+            prod.setQuantity(p.getQuantity() - 1);
+        }
+
     }
 
     /**
@@ -199,6 +205,7 @@ public class Server implements IServices {
         boolean sell = check.getQuantity() >= 1;
         if (sell) {
             System.out.println("Yes");
+            HashMap<Integer,Product>products = this.serverProducts.get(SERVICE_NAME);
             Product p = products.get(product.getID());
             p.setQuantity(p.getQuantity() - 1);
 
