@@ -270,10 +270,11 @@ public class Server implements IServices {
 
     public void connect() throws FileNotFoundException, FileNotFoundException, IOException, RemoteException, NotBoundException {
         server_list = new Client[services.size() - 1];
+        int aux = 0;
         for (int i = 0; i < services.size(); i++) {
             String NAME = services.getProperty("SERVICE_NAME" + '[' + Integer.toString(i) + ']');
             if (!NAME.equals(SERVICE_NAME)) {
-                server_list[i] = new Client(NAME);
+                server_list[aux++] = new Client(NAME);
             }
         }
 
