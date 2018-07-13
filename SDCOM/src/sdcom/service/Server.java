@@ -273,9 +273,6 @@ public class Server implements IServices {
         int aux = 0;
         for (int i = 0; i < services.size(); i++) {
             String NAME = services.getProperty("SERVICE_NAME" + '[' + Integer.toString(i) + ']');
-            System.out.println(NAME);
-            System.out.println(SERVICE_NAME);
-            System.out.println("Equals? "+NAME.equals(SERVICE_NAME));
             if (!NAME.equals(SERVICE_NAME)) {
                 server_list[aux++] = new Client(NAME);
             }
