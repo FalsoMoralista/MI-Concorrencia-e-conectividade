@@ -22,7 +22,6 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
@@ -47,7 +46,6 @@ public class Server implements IServices {
 
     private Client[] server_list;
 
-    private String[] servers_db;
     private HashMap<Integer, Product>[] servers_products;
     private HashMap<Integer, Product> products;
 
@@ -272,13 +270,10 @@ public class Server implements IServices {
 
     public void connect() throws FileNotFoundException, FileNotFoundException, IOException, RemoteException, NotBoundException {
         server_list = new Client[services.size() - 1];
-        servers_db = new String[services.size() - 1];
-
         for (int i = 0; i < services.size(); i++) {
             String NAME = services.getProperty("SERVICE_NAME" + '[' + Integer.toString(i) + ']');
             if (!NAME.equals(SERVICE_NAME)) {
                 server_list[i] = new Client(NAME);
-                servers_db[i] = "db/" + SERVICE_NAME + ".db";
             }
         }
 
@@ -286,7 +281,7 @@ public class Server implements IServices {
 
     public static void main(String[] args) throws AlreadyBoundException, IOException {
         try {
-            Server server = new Server(args[0]);
+            Server server = new Server("AMAZONIA");
             server.run();
         } catch (RemoteException | FileNotFoundException | NotBoundException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
