@@ -49,6 +49,7 @@ public class Server implements IServices {
 
     private String[] servers_db;
     private HashMap<Integer, Product>[] servers_products;
+    private HashMap<Integer, Product> products;
 
     private Properties services = new Properties();
 
@@ -60,6 +61,7 @@ public class Server implements IServices {
     public Server(String propertiesName) throws RemoteException, FileNotFoundException, IOException {
         services = new Properties();
         serverProducts = new HashMap<>();
+        products = new HashMap<>();        
         Properties properties = new Properties();
         properties.load(new FileInputStream(new File("resources/service_list/" + propertiesName + ".properties")));
 
@@ -134,6 +136,7 @@ public class Server implements IServices {
                 }
             });
         }
+        products = serverProducts.get(SERVICE_NAME);
     }
 
     /**
@@ -205,7 +208,6 @@ public class Server implements IServices {
         boolean sell = check.getQuantity() >= 1;
         if (sell) {
             System.out.println("Yes");
-            HashMap<Integer,Product>products = this.serverProducts.get(SERVICE_NAME);
             Product p = products.get(product.getID());
             p.setQuantity(p.getQuantity() - 1);
 
