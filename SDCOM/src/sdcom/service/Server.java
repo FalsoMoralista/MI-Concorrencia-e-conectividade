@@ -40,6 +40,7 @@ import sdcom.model.Product;
 public class Server implements IServices {
 
     private HashMap<Integer, Product> products;
+    private HashMap<String, HashMap<Integer, Product>> serverProducts;
     private static String SERVICE_NAME;
     private static int PORT;
     private String DB;
@@ -47,13 +48,20 @@ public class Server implements IServices {
 
     private Client[] server_list;
 
-    public Server() throws RemoteException {
+    private String[] servers_db;
+    private HashMap<Integer, Product>[] servers_products;
+
+    private Properties services = new Properties();
+
+    public Server() throws RemoteException, IOException {
         products = new HashMap<>();
+        services = new Properties();
         load();
     }
 
     public Server(String propertiesName) throws RemoteException, FileNotFoundException, IOException {
-
+        services = new Properties();
+        serverProducts = new HashMap<>();
         Properties properties = new Properties();
         properties.load(new FileInputStream(new File("resources/service_list/" + propertiesName + ".properties")));
 
@@ -62,7 +70,14 @@ public class Server implements IServices {
         IP = properties.getProperty("IP");
         DB = "db/" + SERVICE_NAME + ".db";
         products = new HashMap<>();
-        System.setProperty("java.rmi.server."+SERVICE_NAME,IP);
+
+        services.load(new FileInputStream(new File("resources/services.properties")));
+
+        for (int i = 0; i < services.size(); i++) {
+            serverProducts.put(services.getProperty("SERVICE_NAME" + '[' + Integer.toString(i) + ']'), new HashMap<>());
+        }
+
+        System.setProperty("java.rmi.server." + SERVICE_NAME, IP);
         load();
     }
 
@@ -71,39 +86,43 @@ public class Server implements IServices {
      */
     private void save() throws RemoteException, IOException {
 
-        LinkedList<Product> listProducts = new LinkedList<>();
+        for (int i = 0; i < services.size(); i++) {
+            String NAME = services.getProperty("SERVICE_NAME" + '[' + Integer.toString(i) + ']');
+            HashMap<Integer, Product> prds = serverProducts.get(NAME);
+            String db = "db/" + NAME + ".db";
+            Iterator it = serverProducts.values().iterator();
+            File f = new File(db);
 
-        Iterator it = products.values().iterator();
+            f.delete();
+            f.createNewFile();
 
-        File f = new File(DB);
+            Path path = Paths.get(db);
 
-        f.delete();
-        f.createNewFile();
-
-        Path path = Paths.get(DB);
-
-        while (it.hasNext()) {
-            Product product = (Product) it.next();
-            try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.APPEND)) {
-                writer.write(product.getID() + "|");
-                writer.write(product.getName() + "|");
-                writer.write(product.getQuantity() + "|");
-                writer.write(product.getPrice() + "|");
-                writer.newLine();
-                writer.flush();
+            while (it.hasNext()) {
+                Product product = (Product) it.next();
+                try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.APPEND)) {
+                    writer.write(product.getID() + "|");
+                    writer.write(product.getName() + "|");
+                    writer.write(product.getQuantity() + "|");
+                    writer.write(product.getPrice() + "|");
+                    writer.newLine();
+                    writer.flush();
+                }
             }
+
         }
     }
 
     /**
      * Loads the current state.
      */
-    private void load() throws RemoteException {
+    private void load() throws RemoteException, IOException {
 
-        try {
-
-            List<String> lines = Files.readAllLines(Paths.get(DB));
-
+        for (int i = 0; i < services.size(); i++) {
+            String NAME = services.getProperty("SERVICE_NAME" + '[' + Integer.toString(i) + ']');
+            HashMap<Integer, Product> prds = serverProducts.get(NAME);
+            String db = "db/" + NAME + ".db";
+            List<String> lines = Files.readAllLines(Paths.get(db));
             lines.forEach(line -> {
 
                 StringTokenizer token = new StringTokenizer(line, "|");
@@ -114,11 +133,9 @@ public class Server implements IServices {
                     String quantity = token.nextToken();
                     String price = token.nextToken();
                     Product p = new Product(name, Integer.parseInt(id), Integer.parseInt(quantity), Double.parseDouble(price));
-                    products.put(p.getID(), p);
+                    prds.put(p.getID(), p);
                 }
             });
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -128,7 +145,7 @@ public class Server implements IServices {
      * it, other- wise don't sell.
      *
      * @param product
-     * @return 
+     * @return
      * @throws java.rmi.RemoteException
      */
     @Override
@@ -251,11 +268,13 @@ public class Server implements IServices {
         services.load(new FileInputStream(new File("resources/services.properties")));
 
         server_list = new Client[services.size() - 1];
+        servers_db = new String[services.size() - 1];
 
         for (int i = 0; i < services.size(); i++) {
             String NAME = services.getProperty("SERVICE_NAME" + '[' + Integer.toString(i) + ']');
             if (!NAME.equals(SERVICE_NAME)) {
                 server_list[i] = new Client(NAME);
+                servers_db[i] = "db/" + SERVICE_NAME + ".db";
             }
         }
 
@@ -263,7 +282,7 @@ public class Server implements IServices {
 
     public static void main(String[] args) throws AlreadyBoundException, IOException {
         try {
-            Server server = new Server(args[0]);
+            Server server = new Server("AMAZONIA");
             server.run();
         } catch (RemoteException | FileNotFoundException | NotBoundException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
