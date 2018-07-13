@@ -155,7 +155,8 @@ public class Server implements IServices {
         } catch (IOException | NotBoundException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
-        if (get(product.getID()).getQuantity() >= 1) {
+        
+        if (this.serverProducts.get(SERVICE_NAME).get(product.getID()).getQuantity() >=1 ) {
             boolean op = true;
             for (int i = 0; i < server_list.length; i++) {
                 op = server_list[i].canSell(product);
