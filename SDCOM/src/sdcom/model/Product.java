@@ -20,7 +20,6 @@ public class Product implements Serializable {
     private final int ID;
     private int quantity;
     private double price;
-    private boolean locked;
 
     public Product(String name, int ID, int quantity, double price) {
         this.name = name;
@@ -56,37 +55,7 @@ public class Product implements Serializable {
     public void setPrice(double price) {
         this.price = price;
     }
-
-    /**
-     *  Lock the product so that two users don't buy the same. 
-     */
-    public synchronized void lock() {
-        System.out.println("Locking the product for a minute");
-        locked = true;
-        Runnable r = () -> {
-            try {
-                Thread.sleep(60000);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Product.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            unlock();
-        };
-        new Thread(r).start();
-    }
     
-    /**
-     *  Return whether the product is locked or not.
-     * @return 
-     */
-    public boolean isLocked(){
-        return locked;
-    }
-    
-    private void unlock() {
-        System.out.println("Unlocking");
-        locked = false;
-    }
-
     @Override
     public String toString() {
         return ID + "|" + name + "|" + price + "|" + quantity + "|";

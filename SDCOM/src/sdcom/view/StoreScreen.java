@@ -160,10 +160,6 @@ public class StoreScreen extends Application {
         
         select.setOnAction(e -> {
             cart = productView.getSelectionModel().getSelectedItem();
-//            if(cart.isLocked()){
-//                System.out.println("");
-//            }
-            cart.lock();
             onCart.setText(cart.getName());
         });
 
