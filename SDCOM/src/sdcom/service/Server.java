@@ -271,11 +271,6 @@ public class Server implements IServices {
     }
 
     public void connect() throws FileNotFoundException, FileNotFoundException, IOException, RemoteException, NotBoundException {
-
-        Properties services = new Properties();
-
-        services.load(new FileInputStream(new File("resources/services.properties")));
-
         server_list = new Client[services.size() - 1];
         servers_db = new String[services.size() - 1];
 
@@ -291,7 +286,7 @@ public class Server implements IServices {
 
     public static void main(String[] args) throws AlreadyBoundException, IOException {
         try {
-            Server server = new Server("AMAZONIA");
+            Server server = new Server(args[0]);
             server.run();
         } catch (RemoteException | FileNotFoundException | NotBoundException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
