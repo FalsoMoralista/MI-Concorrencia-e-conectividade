@@ -5,6 +5,7 @@
  */
 package br.com.inova.services;
 
+import br.com.inova.exception.NoAverageException;
 import interfaces.Services;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -21,7 +22,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -32,23 +33,24 @@ public class Server implements Services {
 
     private Properties services = new Properties();
     private Properties NEWS_LIST = new Properties();
-    
+
     private static String SERVICE_NAME;
     private static int PORT;
     private String IP;
-        
+
     public Server(String name) throws FileNotFoundException, IOException {
-        services.load(new FileInputStream(new File("rmi/service_list/" + name + ".services")));
+        services.load(new FileInputStream(new File("rmi/service_list/" + name + ".properties")));
         SERVICE_NAME = services.getProperty("SERVICE_NAME");
         PORT = Integer.parseInt(services.getProperty("PORT"));
         IP = services.getProperty("IP");
-        System.setProperty("java.rmi.server." + SERVICE_NAME, IP);                
-        
-        NEWS_LIST.load(new FileInputStream(new File("db/news_list.properties")));        
+        System.setProperty("java.rmi.server." + SERVICE_NAME, IP);
+
+        NEWS_LIST.load(new FileInputStream(new File("db/news_list.properties")));
     }
 
     /**
      * Run.
+     *
      * @throws RemoteException
      * @throws AlreadyBoundException
      * @throws FileNotFoundException
@@ -64,9 +66,10 @@ public class Server implements Services {
 
         System.out.println("Server " + '[' + SERVICE_NAME + ']' + " running");
     }
-    
+
     /**
-     *  Rate an news. 
+     * Rate an news.
+     *
      * @param newsID
      * @param rate
      * @throws java.io.IOException
@@ -90,23 +93,52 @@ public class Server implements Services {
             writer.write(String.valueOf(rate));
             writer.newLine();
         }
-        System.out.println("Sucessfully");        
+        System.out.println("Sucessfully");
     }
 
     /**
-     * Return the truncated average from a news.  
+     * Return the truncated average from a news.
+     *
      * @param newsID
+     * @return
+     * @throws java.rmi.RemoteException
+     * @throws br.com.inova.exception.NoAverageException
+     */
+    @Override
+    public int getTrunkAVG(int newsID) throws RemoteException, NoAverageException, IOException {
+        System.out.println("Retrieving mean value for the news "+newsID);
+        
+        String name = NEWS_LIST.getProperty("NEWS_NAME" + '[' + Integer.toString(newsID) + ']');
+
+        File db = new File("db/news/" + name + ".txt");
+
+        if (!db.exists()) {
+            throw new NoAverageException();
+        }
+
+        Path path = Paths.get(db.getPath());
+        List<String> lines = Files.readAllLines(path);
+        int[] avg = new int[1];
+        lines.forEach(line ->{
+            avg[0] += Integer.parseInt(line);
+        });
+        avg[0] /= lines.size();
+
+        return avg[0];
+    }
+
+    /**
+     * Retrieve the available news.
      * @return 
      * @throws java.rmi.RemoteException
      */
     @Override
-    public int getTrunkAVG(int newsID) throws RemoteException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public Properties getNews() throws RemoteException {
-        return NEWS_LIST;                
+        return NEWS_LIST;
     }
 
+    public static void main(String[] args) throws IOException, RemoteException, AlreadyBoundException, FileNotFoundException, NotBoundException {
+        Server server = new Server("server0");
+        server.run();
+    }
 }

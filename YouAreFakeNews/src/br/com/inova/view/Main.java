@@ -5,6 +5,7 @@
  */
 package br.com.inova.view;
 
+import br.com.inova.model.Client;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,6 +15,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.util.Properties;
 import java.util.Scanner;
 
@@ -24,20 +27,26 @@ import java.util.Scanner;
 public class Main {
 
     private static Scanner scanner;
-    private final Properties NEWS_LIST;
-
-    public Main() throws FileNotFoundException, IOException {
-        NEWS_LIST = new Properties();
-        NEWS_LIST.load(new FileInputStream(new File("db/news_list.properties")));
+    private Properties NEWS_LIST;
+    private Client client;
+    
+    public Main(){
     }
 
     /**
      * Show the menu options.
      * @throws java.io.IOException
+     * @throws java.io.FileNotFoundException
+     * @throws java.rmi.RemoteException
+     * @throws java.rmi.NotBoundException
      */
-    public void menu() throws IOException {
+    public void menu() throws IOException, FileNotFoundException, RemoteException, NotBoundException {
         scanner = new Scanner(System.in);
         boolean op = true;
+                
+        while(!before()){            
+        }
+        
         while (op) {
             System.out.println("Menu");
             System.out.println("------------------------------");
@@ -59,6 +68,24 @@ public class Main {
         }
         System.exit(0);
     }
+    
+    public boolean before() throws FileNotFoundException, IOException, RemoteException, NotBoundException{
+        Properties services = new Properties();
+        services.load(new FileInputStream(new File("rmi/services.properties")));
+        System.out.println("Please inform the server name: ");
+        String name = scanner.nextLine();
+        boolean op = false;
+        for(int aux = 0; aux < services.size(); aux++){
+            if(services.get("SERVICE_NAME"+'['+Integer.toString(aux)+']').equals(name)){
+                op = true;
+            }
+        }
+        if(op){
+            client = new Client(name);
+        }
+        NEWS_LIST = client.getNews();
+        return op;
+    }
 
     /**
      * Exhibit all the available news to rate.
@@ -79,27 +106,11 @@ public class Main {
      * @throws java.io.IOException
      */
     public void rateNews(int newsID, int rate) throws IOException {
-        System.out.println("Rating " + rate + " to the news " + newsID);
-
-        String name = NEWS_LIST.getProperty("NEWS_NAME" + '[' + Integer.toString(newsID) + ']');
-
-        File db = new File("db/news/" + name + ".txt");
-
-        if (!db.exists()) {
-            db.createNewFile();
-        }
-
-        Path path = Paths.get(db.getPath());
-
-        try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.APPEND)) {
-            writer.write(String.valueOf(rate));
-            writer.newLine();
-        }
-        System.out.println("Sucessfully");
+        client.rateNews(newsID, rate);
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, FileNotFoundException, RemoteException, NotBoundException {
         Main main = new Main();
-        main.menu();
+       main.menu();
     }
 }
