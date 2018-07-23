@@ -5,6 +5,7 @@
  */
 package br.com.inova.view;
 
+import br.com.inova.exception.NoAverageException;
 import br.com.inova.model.Client;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -40,7 +41,7 @@ public class Main {
      * @throws java.rmi.RemoteException
      * @throws java.rmi.NotBoundException
      */
-    public void menu() throws IOException, FileNotFoundException, RemoteException, NotBoundException {
+    public void menu() throws IOException, FileNotFoundException, RemoteException, NotBoundException, NoAverageException {
         scanner = new Scanner(System.in);
         boolean op = true;
                 
@@ -49,9 +50,11 @@ public class Main {
         
         while (op) {
             System.out.println("Menu");
-            System.out.println("------------------------------");
-            System.out.println("| 1 - Rate a news | 0 - exit |");
-            System.out.println("------------------------------");
+            System.out.println("-------------------------------------");
+            System.out.println("| 1 -    Rate a news     | 0 - exit  |");
+            System.out.println("--------------------------------------");
+            System.out.println("| 2 - Get a news average |           |");
+            System.out.println("-------------------------------------");
             switch (Integer.parseInt(scanner.nextLine())) {
                 case 1:
                     System.out.println("Choose one of the options below:");
@@ -60,6 +63,12 @@ public class Main {
                     System.out.println("inform the rating:");
                     int rate = Integer.parseInt(scanner.nextLine());
                     rateNews(newsID, rate);
+                    break;
+                case 2:
+                    System.out.println("Choose one of the options below:");
+                    listNews();
+                    int id = Integer.parseInt(scanner.nextLine());
+                    System.out.println("Mean is : "+client.getTrunkAVG(id));
                     break;
                 case 0:
                     op = false;
@@ -109,8 +118,8 @@ public class Main {
         client.rateNews(newsID, rate);
     }
 
-    public static void main(String[] args) throws IOException, FileNotFoundException, RemoteException, NotBoundException {
-        Main main = new Main();
+    public static void main(String[] args) throws IOException, FileNotFoundException, RemoteException, NotBoundException, NoAverageException {
+       Main main = new Main();
        main.menu();
     }
 }

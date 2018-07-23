@@ -6,6 +6,7 @@
 package br.com.inova.services;
 
 import br.com.inova.exception.NoAverageException;
+import br.com.inova.model.Client;
 import interfaces.Services;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -33,6 +34,8 @@ public class Server implements Services {
 
     private Properties services = new Properties();
     private Properties NEWS_LIST = new Properties();
+
+    private Client[] server_list;
 
     private static String SERVICE_NAME;
     private static int PORT;
@@ -85,15 +88,50 @@ public class Server implements Services {
 
         if (!db.exists()) {
             db.createNewFile();
+            Path path = Paths.get(db.getPath());
+
+            try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.APPEND)) {
+                writer.write(String.valueOf(rate));
+                writer.newLine();
+            }
+
+            db = new File("db/news/" + name + ".properties");
+            db.createNewFile();
+            path = Paths.get(db.getPath());
+
+            try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.APPEND)) {
+                writer.write("NAME = " + name);
+                writer.newLine();
+                writer.write("DECIDED = FALSE");
+                writer.newLine();
+                writer.write("MEAN" + " = " + String.valueOf(rate));
+                writer.newLine();
+            }
+        } else {
+            Path path = Paths.get(db.getPath());
+            try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.APPEND)) {
+                writer.write(String.valueOf(rate));
+                writer.newLine();
+            }
+            Properties prop = new Properties();
+            prop.load(new FileInputStream(new File(("db/news/" + name + ".properties"))));
+            prop.setProperty("MEAN", String.valueOf(compute(newsID)));
         }
 
-        Path path = Paths.get(db.getPath());
-
-        try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.APPEND)) {
-            writer.write(String.valueOf(rate));
-            writer.newLine();
-        }
         System.out.println("Sucessfully");
+    }
+
+    private int compute(int newsID) throws IOException {
+        String name = NEWS_LIST.getProperty("NEWS_NAME" + '[' + Integer.toString(newsID) + ']');
+        File db = new File("db/news/" + name + ".txt");
+        Path path = Paths.get(db.getPath());
+        List<String> lines = Files.readAllLines(path);
+        int[] avg = new int[1];
+        lines.forEach(line -> {
+            avg[0] += Integer.parseInt(line);
+        });
+        avg[0] /= lines.size();
+        return avg[0];
     }
 
     /**
@@ -106,8 +144,8 @@ public class Server implements Services {
      */
     @Override
     public int getTrunkAVG(int newsID) throws RemoteException, NoAverageException, IOException {
-        System.out.println("Retrieving mean value for the news "+newsID);
-        
+        System.out.println("Retrieving mean value for the news " + newsID);
+
         String name = NEWS_LIST.getProperty("NEWS_NAME" + '[' + Integer.toString(newsID) + ']');
 
         File db = new File("db/news/" + name + ".txt");
@@ -116,25 +154,38 @@ public class Server implements Services {
             throw new NoAverageException();
         }
 
-        Path path = Paths.get(db.getPath());
-        List<String> lines = Files.readAllLines(path);
-        int[] avg = new int[1];
-        lines.forEach(line ->{
-            avg[0] += Integer.parseInt(line);
-        });
-        avg[0] /= lines.size();
-
-        return avg[0];
+        Properties prop = new Properties();
+        prop.load(new FileInputStream(new File(("db/news/" + name + ".properties"))));
+        int val = Integer.parseInt(prop.getProperty("MEAN"));
+        return val;
     }
 
     /**
      * Retrieve the available news.
-     * @return 
+     *
+     * @return
      * @throws java.rmi.RemoteException
      */
     @Override
     public Properties getNews() throws RemoteException {
         return NEWS_LIST;
+    }
+
+    @Override
+    public void startAgreement(int newsID) throws RemoteException, IOException, FileNotFoundException, NotBoundException {
+        System.out.println("Starting agreement");
+        connect();
+    }
+
+    public void connect() throws FileNotFoundException, FileNotFoundException, IOException, RemoteException, NotBoundException {
+        server_list = new Client[services.size() - 1];
+        int aux = 0;
+        for (int i = 0; i < services.size(); i++) {
+            String NAME = services.getProperty("SERVICE_NAME" + '[' + Integer.toString(i) + ']');
+            if (!NAME.equals(SERVICE_NAME)) {
+                server_list[aux++] = new Client(NAME);
+            }
+        }
     }
 
     public static void main(String[] args) throws IOException, RemoteException, AlreadyBoundException, FileNotFoundException, NotBoundException {
