@@ -22,5 +22,4 @@ public interface Services extends Remote {
     public void rateNews(int newsID, int rate) throws IOException, RemoteException;
     public int getTrunkAVG(int newsID)throws RemoteException, NoAverageException, IOException;
     public Properties getNews()throws RemoteException;
-    public void startAgreement(int newsID)throws RemoteException, IOException, NotBoundException; 
 }

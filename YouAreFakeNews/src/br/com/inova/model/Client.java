@@ -60,14 +60,8 @@ public class Client implements Services{
     @Override
     public Properties getNews() throws RemoteException {
         return services.getNews();
-    }
-
-    @Override
-    public void startAgreement(int newsID) throws RemoteException {
-        services.startAgreement(newsID);
-    }
+    }    
     
-
     public static void main(String[] args) throws IOException, FileNotFoundException, RemoteException, NotBoundException {
     }
 }

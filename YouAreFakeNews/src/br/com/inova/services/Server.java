@@ -12,6 +12,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -85,7 +86,6 @@ public class Server implements Services {
         String name = NEWS_LIST.getProperty("NEWS_NAME" + '[' + Integer.toString(newsID) + ']');
 
         File db = new File("db/news/" + name + ".txt");
-
         if (!db.exists()) {
             db.createNewFile();
             Path path = Paths.get(db.getPath());
@@ -106,34 +106,69 @@ public class Server implements Services {
                 writer.newLine();
                 writer.write("MEAN" + " = " + String.valueOf(rate));
                 writer.newLine();
+                writer.write("SD" + " = " + "0");
             }
         } else {
+            Runnable r = () ->{
+                startAgreement(newsID);
+            };
+            if(rate + sd(newsID) >= mean(newsID)){
+                new Thread(r).start();
+            }
             Path path = Paths.get(db.getPath());
             try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.APPEND)) {
                 writer.write(String.valueOf(rate));
                 writer.newLine();
+                writer.close();
             }
             Properties prop = new Properties();
             prop.load(new FileInputStream(new File(("db/news/" + name + ".properties"))));
-            prop.setProperty("MEAN", String.valueOf(compute(newsID)));
+            prop.setProperty("MEAN", String.valueOf(mean(newsID)));
+            prop.store(new FileOutputStream(new File(("db/news/" + name + ".properties"))), "");
+            prop.setProperty("SD", String.valueOf(sd(newsID)));
+            prop.store(new FileOutputStream(new File(("db/news/" + name + ".properties"))), "");
         }
 
         System.out.println("Sucessfully");
     }
 
-    private int compute(int newsID) throws IOException {
+    private int mean(int newsID) throws IOException {
+        List<String> lines = getNewsFileAsStream(newsID);
+        int[] avg = new int[1];
+        lines.forEach(line -> {            
+            avg[0] += Integer.parseInt(line);
+        });
+        int mean = avg[0] / lines.size();
+        return mean;
+    }
+
+    /**
+     *  Calculates the standard deviation from a news mean. 
+     */
+    private int sd(int newsID) throws IOException{
+        int[] sd = new int[1];
+        int mean = mean(newsID);
+        List<String> lines = getNewsFileAsStream(newsID);
+        int[] num = new int[1];
+        lines.forEach(line -> {
+            num[0] = Integer.parseInt(line);
+            sd[0] += Math.pow(num[0] - mean,2);
+        });
+        
+        return (int) Math.sqrt(sd[0]/lines.size());
+    }
+    
+    /**
+     *  Return the news file as a stream. 
+     */
+    private List<String> getNewsFileAsStream(int newsID) throws IOException{
         String name = NEWS_LIST.getProperty("NEWS_NAME" + '[' + Integer.toString(newsID) + ']');
         File db = new File("db/news/" + name + ".txt");
         Path path = Paths.get(db.getPath());
         List<String> lines = Files.readAllLines(path);
-        int[] avg = new int[1];
-        lines.forEach(line -> {
-            avg[0] += Integer.parseInt(line);
-        });
-        avg[0] /= lines.size();
-        return avg[0];
+        return lines;
     }
-
+    
     /**
      * Return the truncated average from a news.
      *
@@ -171,10 +206,8 @@ public class Server implements Services {
         return NEWS_LIST;
     }
 
-    @Override
-    public void startAgreement(int newsID) throws RemoteException, IOException, FileNotFoundException, NotBoundException {
+    private void startAgreement(int newsID){
         System.out.println("Starting agreement");
-        connect();
     }
 
     public void connect() throws FileNotFoundException, FileNotFoundException, IOException, RemoteException, NotBoundException {
