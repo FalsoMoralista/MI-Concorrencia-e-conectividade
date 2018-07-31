@@ -48,7 +48,7 @@ public class Client implements Services{
     }
 
     @Override
-    public void rateNews(int newsID, int rate) throws IOException, RemoteException {
+    public void rateNews(int newsID, int rate) throws IOException, RemoteException, Exception {
         services.rateNews(newsID, rate);
     }
 

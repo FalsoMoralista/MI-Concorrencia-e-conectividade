@@ -41,7 +41,7 @@ public class Main {
      * @throws java.rmi.RemoteException
      * @throws java.rmi.NotBoundException
      */
-    public void menu() throws IOException, FileNotFoundException, RemoteException, NotBoundException, NoAverageException {
+    public void menu() throws IOException, FileNotFoundException, RemoteException, NotBoundException, NoAverageException, Exception {
         scanner = new Scanner(System.in);
         boolean op = true;
                 
@@ -114,11 +114,11 @@ public class Main {
      * @param rate
      * @throws java.io.IOException
      */
-    public void rateNews(int newsID, int rate) throws IOException {
+    public void rateNews(int newsID, int rate) throws IOException, Exception {
         client.rateNews(newsID, rate);
     }
 
-    public static void main(String[] args) throws IOException, FileNotFoundException, RemoteException, NotBoundException, NoAverageException {
+    public static void main(String[] args) throws IOException, FileNotFoundException, RemoteException, NotBoundException, NoAverageException, Exception {
        Main main = new Main();
        main.menu();
     }

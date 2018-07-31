@@ -19,7 +19,7 @@ import java.util.Properties;
  */
 public interface Services extends Remote {
 
-    public void rateNews(int newsID, int rate) throws IOException, RemoteException;
+    public void rateNews(int newsID, int rate) throws IOException, Exception, RemoteException;
     public int getTrunkAVG(int newsID)throws RemoteException, NoAverageException, IOException;
     public Properties getNews()throws RemoteException;
 }

@@ -26,6 +26,13 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.jgroups.JChannel;
+import org.jgroups.Message;
+import org.jgroups.ReceiverAdapter;
+import org.jgroups.View;
+import br.com.inova.model.Package;
 
 /**
  *
@@ -36,13 +43,14 @@ public class Server implements Services {
     private Properties services = new Properties();
     private Properties NEWS_LIST = new Properties();
 
-    private Client[] server_list;
-
+    private ConnectionHandler handler;
+    
     private static String SERVICE_NAME;
     private static int PORT;
     private String IP;
+    
 
-    public Server(String name) throws FileNotFoundException, IOException {
+    public Server(String name) throws FileNotFoundException, IOException, Exception {
         services.load(new FileInputStream(new File("rmi/service_list/" + name + ".properties")));
         SERVICE_NAME = services.getProperty("SERVICE_NAME");
         PORT = Integer.parseInt(services.getProperty("PORT"));
@@ -50,6 +58,7 @@ public class Server implements Services {
         System.setProperty("java.rmi.server." + SERVICE_NAME, IP);
 
         NEWS_LIST.load(new FileInputStream(new File("db/news_list.properties")));
+        handler = new ConnectionHandler(this);
     }
 
     /**
@@ -80,7 +89,7 @@ public class Server implements Services {
      * @throws java.rmi.RemoteException
      */
     @Override
-    public void rateNews(int newsID, int rate) throws IOException, RemoteException {
+    public void rateNews(int newsID, int rate) throws IOException, Exception, RemoteException {
         System.out.println("Rating " + rate + " to the news " + newsID);
 
         String name = NEWS_LIST.getProperty("NEWS_NAME" + '[' + Integer.toString(newsID) + ']');
@@ -109,10 +118,15 @@ public class Server implements Services {
                 writer.write("SD" + " = " + "0");
             }
         } else {
-            Runnable r = () ->{
-                startAgreement(newsID);
+            Runnable r = () -> {
+                try {
+                    startAgreement(newsID);
+                } catch (Exception ex) {
+                    Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                }
             };
-            if(rate + sd(newsID) >= mean(newsID)){
+            System.out.println();
+            if (Math.abs(mean(newsID) - rate) > sd(newsID)) {
                 new Thread(r).start();
             }
             Path path = Paths.get(db.getPath());
@@ -135,7 +149,7 @@ public class Server implements Services {
     private int mean(int newsID) throws IOException {
         List<String> lines = getNewsFileAsStream(newsID);
         int[] avg = new int[1];
-        lines.forEach(line -> {            
+        lines.forEach(line -> {
             avg[0] += Integer.parseInt(line);
         });
         int mean = avg[0] / lines.size();
@@ -143,32 +157,32 @@ public class Server implements Services {
     }
 
     /**
-     *  Calculates the standard deviation from a news mean. 
+     * Calculates the standard deviation from a news mean.
      */
-    private int sd(int newsID) throws IOException{
+    private int sd(int newsID) throws IOException {
         int[] sd = new int[1];
         int mean = mean(newsID);
         List<String> lines = getNewsFileAsStream(newsID);
         int[] num = new int[1];
         lines.forEach(line -> {
             num[0] = Integer.parseInt(line);
-            sd[0] += Math.pow(num[0] - mean,2);
+            sd[0] += Math.pow(num[0] - mean, 2);
         });
-        
-        return (int) Math.sqrt(sd[0]/lines.size());
+
+        return (int) Math.sqrt(sd[0] / lines.size());
     }
-    
+
     /**
-     *  Return the news file as a stream. 
+     * Return the news file as a stream.
      */
-    private List<String> getNewsFileAsStream(int newsID) throws IOException{
+    private List<String> getNewsFileAsStream(int newsID) throws IOException {
         String name = NEWS_LIST.getProperty("NEWS_NAME" + '[' + Integer.toString(newsID) + ']');
         File db = new File("db/news/" + name + ".txt");
         Path path = Paths.get(db.getPath());
         List<String> lines = Files.readAllLines(path);
         return lines;
     }
-    
+
     /**
      * Return the truncated average from a news.
      *
@@ -206,23 +220,14 @@ public class Server implements Services {
         return NEWS_LIST;
     }
 
-    private void startAgreement(int newsID){
-        System.out.println("Starting agreement");
+    private void startAgreement(int newsID) throws Exception{
+        System.out.println("Trying to start an agreement");
+        Package pack = new Package(1, Integer.toString(newsID), null);
+        handler.send(new Message(null, pack));
     }
 
-    public void connect() throws FileNotFoundException, FileNotFoundException, IOException, RemoteException, NotBoundException {
-        server_list = new Client[services.size() - 1];
-        int aux = 0;
-        for (int i = 0; i < services.size(); i++) {
-            String NAME = services.getProperty("SERVICE_NAME" + '[' + Integer.toString(i) + ']');
-            if (!NAME.equals(SERVICE_NAME)) {
-                server_list[aux++] = new Client(NAME);
-            }
-        }
-    }
-
-    public static void main(String[] args) throws IOException, RemoteException, AlreadyBoundException, FileNotFoundException, NotBoundException {
-        Server server = new Server("server0");
+    public static void main(String[] args) throws IOException, RemoteException, AlreadyBoundException, FileNotFoundException, NotBoundException, Exception {
+        Server server = new Server(args[0]);
         server.run();
     }
 }
