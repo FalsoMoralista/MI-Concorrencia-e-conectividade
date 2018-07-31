@@ -36,8 +36,18 @@ public class ConnectionHandler extends ReceiverAdapter implements Handler {
 
     private void connect() throws Exception {
         channel = new JChannel();
+        channel.setName(server.getSERVICE_NAME());
         channel.setReceiver(this);
         channel.connect("MainCluster");
+    }
+
+    /**
+     * Return how many nodes are connected to the cluster.
+     *
+     * @return
+     */
+    public int connected() {
+        return channel.getView().getMembers().size();
     }
 
     /**
@@ -47,6 +57,7 @@ public class ConnectionHandler extends ReceiverAdapter implements Handler {
     @Override
     public void viewAccepted(View new_view) {
         System.out.println("** view: " + new_view);
+        System.out.println("There are " + connected() + " nodes connected");
     }
 
     /**
@@ -55,13 +66,16 @@ public class ConnectionHandler extends ReceiverAdapter implements Handler {
      * @param msg
      */
     @Override
-    public void receive(Message msg) {
-        System.out.println(msg.getSrc() + ": " + msg.getObject());
-        try {
-            handle(msg);
-        } catch (Exception ex) {
-            Logger.getLogger(ConnectionHandler.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    public synchronized void receive(Message msg) {
+        Runnable r = () -> {
+            System.out.println(msg.getSrc() + ": " + msg.getObject());
+            try {
+                handle(msg);
+            } catch (Exception ex) {
+                Logger.getLogger(ConnectionHandler.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        };
+        new Thread(r).start();
     }
 
     /**
@@ -75,7 +89,7 @@ public class ConnectionHandler extends ReceiverAdapter implements Handler {
     }
 
     @Override
-    public void handle(Message message) throws IOException, Exception{
+    public synchronized void handle(Message message) throws IOException, Exception {
         if (message.getObject() instanceof Package) {
             Package pack = (Package) message.getObject();
             switch (pack.getType()) {
@@ -85,18 +99,23 @@ public class ConnectionHandler extends ReceiverAdapter implements Handler {
                     break;
                 case 2:
                     Vote v = (Vote) pack.getAttachment();
-                    AgreementProtocolManager manager =  handler.getProtocolManager();
-                    break;                    
+                    AgreementProtocolManager manager = handler.getProtocolManager();
+                    if (v.isFake()) {
+                        manager.setVote1(manager.getVote1() + 1);
+                    } else {
+                        manager.setVote0(manager.getVote0() + 1);
+                    }
+                    break;
             }
         }
     }
 
     private void startAgreement(int newsID) throws IOException, Exception {
         System.out.println("Starting  Agreement");
-        handler = new AgreementHandler(newsID, this);
+        handler = new AgreementHandler(newsID, this, connected());
     }
-    
-    public Server getServer(){
+
+    public Server getServer() {
         return server;
     }
 

@@ -45,7 +45,7 @@ public class Server implements Services {
 
     private ConnectionHandler handler;
     
-    private static String SERVICE_NAME;
+    private String SERVICE_NAME;
     private static int PORT;
     private String IP;
     
@@ -61,6 +61,10 @@ public class Server implements Services {
         handler = new ConnectionHandler(this);
     }
 
+    public String getSERVICE_NAME() {
+        return SERVICE_NAME;
+    }
+        
     /**
      * Run.
      *
@@ -228,6 +232,7 @@ public class Server implements Services {
 
     public static void main(String[] args) throws IOException, RemoteException, AlreadyBoundException, FileNotFoundException, NotBoundException, Exception {
         Server server = new Server(args[0]);
+//        Server server = new Server("server1");
         server.run();
     }
 }
