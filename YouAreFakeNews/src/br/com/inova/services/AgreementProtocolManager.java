@@ -31,7 +31,7 @@ public class AgreementProtocolManager {
         witness1 = 0;        
     }    
     
-    public synchronized boolean isVote() {
+    public synchronized boolean getVote() {
         return vote;
     }
 

@@ -59,14 +59,18 @@ public class AgreementHandler {
             if (vote <= 3) {
                 fake = true; // check whether the news is relevant (fake) or not
             }
+            manager.setVote(fake);
             Vote v = new Vote(fake, manager.getRound(), manager.getWeight());
             Package pack = new Package(2, "my vote for the news " + news_name + " is " + fake, v); // encapsulate it
             Message message = new Message(null, pack);
             connectionHandler.send(message);// send
-            // while quantidade de votos recebidos < numero de ativos - faltosos
             while (manager.getVote0() + manager.getVote1() < (amount_nodes - faulty())) {
                 System.out.println("Esperando mensagens");
-                Thread.sleep(1000);
+                Thread.sleep(5000); // testar remover isto
+                if(manager.getWeight() >= 2){
+                    System.out.println("Peso atingido");
+                    break;
+                }
             }
             System.out.println("OK");
             break;
