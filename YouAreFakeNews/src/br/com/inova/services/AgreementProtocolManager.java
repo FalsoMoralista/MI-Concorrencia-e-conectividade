@@ -25,69 +25,73 @@ public class AgreementProtocolManager {
         weight = 1;
         round = 1;
         decided = false;
+        vote0 = 0;
+        vote1 = 0;
+        witness0 = 0;
+        witness1 = 0;        
     }    
     
-    public boolean isVote() {
+    public synchronized boolean isVote() {
         return vote;
     }
 
-    public void setVote(boolean vote) {
+    public synchronized void setVote(boolean vote) {
         this.vote = vote;
     }
 
-    public int getRound() {
+    public synchronized int getRound() {
         return round;
     }
 
-    public void setRound(int round) {
+    public synchronized void setRound(int round) {
         this.round = round;
     }
 
-    public int getWeight() {
+    public synchronized int getWeight() {
         return weight;
     }
 
-    public void setWeight(int weight) {
+    public synchronized void setWeight(int weight) {
         this.weight = weight;
     }
 
-    public int getVote0() {
+    public synchronized int getVote0() {
         return vote0;
     }
 
-    public void setVote0(int vote0) {
+    public synchronized void setVote0(int vote0) {
         this.vote0 = vote0;
     }
 
-    public int getVote1() {
+    public synchronized int getVote1() {
         return vote1;
     }
 
-    public void setVote1(int vote1) {
+    public synchronized void setVote1(int vote1) {
         this.vote1 = vote1;
     }
 
-    public int getWitness0() {
+    public synchronized int getWitness0() {
         return witness0;
     }
 
-    public void setWitness0(int witness0) {
+    public synchronized void setWitness0(int witness0) {
         this.witness0 = witness0;
     }
 
-    public int getWitness1() {
+    public synchronized int getWitness1() {
         return witness1;
     }
 
-    public void setWitness1(int witness1) {
+    public synchronized void setWitness1(int witness1) {
         this.witness1 = witness1;
     }
 
-    public boolean isDecided() {
+    public synchronized boolean isDecided() {
         return decided;
     }
 
-    public void setDecided(boolean decided) {
+    public synchronized void setDecided(boolean decided) {
         this.decided = decided;
     }            
 }

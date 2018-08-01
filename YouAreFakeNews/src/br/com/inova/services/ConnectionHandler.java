@@ -13,6 +13,7 @@ import org.jgroups.View;
 import br.com.inova.model.Package;
 import br.com.inova.model.Vote;
 import java.io.IOException;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,6 +52,7 @@ public class ConnectionHandler extends ReceiverAdapter implements Handler {
     }
 
     /**
+     * Show connections status.
      *
      * @param new_view
      */
@@ -66,7 +68,7 @@ public class ConnectionHandler extends ReceiverAdapter implements Handler {
      * @param msg
      */
     @Override
-    public synchronized void receive(Message msg) {
+    public void receive(Message msg) {
         Runnable r = () -> {
             System.out.println(msg.getSrc() + ": " + msg.getObject());
             try {
@@ -85,11 +87,14 @@ public class ConnectionHandler extends ReceiverAdapter implements Handler {
      * @throws java.lang.Exception
      */
     public void send(Message msg) throws Exception {
+        Random random = new Random();
+        Thread.sleep((random.nextInt(10) + 1) * 100);
         channel.send(msg);
     }
 
     @Override
-    public synchronized void handle(Message message) throws IOException, Exception {
+    public void handle(Message message) throws IOException, Exception {
+
         if (message.getObject() instanceof Package) {
             Package pack = (Package) message.getObject();
             switch (pack.getType()) {
@@ -99,12 +104,18 @@ public class ConnectionHandler extends ReceiverAdapter implements Handler {
                     break;
                 case 2:
                     Vote v = (Vote) pack.getAttachment();
+                    if (handler == null) {
+                        Random random = new Random();
+                        Thread.sleep((random.nextInt(10) + 1) * 100);
+                    }
                     AgreementProtocolManager manager = handler.getProtocolManager();
                     if (v.isFake()) {
                         manager.setVote1(manager.getVote1() + 1);
                     } else {
                         manager.setVote0(manager.getVote0() + 1);
                     }
+                    System.out.println("Quantidade de votos 0" + manager.getVote0());
+                    System.out.println("Quantidade de votos 1" + manager.getVote1());
                     break;
             }
         }
