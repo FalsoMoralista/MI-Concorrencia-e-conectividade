@@ -81,7 +81,10 @@ public class ConnectionHandler extends ReceiverAdapter implements Handler {
     }
 
     /**
-     * Multicast a message to the connected group.
+     * Multicast a message to the connected group. Waits for a random space of
+     * time before sending a message through the network so that if there's a
+     * delayed message coming through the network, its probability of arriving
+     * at time will be increased.
      *
      * @param msg
      * @throws java.lang.Exception
@@ -98,24 +101,45 @@ public class ConnectionHandler extends ReceiverAdapter implements Handler {
         if (message.getObject() instanceof Package) {
             Package pack = (Package) message.getObject();
             switch (pack.getType()) {
-                case 1: // IN CASE AGREEMENT
+                case 1: // IN CASE STARTING AGREEMENT
                     int id = Integer.parseInt(pack.getMessage());
                     startAgreement(id);
                     break;
-                case 2:
+                case 2: // IN CASE OCCURING AN AGREEMENT
                     Vote v = (Vote) pack.getAttachment();
-                    if (handler == null) {
+                    if (handler == null) { // check if the previous message had arrive. if not, wait for an random space of time so the possibility of arriving increases. 
                         Random random = new Random();
                         Thread.sleep((random.nextInt(10) + 1) * 100);
                     }
                     AgreementProtocolManager manager = handler.getProtocolManager();
-                    if (v.isFake()) {
-                        manager.setVote1(manager.getVote1() + 1);
-                    } else {
-                        manager.setVote0(manager.getVote0() + 1);
+                    if (v.getRound() > manager.getRound()) { // checks if the message is delayed 
+                        Runnable r = () -> {
+                            Package pkg = new Package(2, "delayed message", v);
+                            Message msg = new Message(null, pkg);
+                            try {
+                                send(msg); // send it again untill the previous message arrive
+                            } catch (Exception ex) {
+                                Logger.getLogger(ConnectionHandler.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        };
+                        new Thread(r).start();
+                    } else if (v.getRound() == manager.getRound()) { // if get in the correct round 
+                        if (v.isFake()) {
+                            manager.setVote1(manager.getVote1() + 1);// increment the amount of 1(fake) votes
+                        } else {
+                            manager.setVote0(manager.getVote0() + 1);// increment the amount of 0(non-fake) votes
+                        }
+                        if (v.getWeight() > (connected() / 2)) { // checks whether the weight of this vote is major then half of the connected nodes
+                            if (v.isFake()) {
+                                manager.setWitness1(manager.getWitness1()+ 1);// increment the amount of 1(fake) witness
+                            } else {
+                                manager.setWitness0(manager.getWitness0()+ 1);// increment the amount of 0(fake) witness
+                            }
+                        }
+                        manager.setRound(manager.getRound() + 1); // increment the amount of rounds
                     }
-                    System.out.println("Quantidade de votos 0" + manager.getVote0());
-                    System.out.println("Quantidade de votos 1" + manager.getVote1());
+                    System.out.println("Quantidade de votos 0: " + manager.getVote0());
+                    System.out.println("Quantidade de votos 1: " + manager.getVote1());
                     break;
             }
         }

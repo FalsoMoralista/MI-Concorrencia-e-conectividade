@@ -65,8 +65,8 @@ public class AgreementHandler {
             connectionHandler.send(message);// send
             // while quantidade de votos recebidos < numero de ativos - faltosos
             while (manager.getVote0() + manager.getVote1() < (amount_nodes - faulty())) {
-                Thread.sleep(10000);
                 System.out.println("Esperando mensagens");
+                Thread.sleep(1000);
             }
             System.out.println("OK");
             break;
