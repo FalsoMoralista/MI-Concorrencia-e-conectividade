@@ -146,8 +146,7 @@ public class Server implements Services {
             prop.setProperty("SD", String.valueOf(sd(newsID)));
             prop.store(new FileOutputStream(new File(("db/news/" + name + ".properties"))), "");
         }
-
-        System.out.println("Sucessfully");
+        
     }
 
     private int mean(int newsID) throws IOException {

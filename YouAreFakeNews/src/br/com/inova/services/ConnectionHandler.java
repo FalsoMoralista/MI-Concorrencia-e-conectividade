@@ -70,7 +70,8 @@ public class ConnectionHandler extends ReceiverAdapter implements Handler {
     @Override
     public void receive(Message msg) {
         Runnable r = () -> {
-            System.out.println(msg.getSrc() + ": " + msg.getObject());
+            System.out.println("Message received from - " + msg.getSrc() + ": " + msg.getObject());
+            System.out.println();
             try {
                 handle(msg);
             } catch (Exception ex) {
@@ -107,53 +108,57 @@ public class ConnectionHandler extends ReceiverAdapter implements Handler {
                     break;
                 case 2: // IN CASE OCCURING AN AGREEMENT
                     Vote v = (Vote) pack.getAttachment();
+                    System.out.println("Vote received");
+                    System.out.println("Information: ");
+                    System.out.println("-----------------");
+                    System.out.println("| Round : " + v.getRound() + " |");
+                    System.out.println("| Weight : " + v.getWeight() + " |");
+                    System.out.println("| Vote : " + v.isFake() + " |");
+                    System.out.println("-----------------");
                     if (handler == null) { // check if the previous message had arrive. if not, wait for an random space of time so the possibility of arriving increases. 
                         Random random = new Random();
                         Thread.sleep((random.nextInt(10) + 1) * 100);
                     }
 
                     AgreementProtocolManager manager = handler.getProtocolManager();
-
-                    if (v.getRound() > manager.getRound()) { // checks if the message is delayed (process it later)
-                        Runnable r = () -> {
-                            Package pkg = new Package(2, "delayed message", v);
-                            Message msg = new Message(null, pkg);
-                            try {
-                                send(msg); // send it again untill the previous message arrive
-                            } catch (Exception ex) {
-                                Logger.getLogger(ConnectionHandler.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        };
-                        new Thread(r).start();
-                    } else if (v.getRound() == manager.getRound()) { // if get in the correct round 
-                        boolean myVote = manager.getVote();
-                        if (v.isFake()) {
-                            if (myVote) {
-                                manager.setWeight(manager.getWeight() + 1);
-                            }
-                            manager.setVote1(manager.getVote1() + 1);// increment the amount of 1(fake) votes
-                        } else {
-                            if (!myVote) {
-                                manager.setWeight(manager.getWeight() + 1);
-                            }
-                            manager.setVote0(manager.getVote0() + 1);// increment the amount of 0(non-fake) votes
-                        }
-                        if (v.getWeight() > (connected() / 2)) { // checks whether the weight of this vote is major then half of the connected nodes
+                    if (!manager.isDecided()) {
+                        if (v.getRound() > manager.getRound()) { // checks if the message is delayed (process it later)
+                            Runnable r = () -> {
+                                Package pkg = new Package(2, "delayed message", v);
+                                Message msg = new Message(null, pkg);
+                                try {
+                                    send(msg); // send it again untill the previous message arrive
+                                } catch (Exception ex) {
+                                    Logger.getLogger(ConnectionHandler.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                            };
+                            new Thread(r).start();
+                        } else if (v.getRound() == manager.getRound()) { // if get in the correct round 
+                            boolean myVote = manager.getVote();
                             if (v.isFake()) {
-                                manager.setWitness1(manager.getWitness1() + 1);// increment the amount of 1(fake) witness
+                                manager.setVote1(manager.getVote1() + 1);// increment the amount of 1(fake) votes
                             } else {
-                                manager.setWitness0(manager.getWitness0() + 1);// increment the amount of 0(fake) witness
+                                manager.setVote0(manager.getVote0() + 1);// increment the amount of 0(non-fake) votes
                             }
+                            if (v.getWeight() > (connected() / 2)) { // checks whether the weight of this vote is major then half of the connected nodes
+                                if (v.isFake()) {
+                                    manager.setWitness1(manager.getWitness1() + 1);// increment the amount of 1(fake) witness
+                                } else {
+                                    manager.setWitness0(manager.getWitness0() + 1);// increment the amount of 0(fake) witness
+                                }
+                            }
+                        } else {
+
                         }
-                        manager.setRound(manager.getRound() + 1); // increment the amount of rounds
+                        System.out.println("Amount of 0 votes : " + manager.getVote0());
+                        System.out.println("Amount of 1 votes : " + manager.getVote1());
+                        System.out.println("---------------------------------------------------------------- ");
+                        System.out.println();
+                        System.out.println("Amount of 0 Witnesses : " + manager.getWitness0());
+                        System.out.println("Amount of 1 Witnesses : : " + manager.getWitness1());
+                        System.out.println("---------------------------------------------------------------- ");
+                        System.out.println();
                     }
-                    System.out.println("Quantidade de votos 0: " + manager.getVote0());
-                    System.out.println("Quantidade de votos 1: " + manager.getVote1());
-                    System.out.println("---------------------------------------------------------------- ");
-                    System.out.println();
-                    System.out.println("Quantidade de Testemunhas 0: " + manager.getWitness0());
-                    System.out.println("Quantidade de Testemunhas 1: " + manager.getWitness1());
-                    
                     break;
             }
         }
