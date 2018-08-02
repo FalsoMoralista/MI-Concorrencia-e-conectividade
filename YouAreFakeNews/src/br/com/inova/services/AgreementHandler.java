@@ -15,6 +15,7 @@ import org.jgroups.Message;
 import br.com.inova.model.Package;
 import br.com.inova.model.Vote;
 import java.io.FileOutputStream;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -54,27 +55,29 @@ public class AgreementHandler {
     }
 
     private void start() throws Exception {
+        int rate = Integer.parseInt(news.getProperty("MEAN"));
+        boolean fake = false;
+        if (rate <= 3) {
+            fake = true; // check whether the news is relevant (fake) or not
+        }
+        manager.setVote(fake);
         while (!manager.isDecided()) { // while not decided
-            int vote = Integer.parseInt(news.getProperty("MEAN"));
-            boolean fake = false;
-            if (vote <= 3) {
-                fake = true; // check whether the news is relevant (fake) or not
-            }
-            manager.setVote(fake);
-            Vote v = new Vote(fake, manager.getRound(), manager.getWeight());
+            Vote v = new Vote(manager.getVote(), manager.getRound(), manager.getWeight());
             Package pack = new Package(2, "my vote for the news " + news_name + " is " + fake, v); // encapsulate it
             Message message = new Message(null, pack);
             connectionHandler.send(message);// send
             while (manager.getVote0() + manager.getVote1() < (amount_nodes - faulty())) {
                 System.out.println("Waiting messages");
-                Thread.sleep(10000); // testar remover isto
+                Random random = new Random();
+                Thread.sleep(10000); 
             }
             System.out.println("Done waiting");
             if (manager.getWitness1() > 0) { // if the amount of positive witnesses is bigger than 0 change my vote
                 manager.setVote(true);
             } else { // if the amount of negative witnesses is bigger than 0 change my vote
                 manager.setVote(false);
-            } if (manager.getVote1() > manager.getVote0()) { // if the amount of positive votes is bigger than the amount of negative votes, make my vote positive then.
+            }
+            if (manager.getVote1() > manager.getVote0()) { // if the amount of positive votes is bigger than the amount of negative votes, make my vote positive then.
                 manager.setVote(true);
             } else {
                 manager.setVote(false);
@@ -86,14 +89,14 @@ public class AgreementHandler {
             }
             if (manager.getWitness1() > faulty() || manager.getWitness0() > faulty()) {
                 manager.setDecided(true);
-                if(manager.getVote()){
-                    System.out.println("----> I have decided, "+news_name+", YOU ARE FAKE NEWS! "+" <----");                    
+                if (manager.getVote()) {
+                    System.out.println("----> I have decided, " + news_name + ", YOU ARE FAKE NEWS! " + " <----");
                     news.setProperty("DECIDED", "TRUE");
-                }else{
-                    System.out.println("---->"+" I have decided, "+news_name+" is NOT FAKE! <----");
+                } else {
+                    System.out.println("---->" + " I have decided, " + news_name + " is NOT FAKE! <----");
                     news.setProperty("DECIDED", "FALSE");
                 }
-                news.store(new FileOutputStream(new File("db/news/" + news_name + ".properties")),"");
+                news.store(new FileOutputStream(new File("db/news/" + news_name + ".properties")), "");
             }
             manager.setRound(manager.getRound() + 1);
         }

@@ -92,7 +92,7 @@ public class ConnectionHandler extends ReceiverAdapter implements Handler {
      */
     public void send(Message msg) throws Exception {
         Random random = new Random();
-        Thread.sleep((random.nextInt(10) + 1) * 200);
+        Thread.sleep((random.nextInt(10) + 1) * 400);
         channel.send(msg);
     }
 
